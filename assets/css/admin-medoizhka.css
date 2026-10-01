@@ -1,0 +1,118 @@
+/* =====================================================================
+   Адмінка Медоїжки — у стилі сайту: біле й кремове тло, помаранчевий #E98C00,
+   офіційний логотип, Montserrat у заголовках, Manrope у тексті, округлі кнопки.
+   Підключається в layouts/admin.php ПІСЛЯ app.css і перевизначає темну палітру bofu.
+   ===================================================================== */
+body.is-admin{
+  --bg:#fbf8f3; --bg2:#ffffff; --bg3:#fdf5e8;
+  --text:#1c1917; --muted:#57534e; --dim:#8a837b;
+  --gold:#e98c00; --gold2:#c47400; --gold-text:#b86a00;
+  --line:#ece5da; --line2:#ddd3c2;
+  --danger:#c0392b; --danger2:#b3261e; --ok:#2f7d32;
+  --serif:'Montserrat',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --sans:'Manrope',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --r:12px;
+  color-scheme:light;
+  background:var(--bg);color:var(--text);font-family:var(--sans)
+}
+body.is-admin ::selection{background:#fde3b6;color:var(--text)}
+body.is-admin a{color:var(--gold-text)} body.is-admin a:hover{color:var(--gold2)}
+body.is-admin h1,body.is-admin h2,body.is-admin h3,body.is-admin .h-serif{font-family:var(--serif);font-weight:700;letter-spacing:-.01em;color:var(--text)}
+body.is-admin .admin-head h1{font-size:28px}
+body.is-admin .dim{color:var(--dim)}
+
+/* ---------- бокове меню ---------- */
+.is-admin .admin-side{background:#fff;border-right:1px solid var(--line);padding:18px 0}
+.is-admin .admin-side .brand{display:flex;align-items:center;gap:10px;padding:0 18px 16px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.is-admin .admin-side .brand img{width:46px!important;height:46px!important;background:transparent!important;border-radius:0!important;mix-blend-mode:multiply;border:0}
+.is-admin .admin-side .brand-text{display:flex!important;flex-direction:column;font:800 17px/1.15 var(--serif)!important;color:var(--gold)!important;letter-spacing:0}
+.is-admin .admin-side .brand-text small{font:600 11px/1.3 var(--sans);color:var(--dim);letter-spacing:.04em;margin-top:2px}
+.is-admin .admin-side a.brand,.is-admin .admin-side a.brand:hover{margin:0;padding:0 18px 16px;border-radius:0;background:transparent}
+.is-admin .admin-side a{color:var(--muted);font-weight:600;font-size:14px;padding:9px 18px;margin:1px 10px;border-left:0;border-radius:10px}
+.is-admin .admin-side a:hover{color:var(--text);background:var(--bg3)}
+.is-admin .admin-side a.active{color:var(--gold-text);background:#fdecd0;border-left:0}
+.is-admin .admin-side .nav-group{color:var(--dim);font-family:var(--serif);font-weight:600;letter-spacing:.14em;padding-left:28px}
+.is-admin .admin-side .sep{border-color:var(--line)}
+.is-admin .admin-main{background:var(--bg)}
+.is-admin .admin-mobilebar{background:#fff;border-bottom:1px solid var(--line);color:var(--text)}
+.is-admin .admin-mobilebar-logo{mix-blend-mode:multiply;flex-shrink:0}
+.is-admin .admin-mobilebar b{font-family:var(--serif);font-weight:700}
+.is-admin .mobile-menu-btn{border:1px solid var(--line2);border-radius:10px;color:var(--text)}
+
+/* ---------- картки, статистика, таблиці ---------- */
+.is-admin .admin-card,.is-admin .stat,.is-admin .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:0 8px 24px -20px rgba(60,40,10,.35)}
+.is-admin .admin-card h2{font-size:19px}
+.is-admin .stat{background:linear-gradient(180deg,#fff, #fffaf2);padding:22px}
+.is-admin .stat b{font-family:var(--serif);font-weight:700;color:var(--gold-text)}
+.is-admin .stat span{font-family:var(--serif);font-weight:600;font-size:11.5px;letter-spacing:.08em;color:var(--dim)}
+.is-admin .tbl{background:#fff;border-color:var(--line);border-radius:var(--r)}
+.is-admin .tbl th,.is-admin .admin-table th{background:var(--bg3);color:var(--muted);font-family:var(--serif);font-weight:600}
+.is-admin .tbl td,.is-admin .admin-table td,.is-admin .admin-table th{border-color:var(--line)}
+.is-admin .admin-table{border-collapse:collapse}
+.is-admin .admin-table td,.is-admin .admin-table th{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
+.is-admin .tbl tr:hover td{background:#fffaf2}
+
+/* ---------- поля ---------- */
+.is-admin input:not([type]),.is-admin input[type=text],.is-admin input[type=url],.is-admin input[type=search],.is-admin input[type=number],
+.is-admin input[type=email],.is-admin input[type=tel],.is-admin input[type=date],.is-admin input[type=password],
+.is-admin select,.is-admin textarea{background:#fff;border:1px solid var(--line2);border-radius:10px;color:var(--text)}
+/* поле без type у шаблонах — такий самий текстовий інпут, а не голий системний */
+.is-admin input:not([type]){width:100%;padding:12px 14px;font-size:14.5px;font-family:inherit;transition:border-color .15s}
+.is-admin .admin-table input:not([type]),.is-admin .admin-table input[type=number]{padding:9px 11px}
+.is-admin input:focus,.is-admin select:focus,.is-admin textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(233,140,0,.15)}
+.is-admin input:-webkit-autofill,.is-admin textarea:-webkit-autofill,.is-admin select:-webkit-autofill{-webkit-box-shadow:inset 0 0 0 100px #fff;box-shadow:inset 0 0 0 100px #fff}
+.is-admin label{font-family:var(--serif);font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--muted)}
+.is-admin label.toggle,.is-admin label.checkbox{font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:0;color:var(--text)}
+.is-admin .toggle .tr{background:#f1ebe2}
+.is-admin .toggle .tr::after{background:#fff;box-shadow:0 1px 3px rgba(60,40,10,.3)}
+.is-admin .toggle input:checked + .tr::after{background:#fff}
+.is-admin .toggle input:checked + .tr{background:var(--gold);border-color:var(--gold)}
+.is-admin .toggle-group{background:#fffcf7;border-color:var(--line)}
+.is-admin input[type=checkbox],.is-admin input[type=radio]{background-color:#fff;border-color:var(--line2)}
+.is-admin input[type=checkbox]:checked{background-color:var(--gold);border-color:var(--gold)}
+
+/* ---------- кнопки ---------- */
+.is-admin .btn{font-family:var(--serif);font-weight:600;letter-spacing:.02em;text-transform:none;border-radius:999px;font-size:14px}
+.is-admin .btn-sm{font-size:13px} .is-admin .btn-xs{font-size:12px}
+.is-admin .btn-gold{background:var(--gold);border-color:var(--gold);color:#fff!important}
+.is-admin .btn-gold:hover{background:var(--gold2);border-color:var(--gold2);color:#fff!important}
+.is-admin .btn-line{background:#fff;border-color:var(--line2);color:var(--text)!important}
+.is-admin .btn-line:hover{border-color:var(--gold);color:var(--gold-text)!important;background:#fff}
+.is-admin .btn-danger{background:#fff;border-color:#f0c4bf;color:var(--danger2)!important}
+.is-admin .btn-danger:hover{background:#fdecea;border-color:var(--danger2)}
+.is-admin .chip{border-radius:999px;border-color:var(--line2);color:var(--text)}
+.is-admin .chip.active{background:var(--gold);border-color:var(--gold);color:#fff}
+
+/* ---------- службові смуги й підказки ---------- */
+.is-admin .admin-save{background:var(--bg);border-top:1px solid var(--line)}
+.is-admin .admin-save.is-dirty{box-shadow:0 -12px 26px -14px rgba(60,40,10,.35)}
+.is-admin .help-pop,.is-admin .help-bar{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:0 18px 40px -20px rgba(60,40,10,.4);color:var(--text)}
+.is-admin .help-pop-title{color:var(--gold-text)}
+.is-admin .status-pill{font-family:var(--serif);font-weight:600}
+.is-admin .help-btn{background:var(--gold);color:#fff;border-color:var(--gold)}
+.is-admin .help-btn.is-on{box-shadow:0 0 0 3px rgba(233,140,0,.25)}
+body.is-admin.help-on [data-help]:hover{background:rgba(233,140,0,.05);border-radius:8px}
+
+/* ---------- повідомлення, мітки, перемикачі ---------- */
+.is-admin .flash-success{background:#eef7ee;border:1px solid #b9dcbb;color:#24622a;border-radius:var(--r)}
+.is-admin .flash-error{background:#fdf0ee;border:1px solid #f0c4bf;color:var(--danger2);border-radius:var(--r)}
+.is-admin .st-new{background:var(--bg3);color:var(--gold-text)}
+.is-admin .tag{background:var(--bg3);border-color:var(--line);border-radius:999px;color:var(--muted)}
+.is-admin .img-badge{color:#fff;border-radius:999px}
+.is-admin .dropzone-note.is-bad{color:var(--danger2)}
+.is-admin .tbl tr.variant-sub td{background:#fffcf7;border-top-color:var(--line)}
+.is-admin .role-switch select{background:#fff}
+.is-admin .role-tag{background:var(--bg3);color:var(--gold-text);border-radius:999px}
+
+/* ---------- спливні вікна й панелі: світлі, з мʼякою теплою тінню ---------- */
+.is-admin .modal-back{background:rgba(40,30,15,.35);backdrop-filter:blur(3px)}
+.is-admin .modal,.is-admin .np-drop,.is-admin .ce-panel,.is-admin .dropdown,.is-admin .menu-pop{background:#fff;border-color:var(--line);box-shadow:0 24px 50px -24px rgba(60,40,10,.45)}
+.is-admin .modal{border-radius:16px}
+.is-admin .pos-cart,.is-admin .co-bar,.is-admin .pos-bar,.is-admin .ce-bar{background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:0 -10px 30px -18px rgba(60,40,10,.4)}
+.is-admin .tbl .col-del input[type=checkbox]:hover:not(:disabled){background-color:#fdecea;border-color:var(--danger2)}
+@media (max-width:900px){
+  .is-admin .admin-side{box-shadow:6px 0 30px -10px rgba(60,40,10,.35)}
+  .is-admin .adm-nav{background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:0 -8px 24px -16px rgba(60,40,10,.35)}
+  .is-admin .adm-nav-a{color:var(--muted)}
+  .is-admin .adm-nav-a.active,.is-admin .adm-nav-a.is-active{color:var(--gold-text)}
+}

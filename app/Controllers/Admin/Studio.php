@@ -30,7 +30,7 @@ class Studio
         return $res[0];
     }
 
-    // ---------- Уроки курсів ----------
+    // ---------- Відеокурси ----------
     public static function lessons(): never
     {
         Auth::requireCap('content.manage');
@@ -53,14 +53,14 @@ class Studio
                     if (!preg_match('~^[0-9a-f-]{32,36}$~i', $parts[0] ?? '')) continue;
                     if (DB::row('SELECT id FROM course_lessons WHERE product_id = ? AND guid = ?', [$cid, $parts[0]])) continue;
                     DB::insert('course_lessons', ['product_id' => $cid, 'guid' => $parts[0],
-                        'title' => $parts[1] ?? ('Урок ' . ($n + 1)), 'sort' => ++$n, 'free_preview' => 0]);
+                        'title' => $parts[1] ?? ('Відео ' . ($n + 1)), 'sort' => ++$n, 'free_preview' => 0]);
                     $added++;
                 }
-                flash($added ? 'success' : 'error', $added ? "Додано уроків: $added" : 'Не знайдено жодного guid відео. Формат рядка: guid | Назва уроку');
+                flash($added ? 'success' : 'error', $added ? "Додано відео: $added" : 'Не знайдено жодного guid відео. Формат рядка: guid | Назва');
             } elseif ($a === 'save') {
                 foreach ((array)($_POST['l'] ?? []) as $id => $d) {
                     DB::update('course_lessons', [
-                        'title' => trim((string)($d['title'] ?? '')) ?: 'Урок',
+                        'title' => trim((string)($d['title'] ?? '')) ?: 'Відео',
                         'sort' => (int)($d['sort'] ?? 0),
                         'free_preview' => !empty($d['free']) ? 1 : 0,
                         'description' => trim((string)($d['description'] ?? '')) ?: null,
@@ -72,7 +72,7 @@ class Studio
                 DB::delete('lesson_progress', 'lesson_id = ?', [$id]);
                 DB::delete('lesson_notes', 'lesson_id = ?', [$id]);
                 DB::delete('course_lessons', 'id = ? AND product_id = ?', [$id, $cid]);
-                flash('success', 'Урок видалено разом із прогресом і нотатками.');
+                flash('success', 'Відео видалено разом із прогресом і нотатками.');
             } elseif ($a === 'price') {
                 $price = trim((string)($_POST['price'] ?? ''));
                 $days = trim((string)($_POST['access_days'] ?? ''));
@@ -87,7 +87,7 @@ class Studio
             'course' => $cid ? DB::row('SELECT * FROM products WHERE id = ?', [$cid]) : null,
             'lessons' => $cid ? Lessons::forCourse($cid) : [],
             'bunny' => ['library' => Lessons::libraryId(), 'has_key' => Lessons::configured()],
-            'page_title' => 'Уроки курсів — адмінка',
+            'page_title' => 'Відеокурси — адмінка',
         ], 'layouts/admin');
     }
 

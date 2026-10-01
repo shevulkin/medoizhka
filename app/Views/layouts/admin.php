@@ -20,17 +20,19 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($page_title ?? 'Адмінка') ?></title>
-<meta name="theme-color" content="#141110">
+<meta name="theme-color" content="#ffffff">
 <?php /* Легкий значок вкладки; велика іконка лишається манифесту й apple-touch */ ?>
 <link rel="icon" href="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" type="image/webp">
 <link rel="manifest" href="<?= e(url('/manifest.webmanifest')) ?>">
 <link rel="apple-touch-icon" href="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>">
 <link rel="stylesheet" href="<?= e(asset('css/fonts.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_v('css/app.css')) ?>">
+<link rel="stylesheet" href="<?= e(asset_v('css/admin-medoizhka.css')) ?>">
 </head>
 <body class="is-admin<?= $pos_screen ? ' pos-screen' : '' ?>">
 <div class="admin-mobilebar">
   <button class="mobile-menu-btn" style="display:flex" onclick="document.querySelector('.admin-side').classList.toggle('open')">☰</button>
+  <img src="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" width="34" height="34" alt="" class="admin-mobilebar-logo">
   <b><?= Auth::isAdmin() ? 'Адмінпанель' : 'Кабінет продавця' ?></b>
   <?php if (Auth::actingAs() !== null): ?>
     <span class="role-tag"><?= e(Roles::label(Auth::actingAs())) ?></span>
@@ -39,7 +41,7 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
 <div class="admin-wrap">
   <aside class="admin-side">
     <a class="brand" href="<?= e(url('/')) ?>">
-      <img src="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" width="34" height="34" style="background:#fff;border-radius:6px" alt=""> <span class="brand-text" style="font-size:14px">Медоїжка · <?= Auth::isAdmin() ? 'Адмін' : 'Продавець' ?></span>
+      <img src="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" width="46" height="46" alt="Медоїжка"> <span class="brand-text">Медоїжка<small><?= Auth::isAdmin() ? 'Адмінпанель' : 'Кабінет продавця' ?></small></span>
     </a>
     <?php
     /**
@@ -91,8 +93,8 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
         ]],
         ['Медоїжка', [
             ['/admin/bookings', 'Заявки (візити, консультації)', Auth::can('content.manage')],
-            ['/admin/lessons', 'Уроки курсів і Bunny', Auth::can('content.manage')],
-            ['/admin/access', 'Доступ до курсів', Auth::can('users.manage')],
+            ['/admin/lessons', 'Відеокурси (Bunny)', Auth::can('content.manage')],
+            ['/admin/access', 'Доступ до відеокурсів', Auth::can('users.manage')],
             ['/admin/practitioners', 'Апітерапевти', Auth::can('content.manage')],
             ['/admin/places', 'Пасіки й апібудиночки', Auth::can('content.manage')],
         ]],
@@ -159,7 +161,7 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
     <p class="help-bar">
       Клацніть на поле, колонку чи кнопку — пояснимо, що воно робить.
       Поки що нічого не зберігається й не видаляється.
-      <b>Щоб вийти — натисніть жовту «?» вгорі або клавішу Esc.</b>
+      <b>Щоб вийти — натисніть помаранчеву «?» вгорі або клавішу Esc.</b>
     </p>
     <?= $content ?>
   </main>
