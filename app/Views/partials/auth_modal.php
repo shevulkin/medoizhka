@@ -67,7 +67,7 @@
     <div id="loginHint" class="auth-note" role="status" aria-live="polite" style="display:none"></div>
 
     <div id="emailLoginBox" style="display:none;margin-top:14px">
-      <div class="field"><label>Пошта</label><input type="email" id="emailInput" placeholder="you@ukr.net" autocomplete="email"></div>
+      <div class="field"><label>Пошта</label><input type="email" id="emailInput" placeholder="Ваша електронна пошта" autocomplete="email"></div>
       <div class="field" id="emailCodeField" style="display:none"><label>Код з листа</label><input type="text" id="emailCodeInput" placeholder="123456" inputmode="numeric" autocomplete="one-time-code"></div>
       <button class="btn btn-gold btn-sm" id="emailSendBtn" type="button">Отримати код</button>
       <button class="btn btn-gold btn-sm" id="emailVerifyBtn" type="button" style="display:none">Увійти</button>

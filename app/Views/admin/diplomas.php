@@ -45,7 +45,7 @@
 
 Якщо акаунта ще немає, лишіть поле порожнім: диплом додасться, а привʼязати його можна буде згодом кнопкою в таблиці.">
     <label>Акаунт випускника <span class="dim">(телефон або пошта)</span></label>
-    <input type="text" name="contact" placeholder="067 123 45 67 або student@ukr.net"></div>
+    <input type="text" name="contact" placeholder="Телефон або електронна пошта"></div>
   <div data-help-title="Дата видачі"
        data-help="Коли диплом видано. Показується при перевірці разом з іменем і курсом.
 
