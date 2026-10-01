@@ -44,7 +44,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
     <div class="mz-cats">
       <?php foreach ($cats as $c): $pic = $c['image'] ?: $c['img']; ?>
         <a class="mz-cat" href="<?= e(url(shop_path($c['slug']))) ?>">
-          <?php if ($pic): ?><img src="<?= e(asset(str_starts_with($pic, 'uploads/cat/') ? $pic : Images::displayThumb($pic))) ?>" alt="<?= e($c['name']) ?>" loading="lazy"><?php endif; ?>
+          <?php if ($pic): ?><img src="<?= e(asset(Images::displayThumb($pic))) ?>" alt="<?= e($c['name']) ?>" loading="lazy"><?php endif; ?>
           <span><?= e($c['name']) ?></span>
         </a>
       <?php endforeach; ?>
@@ -102,7 +102,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
 <?php if ($tags): ?>
 <section class="sec bg-cream">
   <div class="wrap mz-help">
-    <div class="mz-help-ph"><img src="<?= e(asset('uploads/cat/pollen.webp')) ?>" alt="Бджолиний пилок" loading="lazy"></div>
+    <div class="mz-help-ph"><img src="<?= e(asset((string)(DB::val("SELECT image FROM categories WHERE slug = 'pollen'") ?: 'img/home/flower-honey.webp'))) ?>" alt="Бджолиний пилок" loading="lazy"></div>
     <div>
       <div class="kicker">Природна допомога</div>
       <h2>Продукти бджільництва <b>для здоров’я</b></h2>

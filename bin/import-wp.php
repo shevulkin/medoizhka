@@ -14,7 +14,9 @@ declare(strict_types=1);
 define('BOFU_ROOT', dirname(__DIR__));
 require BOFU_ROOT . '/app/Core/bootstrap.php';
 
-const WP = 'https://medoizhka.com/wp-json';
+// Джерело — старий WordPress. Після переїзду домену він живе на піддомені, тож адресу можна
+// задати змінною: WP_SOURCE=https://nubip.medoizhka.com php bin/import-wp.php
+define('WP', rtrim(getenv('WP_SOURCE') ?: 'https://medoizhka.com', '/') . '/wp-json');
 $only = $argv[1] ?? 'all';
 
 function http(string $url, bool $json = true)
@@ -60,6 +62,9 @@ function download(string $src): ?string
     $dir = BOFU_ROOT . '/assets/uploads/wp';
     if (!is_dir($dir)) mkdir($dir, 0775, true);
     $name = preg_replace('~[^a-zA-Z0-9._-]+~', '-', rawurldecode(basename(parse_url($src, PHP_URL_PATH))));
+    // уже перенесено в спільну теку bin/tidy-media.php — повертаємо готове, без дубля
+    $clean = slugify(preg_replace(['~-\d+x\d+$~', '~-scaled$~', '~(?:-photoroom)+$~i'], '', pathinfo($name, PATHINFO_FILENAME)));
+    if ($clean !== '' && is_file(BOFU_ROOT . "/assets/uploads/$clean.webp")) return "uploads/$clean.webp";
     $dest = "$dir/$name";
     if (!is_file($dest)) {
         $data = http($src, false);
@@ -223,6 +228,9 @@ if ($run('categories') || $run('products')) {
     foreach (http(WP . '/wc/store/v1/products/categories?per_page=100') ?: [] as $c) {
         $src = $c['image']['src'] ?? null;
         if (!$src) continue;
+        // уже перенесено в спільну теку (bin/tidy-media.php) — лише прописуємо шлях
+        $ready = 'uploads/kategoriia-' . slugify(slugIn($c['slug'])) . '.webp';
+        if (is_file(BOFU_ROOT . '/assets/' . $ready)) { DB::update('categories', ['image' => $ready], 'slug = ?', [slugIn($c['slug'])]); $n++; continue; }
         $full = preg_replace('~-\d+x\d+(\.[a-z]+)$~i', '$1', $src);
         $data = http($full, false) ?? http($src, false);
         $im = $data ? @imagecreatefromstring($data) : false;

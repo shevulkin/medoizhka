@@ -12,7 +12,8 @@ declare(strict_types=1);
  *      бренди, сторінки, SEO-заголовки (import-wp);
  *   3. переносить картинки зі сторінок у власне сховище (localize-images);
  *   4. створює відеокурси й уроки (import-courses);
- *   5. заповнює контакти й соцмережі (seed-content).
+ *   5. заповнює контакти й соцмережі (seed-content);
+ *   6. зводить усі фото в одну теку assets/uploads/, стискає у webp (tidy-media).
  * Повторний запуск безпечний: кожен крок оновлює наявне, а не дублює.
  */
 $php = PHP_BINARY ?: 'php';
@@ -25,6 +26,7 @@ $steps = [
     ['localize-images.php', ''],
     ['import-courses.php', ''],
     ['seed-content.php', ''],
+    ['tidy-media.php', ''],
 ];
 foreach ($steps as [$file, $arg]) {
     echo "\n=== $file $arg ===\n";
