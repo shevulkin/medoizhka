@@ -21,18 +21,22 @@ class Site
 {
     public static function home(): never
     {
+        // На головній — лише те, що можна купити: товар «немає в наявності» на
+        // вітрині бренду виглядає як недбалість. Спершу те, що є на складі, далі «під замовлення».
+        $av = Catalog::AVAIL_SQL;
+        $buyable = "$av < " . Catalog::AVAIL_OUT;
         // Хіти: спершу позначені «хіт», далі ті, що мають і фото, і ціну — порожня картка на головній гірша за відсутню
         // Мед і апіпродукти — першими: саме по них приходять на головну
-        $products = DB::all("SELECT p.* FROM products p JOIN categories c ON c.id = p.category_id
-                             WHERE p.active = 1 AND p.type <> 'course'
-                             ORDER BY p.featured DESC, (c.slug = 'honey-and-kompozytsiyi') DESC,
+        $products = DB::all("SELECT p.*, $av AS _avail FROM products p JOIN categories c ON c.id = p.category_id
+                             WHERE p.active = 1 AND p.type <> 'course' AND $buyable
+                             ORDER BY _avail, p.featured DESC, (c.slug = 'honey-and-kompozytsiyi') DESC,
                                       (c.slug IN ('pollen','perga','propolis')) DESC,
                                       (p.image IS NULL), (p.base_price IS NULL), p.id DESC LIMIT 8");
         Catalog::preloadBrands($products);
-        // Категорії з фото: беремо фото першого товару категорії
+        // Плитка категорії — лише там, де зараз є що купити; фото — з товару, який є
         $cats = [];
         foreach (Catalog::rootCategories() as $c) {
-            $row = DB::row("SELECT COUNT(*) n, MAX(image) img FROM products WHERE category_id = ? AND active = 1", [$c['id']]);
+            $row = DB::row("SELECT COUNT(*) n, MAX(p.image) img FROM products p WHERE p.category_id = ? AND p.active = 1 AND $buyable", [$c['id']]);
             if ((int)$row['n'] === 0) continue;
             $cats[] = $c + ['n' => (int)$row['n'], 'img' => $row['img']];
         }
@@ -42,11 +46,14 @@ class Site
                   ['Липов', '#efcd6a', 'Запашний, з м’ятною нотою'], ['Квіткови', '#e8ae45', 'Класичний смак літнього поля'],
                   ['Золотарник', '#d99426', 'Насичений, з пряною гірчинкою'], ['Мед різнотрав', '#c9832b', 'Різнотрав’я й соняшник'],
                   ['Лісови', '#9c5a1f', 'Темний, лісові квіти й ягоди']] as [$needle, $color, $note]) {
-            $p = DB::row("SELECT * FROM products WHERE active = 1 AND type <> 'course' AND name LIKE ? AND name NOT LIKE '%Скраб%' ORDER BY (name LIKE ?) DESC, id LIMIT 1", ['%' . $needle . '%', $needle . '%']);
+            $p = DB::row("SELECT p.*, $av AS _avail FROM products p WHERE p.active = 1 AND p.type <> 'course' AND $buyable
+                          AND p.name LIKE ? AND p.name NOT LIKE '%Скраб%' ORDER BY _avail, (p.name LIKE ?) DESC, p.id LIMIT 1",
+                          ['%' . $needle . '%', $needle . '%']);
             if ($p) $palette[] = ['p' => $p, 'color' => $color, 'note' => $note];
         }
-        $forBeekeepers = DB::all("SELECT p.* FROM products p JOIN categories c ON c.id = p.category_id
-                                  WHERE p.active = 1 AND c.slug IN ('equipment','services','wax-exchange') ORDER BY c.sort, p.id LIMIT 4");
+        $forBeekeepers = DB::all("SELECT p.*, $av AS _avail FROM products p JOIN categories c ON c.id = p.category_id
+                                  WHERE p.active = 1 AND c.slug IN ('equipment','services','wax-exchange') AND $buyable
+                                  ORDER BY _avail, c.sort, p.id LIMIT 4");
         View::show('home/index', [
             'products' => $products,
             'cats' => $cats,
@@ -165,8 +172,8 @@ class Site
     {
         $t = DB::row('SELECT * FROM tags WHERE slug = ?', [$slug]);
         if (!$t) { http_response_code(404); View::show('errors/404'); }
-        $products = DB::all("SELECT p.* FROM products p JOIN product_tags pt ON pt.product_id = p.id
-                             WHERE pt.tag_id = ? AND p.active = 1 ORDER BY p.id DESC", [$t['id']]);
+        $products = DB::all("SELECT p.*, " . Catalog::AVAIL_SQL . " AS _avail FROM products p JOIN product_tags pt ON pt.product_id = p.id
+                             WHERE pt.tag_id = ? AND p.active = 1 AND p.type <> 'course' ORDER BY _avail, p.featured DESC, p.id DESC", [$t['id']]);
         Catalog::preloadBrands($products);
         self::listing($t, $products, '/product-tag/', 'Тема');
     }
@@ -175,8 +182,8 @@ class Site
     {
         $b = DB::row('SELECT * FROM brands WHERE slug = ?', [$slug]);
         if (!$b) { http_response_code(404); View::show('errors/404'); }
-        $products = DB::all("SELECT p.* FROM products p JOIN product_brands pb ON pb.product_id = p.id
-                             WHERE pb.brand_id = ? AND p.active = 1 ORDER BY p.id DESC", [$b['id']]);
+        $products = DB::all("SELECT p.*, " . Catalog::AVAIL_SQL . " AS _avail FROM products p JOIN product_brands pb ON pb.product_id = p.id
+                             WHERE pb.brand_id = ? AND p.active = 1 AND p.type <> 'course' ORDER BY _avail, p.featured DESC, p.id DESC", [$b['id']]);
         Catalog::preloadBrands($products);
         self::listing($b, $products, '/brand/', 'Бренд');
     }

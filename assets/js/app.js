@@ -4,6 +4,10 @@
   var loginBtn = document.getElementById('loginBtn');
   if (loginBtn && modal) {
     loginBtn.addEventListener('click', function (e) { e.preventDefault(); modal.classList.add('open'); });
+    // Будь-яка кнопка, якій для дії потрібен вхід (напр. «Повідомити, коли зʼявиться»)
+    document.querySelectorAll('[data-auth-open]').forEach(function (b) {
+      b.addEventListener('click', function (e) { e.preventDefault(); modal.classList.add('open'); });
+    });
     var close = document.getElementById('authClose');
     if (close) close.addEventListener('click', function () { modal.classList.remove('open'); });
     modal.addEventListener('click', function (e) { if (e.target === modal) modal.classList.remove('open'); });

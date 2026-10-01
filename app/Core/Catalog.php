@@ -514,6 +514,49 @@ class Catalog
      */
     public static function inStockSql(): string { return self::IN_STOCK_EXISTS; }
 
+    /**
+     * Наявність для вітрини — три стани, і кожен показується по-своєму:
+     *   0 — є на складі (курс теж: доступ до відео не закінчується);
+     *   1 — немає, але виготовимо під замовлення: купити можна, доведеться зачекати;
+     *   2 — немає й замовити не можна.
+     *
+     * Списки сортуються за цим числом ПЕРШИМ, що б не обрав покупець: те, чого
+     * немає, не стоїть урозкид між тим, що є, а збирається в кінці окремим
+     * блоком. Головна й поради «також радимо» показують лише 0 і 1 — вітрина
+     * серйозного бренду не пропонує те, чого не продасть.
+     *
+     * Склад рахується лише в активних точках — як і на оформленні (OrderFlow).
+     */
+    public const AVAIL_SQL = "(CASE WHEN p.type = 'course' THEN 0
+        WHEN EXISTS (SELECT 1 FROM store_stock ss
+                     JOIN stores st ON st.id = ss.store_id AND st.active = 1
+                     LEFT JOIN product_variants pv ON pv.id = ss.variant_id
+                     WHERE ss.product_id = p.id AND ss.qty > 0
+                       AND (ss.variant_id IS NULL OR pv.active = 1)
+                       AND (ss.variant_id IS NOT NULL
+                            OR NOT EXISTS (SELECT 1 FROM product_variants v
+                                           WHERE v.product_id = p.id AND v.active = 1))) THEN 0
+        WHEN p.made_to_order = 1 THEN 1 ELSE 2 END)";
+
+    public const AVAIL_IN = 0, AVAIL_ORDER = 1, AVAIL_OUT = 2;
+
+    /** Стан наявності товару (див. AVAIL_SQL). Списки приносять його готовим у `_avail`. */
+    public static function avail(array $p): int
+    {
+        if (isset($p['_avail'])) return (int)$p['_avail'];
+        return (int)DB::val('SELECT ' . self::AVAIL_SQL . ' FROM products p WHERE p.id = ?', [(int)$p['id']]);
+    }
+
+    /** Ділить список на «можна купити» і «немає» — для вітрин, що показують другі окремим блоком */
+    public static function splitByAvail(array $products): array
+    {
+        $buy = []; $out = [];
+        foreach ($products as $p) {
+            if (self::avail($p) === self::AVAIL_OUT) $out[] = $p; else $buy[] = $p;
+        }
+        return [$buy, $out];
+    }
+
     private const IN_STOCK_EXISTS =
         'EXISTS (SELECT 1 FROM store_stock ss
                  LEFT JOIN product_variants pv ON pv.id = ss.variant_id
@@ -746,7 +789,9 @@ class Catalog
             'new' => 'p.id DESC',
             default => 'p.featured DESC, p.id ASC',
         };
-        $sql = 'SELECT p.* FROM products p WHERE ' . implode(' AND ', $where) . ' ORDER BY ' . $order;
+        // Наявність — перший ключ за будь-якого сортування: «немає» завжди в кінці
+        $sql = 'SELECT p.*, ' . self::AVAIL_SQL . ' AS _avail FROM products p WHERE ' . implode(' AND ', $where)
+             . ' ORDER BY _avail, ' . $order;
         return DB::all($sql, $params);
     }
 

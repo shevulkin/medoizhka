@@ -2,6 +2,8 @@
 /**
  * Картка товару Медоїжки. Одна на всі списки: головна, каталог, теги, бренди.
  * Кладе в кошик одразу, якщо вибору немає; з варіантами — веде на сторінку товару.
+ * Відсутній товар — притлумлений, з чесним «Немає в наявності» і кнопкою «Повідомити»
+ * (вона веде на сторінку товару, де людина стає в чергу очікування).
  * @var array $prod
  */
 $vars = Catalog::variants((int)$prod['id']);
@@ -11,19 +13,43 @@ if ($pr !== null && (float)$pr <= 0) $pr = null;
 $cat = $prod['_cat'] ?? DB::val('SELECT name FROM categories WHERE id = ?', [$prod['category_id']]);
 $ph = Catalog::photo($prod);
 $href = product_url($prod['slug']);
+$avail = Catalog::avail($prod);
+$isOut = $avail === Catalog::AVAIL_OUT;
+// «від …» — найменша ціна серед фасовок, які можна купити, а не ціна першої в списку:
+// інакше «Липовий від 150 ₴», хоча є банка за 60, або ціна фасовки, якої немає.
+if (count($vars) > 1) {
+    $qty = [];
+    foreach (Catalog::stockMap((int)$prod['id']) as $byVariant) foreach ($byVariant as $vid => $q) $qty[$vid] = ($qty[$vid] ?? 0) + $q;
+    $pool = $avail === Catalog::AVAIL_IN && empty($prod['made_to_order'])
+        ? array_filter($vars, fn($v) => ($qty[(int)$v['id']] ?? 0) > 0) : $vars;
+    $best = null;
+    foreach ($pool ?: $vars as $v) {
+        [$vp, $vo] = Catalog::price($prod, $v);
+        if ($vp !== null && (float)$vp > 0 && ($best === null || $vp < $best[0])) $best = [$vp, $vo];
+    }
+    if ($best) [$pr, $old] = $best;
+}
 ?>
-<article class="pc">
+<article class="pc<?= $isOut ? ' pc-out' : '' ?>">
   <a class="pc-ph" href="<?= e($href) ?>">
     <img src="<?= e(asset(Images::displayThumb($ph))) ?>" alt="<?= e($prod['name']) ?>" loading="lazy">
-    <?php if ($old !== null): ?><span class="pc-flag">Знижка</span><?php elseif (!empty($prod['featured'])): ?><span class="pc-flag">Хіт</span><?php endif; ?>
+    <?php if ($isOut): ?><span class="pc-flag pc-flag-out">Немає в наявності</span>
+    <?php elseif ($old !== null): ?><span class="pc-flag">Знижка</span>
+    <?php elseif (!empty($prod['featured'])): ?><span class="pc-flag">Хіт</span><?php endif; ?>
   </a>
   <div class="pc-bd">
     <span class="pc-cat"><?= e((string)$cat) ?></span>
     <h3 class="pc-name"><a href="<?= e($href) ?>"><?= e($prod['name']) ?></a></h3>
     <?php if (count($vars) > 1): ?><span class="pc-vars"><?= e(implode(' · ', array_map(fn($v) => $v['name'], array_slice($vars, 0, 4)))) ?></span><?php endif; ?>
+    <?php if ($avail === Catalog::AVAIL_ORDER): ?><span class="pc-note"><?= e(Catalog::madeToOrderShort($prod)) ?></span><?php endif; ?>
     <div class="pc-foot">
-      <span class="pc-price"><?php if ($pr === null): ?><small>Ціну уточнюйте</small><?php else: ?><?= count($vars) > 1 ? '<small>від</small> ' : '' ?><?= e(number_format((float)$pr, 0, ',', ' ')) ?> ₴<?php if ($old !== null): ?> <s><?= e(number_format((float)$old, 0, ',', ' ')) ?></s><?php endif; ?><?php endif; ?></span>
-      <?php if (count($vars) > 1 || $pr === null): ?>
+      <span class="pc-price"><?php if ($pr === null): ?><small>Ціну уточнюйте</small><?php else: ?><?= count($vars) > 1 ? '<small>від</small> ' : '' ?><?= e(number_format((float)$pr, 0, ',', ' ')) ?> ₴<?php if ($old !== null && !$isOut): ?> <s><?= e(number_format((float)$old, 0, ',', ' ')) ?></s><?php endif; ?><?php endif; ?></span>
+      <?php if ($isOut): ?>
+        <a class="pc-btn pc-btn-quiet" href="<?= e($href) ?>#watch" aria-label="Повідомити, коли зʼявиться: <?= e($prod['name']) ?>">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+          <span>Повідомити</span>
+        </a>
+      <?php elseif (count($vars) > 1 || $pr === null): ?>
         <a class="pc-btn" href="<?= e($href) ?>" aria-label="Обрати: <?= e($prod['name']) ?>"><?= $pr === null ? 'Детальніше' : 'Обрати' ?></a>
       <?php else: ?>
         <form method="post" action="<?= e(url('/cart/add')) ?>" class="add-cart-form" data-product-name="<?= e($prod['name']) ?>"><?= Csrf::field() ?>

@@ -10,6 +10,12 @@ $photos = $images ?: [['path' => Catalog::photo($p)]];
 $phone = Content::title('contact_phone');
 $brands = Catalog::brandsOf($p);
 $hasDesc = trim(strip_tags((string)$p['description'])) !== '' && $p['description'] !== ($p['short_desc'] ?? '');
+$isOut = $avail === Catalog::AVAIL_OUT;
+// Фасовка, якої немає (коли інші є), лишається у виборі, але неактивна — з поміткою «немає».
+// «Під замовлення» й курс від складу не залежать.
+$varOk = fn(array $v) => $avail !== Catalog::AVAIL_IN || !empty($p['made_to_order']) || Courses::isCourse($p) || (int)$v['qty'] > 0;
+$checkedIdx = 0;
+foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
 ?>
 <div class="wrap pd-crumbs crumbs">
   <a href="<?= e(url('/')) ?>">Головна</a> / <a href="<?= e(url('/shop/')) ?>">Крамниця</a><?php if ($cat): ?> / <a href="<?= e(url(shop_path($cat['slug']))) ?>"><?= e($cat['name']) ?></a><?php endif; ?>
@@ -33,9 +39,35 @@ $hasDesc = trim(strip_tags((string)$p['description'])) !== '' && $p['description
     <?php if ($brands): ?><div class="pd-brand">Виробник: <?php foreach ($brands as $i => $b): ?><?= $i ? ', ' : '' ?><a href="<?= e(url('/brand/' . slug_enc($b['slug']) . '/')) ?>"><?= e($b['name']) ?></a><?php endforeach; ?></div><?php endif; ?>
     <?php if (!empty($p['short_desc'])): ?><p class="pd-short"><?= e(mb_strimwidth($p['short_desc'], 0, 320, '…')) ?></p><?php endif; ?>
 
-    <div class="pd-price"><span id="pdPrice"><?= $pr !== null ? e($fmt($pr)) : 'Ціну уточнюйте' ?></span><?php if ($old_price !== null && $pr !== null): ?> <s><?= e($fmt($old_price)) ?></s><?php endif; ?></div>
+    <?php if (count($variants) > 1 && isset($variant_data[$checkedIdx]['price'])) $pr = (float)$variant_data[$checkedIdx]['price'] ?: $pr; ?>
+    <div class="pd-price<?= $isOut ? ' is-out' : '' ?>"><span id="pdPrice"><?= $pr !== null ? e($fmt($pr)) : 'Ціну уточнюйте' ?></span><?php if ($old_price !== null && $pr !== null && !$isOut): ?> <s><?= e($fmt($old_price)) ?></s><?php endif; ?></div>
 
-    <?php if ($pr !== null): ?>
+    <?php if ($avail === Catalog::AVAIL_IN && !Courses::isCourse($p)): ?>
+      <div class="pd-stock is-in"><i></i>В наявності</div>
+    <?php elseif ($avail === Catalog::AVAIL_ORDER): ?>
+      <div class="pd-stock is-order"><i></i><?= e($made_to_order_note) ?></div>
+    <?php elseif ($isOut): ?>
+      <div class="pd-stock is-out"><i></i>Немає в наявності</div>
+    <?php endif; ?>
+
+    <?php if ($isOut): ?>
+    <div class="pd-watch" id="watch">
+      <p>Готуємо нову партію. Залиште запит — напишемо, щойно товар зʼявиться.</p>
+      <?php if (!empty($watching)): ?>
+        <p class="pd-watch-ok">Ви вже в черзі — повідомимо, щойно зʼявиться.</p>
+      <?php elseif (Auth::check()): ?>
+        <form method="post" action="<?= e(url('/stock/watch')) ?>"><?= Csrf::field() ?>
+          <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
+          <input type="hidden" name="back" value="<?= e(product_path($p['slug'])) ?>">
+          <button class="btn btn-gold" type="submit">Повідомити, коли зʼявиться</button>
+        </form>
+      <?php else: ?>
+        <button class="btn btn-gold" type="button" data-auth-open>Повідомити, коли зʼявиться</button>
+      <?php endif; ?>
+      <?php if ($phone !== ''): ?><a class="btn btn-line" href="tel:<?= e(preg_replace('~[^\d+]~', '', $phone)) ?>">Запитати за телефоном</a><?php endif; ?>
+      <?php if (empty($watching) && !Auth::check()): ?><small>Попросимо увійти — щоб було куди написати.</small><?php endif; ?>
+    </div>
+    <?php elseif ($pr !== null): ?>
     <form class="pd-buy add-cart-form" method="post" action="<?= e(url('/cart/add')) ?>" data-product-name="<?= e($p['name']) ?>">
       <?= Csrf::field() ?>
       <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
@@ -43,7 +75,8 @@ $hasDesc = trim(strip_tags((string)$p['description'])) !== '' && $p['description
       <?php if (count($variants) > 1): ?>
         <fieldset class="pd-vars"><legend>Оберіть варіант</legend>
           <?php foreach ($variant_data as $i => $v): ?>
-            <label><input type="radio" name="variant_id" value="<?= (int)$v['id'] ?>" data-price="<?= $v['price'] !== null ? e($fmt($v['price'])) : 'Ціну уточнюйте' ?>"<?= $i === 0 ? ' checked' : '' ?>><span><?= e($v['name']) ?></span></label>
+            <?php $ok = $varOk($v); ?>
+            <label class="<?= $ok ? '' : 'is-out' ?>"><input type="radio" name="variant_id" value="<?= (int)$v['id'] ?>" data-price="<?= $v['price'] !== null ? e($fmt($v['price'])) : 'Ціну уточнюйте' ?>"<?= $i === $checkedIdx ? ' checked' : '' ?><?= $ok ? '' : ' disabled' ?>><span><?= e($v['name']) ?><?= $ok ? '' : ' <small>немає</small>' ?></span></label>
           <?php endforeach; ?>
         </fieldset>
       <?php elseif ($first): ?><input type="hidden" name="variant_id" value="<?= (int)$first['id'] ?>"><?php endif; ?>

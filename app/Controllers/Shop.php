@@ -94,6 +94,8 @@ class Shop
         }
         // Псевдонім p обовʼязковий: умову «є в цьому магазині» написано через
         // нього (Catalog::inStockSql), і без аліаса запит падає на p.id
+        // Порада — лише з того, що можна купити: радити відсутнє означає розчарувати двічі
+        $otherWhere .= ' AND ' . Catalog::AVAIL_SQL . ' < ' . Catalog::AVAIL_OUT;
         $other = DB::all("SELECT p.* FROM products p WHERE p.active = 1 AND p.featured = 1 AND p.type <> 'course'" .
             ($branch ? ' AND p.category_id NOT IN (' . implode(',', $branch) . ')' : '')
             . ($shownIds ? ' AND p.id NOT IN (' . implode(',', $shownIds) . ')' : '') . $otherWhere
@@ -231,11 +233,17 @@ class Shop
             ];
         }
 
-        $related = DB::all('SELECT * FROM products WHERE active = 1 AND category_id = ? AND id != ? LIMIT 4', [$p['category_id'], $p['id']]);
+        // «Також радимо» — лише те, що можна купити, спершу те, що є на складі
+        $related = DB::all('SELECT p.*, ' . Catalog::AVAIL_SQL . ' AS _avail FROM products p
+                            WHERE p.active = 1 AND p.category_id = ? AND p.id != ? AND ' . Catalog::AVAIL_SQL . ' < ' . Catalog::AVAIL_OUT . '
+                            ORDER BY _avail, p.featured DESC, p.id DESC LIMIT 4', [$p['category_id'], $p['id']]);
         Catalog::preloadBrands($related);
 
+        $avail = Catalog::avail($p);
         View::show('shop/product', [
             'p' => $p, 'cat' => $cat, 'variants' => $variants, 'attrs' => $attrs,
+            'avail' => $avail,
+            'made_to_order_note' => Catalog::madeToOrderNote($p),
             'variant_axes' => $axes, 'variant_data' => $variantData,
             'images' => $images, 'availability' => $availability,
             'price' => $price, 'old_price' => $old, 'related' => $related,
@@ -259,7 +267,7 @@ class Shop
                 JsonLd::product(
                     $p, $allImages, $price,
                     array_map(fn($n) => ['@type' => 'Brand', 'name' => $n], Catalog::brandNames($p)),
-                    Catalog::stock((int)$p['id']) > 0 || !empty($p['made_to_order'])
+                    $avail < Catalog::AVAIL_OUT
                 ),
                 // Крихти повторюють шлях, яким людина сюди дійшла: головна →
                 // категорія → товар. Google показує їх замість голої адреси.

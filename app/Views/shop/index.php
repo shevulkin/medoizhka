@@ -56,7 +56,7 @@ foreach (DB::all("SELECT category_id, COUNT(*) n FROM products WHERE active = 1 
     <?php if (!$products): ?>
       <div class="shop-empty"><h2>Нічого не знайдено</h2><p>Спробуйте інше слово або <a href="<?= e(url('/shop/')) ?>">перегляньте весь каталог</a>.</p></div>
     <?php else: ?>
-      <div class="pgrid pgrid-3"><?php foreach ($products as $prod) echo View::partial('partials/m_card', ['prod' => $prod]); ?></div>
+      <?= View::partial('partials/m_grid', ['products' => $products, 'cols' => 'pgrid-3']) ?>
     <?php endif; ?>
   </div>
 </div>

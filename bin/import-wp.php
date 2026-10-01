@@ -152,14 +152,17 @@ if ($run('products')) {
 
         // Ціна: з JSON-LD сторінки товару (Yoast/Woo віддають offers)
         $price = null; $old = null;
+        $stockState = 'InStock';   // schema.org: InStock | OutOfStock | BackOrder | PreOrder
         $html = http($p['link'], false);
         if ($html && preg_match_all('~<script type="application/ld\+json"[^>]*>(.*?)</script>~s', $html, $m)) {
             foreach ($m[1] as $blob) {
-                if (!preg_match('~"lowPrice"\s*:\s*"?([\d.]+)|"price"\s*:\s*"?([\d.]+)~', $blob, $pm)) continue;
+                if (preg_match('~"availability"\s*:\s*"https?:\\\\?/\\\\?/schema\.org\\\\?/(\w+)"~', $blob, $am)) $stockState = $am[1];
+                if ($price !== null || !preg_match('~"lowPrice"\s*:\s*"?([\d.]+)|"price"\s*:\s*"?([\d.]+)~', $blob, $pm)) continue;
                 $price = (float)($pm[1] ?: $pm[2]);
-                break;
             }
         }
+        // «Під замовлення» — лише там, де WordPress дозволяв передзамовлення
+        $backorder = in_array($stockState, ['BackOrder', 'PreOrder'], true);
         $media = $p['_embedded']['wp:featuredmedia'][0]['source_url'] ?? null;
         $img = $media ? download($media) : null;
 
@@ -168,7 +171,7 @@ if ($run('products')) {
             'category_id' => $cat, 'name' => txt($p['title']['rendered'] ?? ''),
             'short_desc' => txt($p['excerpt']['rendered'] ?? '') ?: null,
             'description' => $p['content']['rendered'] ?? null,
-            'base_price' => $price, 'type' => 'product', 'active' => 1, 'made_to_order' => 1,
+            'base_price' => $price, 'type' => 'product', 'active' => 1, 'made_to_order' => $backorder ? 1 : 0,
             'image' => $img, 'seo_title' => $st, 'seo_desc' => $sd, 'wp_id' => $p['id'],
             'updated_at' => now(),
         ];
@@ -192,24 +195,33 @@ if ($run('products')) {
                 }
             }
             DB::delete('product_variants', 'product_id = ?', [$pid]);
-            $prices = [];
+            $prices = []; $varStock = [];
             foreach ($vars as $i => $v) {
                 $parts = [];
                 foreach ($v['attributes'] ?? [] as $k => $val) $parts[] = $labels[$k][$val] ?? ($val !== '' ? $val : null);
                 $name = implode(' / ', array_filter($parts)) ?: ('Варіант ' . ($i + 1));
                 $vp = isset($v['display_price']) ? (float)$v['display_price'] : null;
                 $prices[] = $vp;
-                DB::insert('product_variants', ['product_id' => $pid, 'name' => $name, 'price' => $vp,
+                $vid = DB::insert('product_variants', ['product_id' => $pid, 'name' => $name, 'price' => $vp,
                     'sku' => ($v['sku'] ?? '') ?: null, 'sort' => $i, 'active' => 1]);
+                $varStock[$vid] = !empty($v['is_in_stock']) ? 50 : 0;
             }
             if ($prices) DB::update('products', ['base_price' => min(array_filter($prices, fn($x) => $x !== null) ?: [null])], 'id = ?', [$pid]);
         }
-        // Залишки: на старому сайті «є в наявності» — ставимо з запасом, далі веде адмінка
+        // Залишки за станом на старому сайті: «є» — з запасом 50, «немає» — 0; далі веде адмінка.
+        // Пишемо наново: фасовки щойно перестворені, і старі рядки вказували б на неіснуючі.
+        // Точну кількість і передзамовлення фасовок підтягує bin/wp-stock.php зі старої бази.
         $store = (int)DB::val('SELECT id FROM stores ORDER BY id LIMIT 1');
-        if ($store && !DB::row('SELECT id FROM store_stock WHERE product_id = ?', [$pid])) {
+        if ($store) {
+            DB::delete('store_stock', 'product_id = ?', [$pid]);
+            $varStock ??= [];
             $vids = array_column(DB::all('SELECT id FROM product_variants WHERE product_id = ?', [$pid]), 'id');
-            foreach ($vids ?: [null] as $vid) DB::insert('store_stock', ['product_id' => $pid, 'variant_id' => $vid, 'store_id' => $store, 'qty' => 50]);
+            foreach ($vids ?: [null] as $vid) {
+                $qty = $vid !== null && isset($varStock[$vid]) ? $varStock[$vid] : ($stockState === 'InStock' ? 50 : 0);
+                DB::insert('store_stock', ['product_id' => $pid, 'variant_id' => $vid, 'store_id' => $store, 'qty' => $qty]);
+            }
         }
+        unset($varStock);
         DB::delete('product_tags', 'product_id = ?', [$pid]);
         foreach ($p['product_tag'] ?? [] as $tid) if (isset($tagMap[$tid])) DB::insert('product_tags', ['product_id' => $pid, 'tag_id' => $tagMap[$tid]]);
         DB::delete('product_brands', 'product_id = ?', [$pid]);
