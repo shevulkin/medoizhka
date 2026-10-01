@@ -52,6 +52,13 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # Поки сайт закритий від пошуковиків (налаштування seo_noindex), PHP тримає в корені
+  # сайту файл .noindex. Тоді заборону індексації отримують і статичні файли (фото, стилі),
+  # які Apache віддає сам, — інакше картинки могли б потрапити в Google Картинки.
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteCond %{REQUEST_FILENAME} ^(.*/)assets/
+  RewriteCond %1.noindex -f
+  RewriteRule ^ - [E=SITE_NOINDEX:1]
   # Один домен для пошуковиків: www.medoizhka.com → medoizhka.com (так було проіндексовано)
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
   RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
@@ -106,3 +113,8 @@ Options -Indexes
     Deny from all
   </IfModule>
 </FilesMatch>
+
+# Заборона індексації статичних файлів, поки сайт закритий (див. SITE_NOINDEX вище)
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow" env=SITE_NOINDEX
+</IfModule>

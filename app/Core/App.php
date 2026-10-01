@@ -36,7 +36,12 @@ class App
         Auth::start();
 
         // Сайт закрито від пошуковиків: заголовок діє й там, де немає HTML (sitemap, JSON, файли)
-        if (Settings::bool('seo_noindex')) header('X-Robots-Tag: noindex, nofollow');
+        $noindex = Settings::bool('seo_noindex');
+        if ($noindex) header('X-Robots-Tag: noindex, nofollow');
+        // Файл-прапорець для .htaccess: за ним заборону індексації отримують і фото/стилі,
+        // які Apache віддає без PHP. Тримаємо його в такт із налаштуванням.
+        $flag = BOFU_ROOT . '/.noindex';
+        if ($noindex !== is_file($flag)) { $noindex ? @touch($flag) : @unlink($flag); }
 
         // Спільні дані для всіх шаблонів
         View::share('auth_user', Auth::user());
