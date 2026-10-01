@@ -419,3 +419,14 @@ function seo_desc(?string ...$candidates): string
     }
     return '';
 }
+
+/**
+ * Чи вантажити аналітику (Google tag / GA4, Tag Manager). Лише коли сайт відкритий
+ * для пошуковиків: поки йде тестування (seo_noindex), перегляди не мають потрапляти
+ * в бойову статистику старого сайту, з якою вона продовжується.
+ */
+function analytics_on(): bool
+{
+    return !Settings::bool('seo_noindex')
+        && (Settings::get('google_tag_id', '') !== '' || Settings::get('gtm_id', '') !== '');
+}

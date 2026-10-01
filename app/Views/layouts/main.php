@@ -31,6 +31,9 @@
 <link rel="stylesheet" href="<?= e(asset_v('css/shop.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_v('css/medoizhka.css')) ?>">
 <link rel="canonical" href="<?= e($canonical ?? current_url()) ?>">
+<?php /* Перевірка власності в Google Search Console мета-тегом — якщо задано в Налаштуваннях */ ?>
+<?php if (($gsv = (string)Settings::get('google_site_verification', '')) !== ''): ?><meta name="google-site-verification" content="<?= e($gsv) ?>"><?php endif; ?>
+<?= View::partial('partials/analytics') ?>
 <?php
 /* Розмітка для пошуковиків. Organization і WebSite — на кожній сторінці: вони
    зводять сайт, соцмережі й канал в одну сутність і дають рядок пошуку прямо
@@ -41,6 +44,9 @@ foreach (($jsonld ?? []) as $block) echo JsonLd::tag($block);
 ?>
 </head>
 <body>
+<?php if (analytics_on() && ($gtmId = (string)Settings::get('gtm_id', '')) !== ''): ?>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<?= e(rawurlencode($gtmId)) ?>" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<?php endif; ?>
 <?php if (Settings::bool('sale_banner_active')): ?>
 <div class="sale-banner"><?= e(Settings::get('sale_banner_text', '')) ?> · −<?= e(Settings::get('sale_banner_percent', '0')) ?>%</div>
 <?php endif; ?>

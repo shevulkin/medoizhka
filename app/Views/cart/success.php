@@ -92,3 +92,13 @@
     </div>
   </div>
 </section>
+<?php
+/* GA4: покупка. transaction_id — номер замовлення, тож повторне відкриття сторінки
+   Google не рахує вдруге. Позиції — з усіх частин замовлення. */
+$gaItems = [];
+foreach (DB::all('SELECT i.* FROM order_items i JOIN orders o ON o.id = i.order_id WHERE o.id = ? OR o.parent_id = ?', [(int)$order['id'], (int)$order['id']]) as $it) {
+    $gaItems[] = ['item_id' => (string)$it['product_id'], 'item_name' => $it['title'], 'item_variant' => (string)($it['variant_name'] ?? ''),
+                  'price' => (float)$it['price'], 'quantity' => (int)$it['qty']];
+}
+?>
+<script>mzTrack('purchase', { transaction_id: <?= json_js((string)$order['number']) ?>, value: <?= json_js((float)$order['total']) ?>, items: <?= json_js($gaItems) ?> });</script>

@@ -28,9 +28,14 @@ class SettingsAdmin
         'mail_from' => 'Email відправника: замовлення й сповіщення',
         'mail_from_auth' => 'Email відправника: коди входу (можна не заповнювати)',
         'mail_reply_to' => 'Email для відповідей покупця (Reply-To)',
-        'google_client_id' => 'Google OAuth: Client ID',
-        'google_client_secret' => 'Google OAuth: Client Secret',
-        'bot_site_url' => 'Адреса сайту для кнопки в боті (напр. https://bofu.ua)',
+        'google_client_id' => 'Google: Client ID (кнопка «Увійти через Google»)',
+        'google_client_secret' => 'Google OAuth: Client Secret (не обовʼязково — кнопка працює і без нього)',
+        // Аналітика й Search Console (перенесено зі старого сайту, Site Kit).
+        // Вмикаються лише коли сайт відкритий для пошуковиків — див. analytics_on()
+        'google_tag_id' => 'Google Analytics 4: Google tag (GT-… або G-…)',
+        'gtm_id' => 'Google Tag Manager: контейнер (GTM-…)',
+        'google_site_verification' => 'Search Console: код мета-тегу перевірки (якщо потрібен)',
+        'bot_site_url' => 'Адреса сайту для кнопки в боті (напр. https://medoizhka.com)',
     ];
 
     /**

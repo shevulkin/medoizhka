@@ -76,3 +76,19 @@ php -S localhost:8090 router.php     # сайт: http://localhost:8090
 Далі кожне оновлення: push у GitHub → у cPanel «Update from Remote» → «Deploy HEAD Commit».
 Схема бази оновлюється сама при першому відкритті сайту. Фото, завантажені в адмінці, і `config.local.php`
 розгортання не чіпає.
+
+## Google: вхід, аналітика, Search Console (перенесено зі старого сайту)
+
+`bin/seed-content.php` (його запускає `install.php`) записує ідентифікатори, що стояли на старому сайті в Site Kit;
+змінити їх можна в Адмінка → Налаштування.
+- **Вхід через Google** — Google Identity Services, як у Site Kit: потрібен лише Client ID
+  `181991088530-…apps.googleusercontent.com`, секрет не потрібен. ID-токен перевіряється на сервері
+  (`GoogleAuth::verifyIdToken`: підпис через Google, `aud` = наш Client ID, підтверджена пошта). Client ID дозволений
+  Google для домену medoizhka.com, тому працює і на `/medoizhka-v2/`, і після запуску; на localhost — ні.
+- **GA4** `GT-M63L9WSM` і **Tag Manager** `GTM-P2NJJJTV`, Consent Mode v2 як був. Події e-commerce GA4:
+  `view_item` (товар), `add_to_cart` (будь-яка кнопка «У кошик»), `purchase` (сторінка «Замовлення прийнято»).
+  Аналітика вантажиться **лише коли сайт відкритий** (`seo_noindex` вимкнено), щоб тестування не засмічувало статистику.
+- **Search Console**: власність прив’язана до домену, тож після переїзду лишається. Якщо потрібна перевірка
+  мета-тегом — Налаштування → «Search Console: код мета-тегу».
+- **CSP** (`Security::csp`) дозволяє лише Google (вхід, теги, аналітика) і плеєр Bunny. Новий сервіс у Tag Manager
+  (наприклад, піксель Facebook) — дописати його домен туди.

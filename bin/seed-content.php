@@ -22,5 +22,14 @@ foreach ($blocks as $key => $val) {
     if ($row) DB::update('content_blocks', ['title' => $val], '`key` = ?', [$key]);
     else DB::insert('content_blocks', ['key' => $key, 'title' => $val, 'body' => null, 'image' => null]);
 }
+// Google зі старого сайту (Site Kit): публічні ідентифікатори, тож статистика й вхід
+// через Google продовжуються без розриву. Заповнені вручну значення не перезаписуємо.
+foreach ([
+    'google_client_id' => '181991088530-np4ncjjo2i0ff8o4rq2nhksuq586b3tl.apps.googleusercontent.com',
+    'google_tag_id' => 'GT-M63L9WSM',
+    'gtm_id' => 'GTM-P2NJJJTV',
+] as $k => $v) {
+    if ((string)Settings::get($k, '') === '') Settings::set($k, $v);
+}
 DB::update('stores', ['address' => 'вул. Сержа Лифаря, 4', 'city' => 'Київ', 'phone' => '+38 (063) 819-55-77', 'hours' => 'Щодня 8:00–20:00'], 'slug = ?', ['pasika-medoizhka']);
 echo "Контент: готово\n";

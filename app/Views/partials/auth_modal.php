@@ -15,8 +15,29 @@
       про наявність. Щоб купити, входити не обовʼязково.<br>
       <b>Окремої реєстрації немає:</b> якщо акаунта ще нема, він створиться сам — паролів ми не питаємо.</p>
     <div class="stack">
-      <?php if (GoogleAuth::configured()): ?>
-        <a class="btn btn-gold" href="<?= e(url('/auth/google')) ?>">Увійти через Google</a>
+      <?php if (GoogleAuth::buttonEnabled()): ?>
+        <?php /* Кнопка Google Identity Services — та сама, що була на старому сайті
+                 (Site Kit). Потрібен лише Client ID; ID-токен перевіряє сервер. */ ?>
+        <div id="gsiBtn" style="min-height:44px;display:flex;justify-content:center"></div>
+        <script>
+        (function () {
+          var csrf = <?= json_js(Csrf::token()) ?>, url = <?= json_js(url('/auth/google/token')) ?>;
+          function onCredential(resp) {
+            var fd = new FormData(); fd.append('_csrf', csrf); fd.append('credential', resp.credential);
+            fetch(url, { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); })
+              .then(function (d) { if (d.ok) location.reload(); else alert(d.error || 'Не вдалося увійти через Google'); })
+              .catch(function () { alert('Не вдалося увійти через Google. Перевірте зʼєднання.'); });
+          }
+          function init() {
+            google.accounts.id.initialize({ client_id: <?= json_js(GoogleAuth::clientId()) ?>, callback: onCredential, ux_mode: 'popup' });
+            google.accounts.id.renderButton(document.getElementById('gsiBtn'),
+              { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: 'uk', width: 300 });
+          }
+          var s = document.createElement('script');
+          s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.onload = init;
+          document.head.appendChild(s);
+        })();
+        </script>
       <?php endif; ?>
       <?php if (Telegram::configured()): ?>
         <button class="btn btn-line" id="tgLoginBtn" type="button">Увійти через Telegram</button>

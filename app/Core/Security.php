@@ -105,22 +105,34 @@ class Security
      * і робити його наосліп перед переїздом на бойовий сервер небезпечніше,
      * ніж лишити цю директиву слабкою й позначеною.
      */
+    /*
+     * Медоїжка: перелік чужих доменів — рівно те, що сайт справді вантажить.
+     *   Google Identity Services (кнопка «Увійти через Google»): скрипт, стиль, iframe кнопки.
+     *   Google tag / GA4 / Tag Manager (аналітика, як на старому сайті).
+     *   Bunny Stream — iframe плеєра відеокурсів.
+     * Якщо в контейнер Tag Manager додадуть сторонній сервіс (наприклад, піксель
+     * Facebook), його домен треба дописати сюди, інакше браузер його заблокує.
+     */
+    private const GOOGLE_AUTH = 'https://accounts.google.com';
+    private const GOOGLE_TAGS = 'https://www.googletagmanager.com https://*.googletagmanager.com';
+    private const GOOGLE_ANALYTICS = 'https://*.google-analytics.com https://*.analytics.google.com https://*.g.doubleclick.net https://www.google.com';
+    private const BUNNY_PLAYER = 'https://iframe.mediadelivery.net';
+
     private static function csp(): string
     {
         $self = "'self'";
         return implode('; ', [
             "default-src $self",
-            "script-src $self 'unsafe-inline'",
-            "style-src $self 'unsafe-inline'",
+            "script-src $self 'unsafe-inline' " . self::GOOGLE_AUTH . '/gsi/client ' . self::GOOGLE_TAGS,
+            "style-src $self 'unsafe-inline' " . self::GOOGLE_AUTH . '/gsi/style',
             // data: — вбудовані іконки в CSS; blob: — кадр із камери під час сканування
-            "img-src $self data: blob: " . self::YT_IMG,
+            "img-src $self data: blob: " . self::YT_IMG . ' ' . self::GOOGLE_TAGS . ' ' . self::GOOGLE_ANALYTICS . ' https://*.googleusercontent.com',
             "font-src $self",
-            // Жодного чужого домену: навіть виконаний скрипт не має куди
-            // відіслати вкрадене
-            "connect-src $self",
+            // Чужі адреси — лише ті, куди шле дані аналітика й кнопка Google
+            "connect-src $self " . self::GOOGLE_AUTH . '/gsi/ ' . self::GOOGLE_TAGS . ' ' . self::GOOGLE_ANALYTICS,
             "media-src $self blob:",          // потік із камери
             "worker-src $self blob:",         // service worker (PWA) і декодер коду
-            "frame-src 'none'",
+            "frame-src " . self::BUNNY_PLAYER . ' ' . self::GOOGLE_AUTH . ' ' . self::GOOGLE_TAGS,
             "object-src 'none'",
             "base-uri $self",
             "form-action $self",

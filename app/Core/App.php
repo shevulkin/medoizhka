@@ -216,6 +216,8 @@ class App
         // --- аутентифікація ---
         if ($path === '/auth/google') { Controllers\AuthController::google(); }
         if ($path === '/auth/google/callback') { Controllers\AuthController::googleCallback(); }
+        // Кнопка Google Identity Services: ID-токен від Google, перевіряється на сервері
+        if ($path === '/auth/google/token' && $method === 'POST') { RateLimit::guard('google_token', 30, 3600, null, true); Controllers\AuthController::googleToken(); }
         /*
          * Входів навмисно менше, ніж каналів звʼязку.
          *

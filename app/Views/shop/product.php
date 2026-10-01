@@ -108,3 +108,7 @@ $hasDesc = trim(strip_tags((string)$p['description'])) !== '' && $p['description
   });
 })();
 </script>
+<script>
+/* GA4: перегляд товару */
+mzTrack('view_item', { value: <?= json_js($pr !== null ? (float)$pr : 0) ?>, items: [{ item_id: <?= json_js((string)$p['id']) ?>, item_name: <?= json_js($p['name']) ?>, item_category: <?= json_js($cat['name'] ?? '') ?>, price: <?= json_js($pr !== null ? (float)$pr : 0) ?> }] });
+</script>

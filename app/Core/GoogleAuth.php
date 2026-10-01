@@ -34,6 +34,40 @@ class GoogleAuth
         ]);
     }
 
+    /**
+     * Кнопка «Увійти через Google» за схемою Google Identity Services (як у Site Kit на
+     * старому сайті). Їй потрібен лише публічний Client ID — секрету немає й не треба:
+     * Google віддає підписаний ID-токен, а ми перевіряємо його на сервері.
+     */
+    public static function buttonEnabled(): bool { return self::clientId() !== ''; }
+
+    /**
+     * Перевірка ID-токена (JWT) від Google Identity Services.
+     *
+     * Перевіряє сам Google (tokeninfo): підпис, строк дії й видавця. Ми додатково
+     * звіряємо, що токен виписано саме для нашого Client ID (aud) — інакше токен,
+     * отриманий будь-яким іншим сайтом, відкривав би вхід і до нас — і що пошта
+     * підтверджена. Повертає профіль у тому ж вигляді, що й handleCallback().
+     */
+    public static function verifyIdToken(string $jwt): ?array
+    {
+        if ($jwt === '' || substr_count($jwt, '.') !== 2) return null;
+        $ch = curl_init('https://oauth2.googleapis.com/tokeninfo?id_token=' . rawurlencode($jwt));
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10]);
+        $resp = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $t = json_decode((string)$resp, true);
+        if ($code !== 200 || !is_array($t)) return null;
+        if (($t['aud'] ?? '') !== self::clientId()) return null;
+        if (!in_array($t['iss'] ?? '', ['accounts.google.com', 'https://accounts.google.com'], true)) return null;
+        if ((int)($t['exp'] ?? 0) < time()) return null;
+        if (empty($t['sub']) || empty($t['email'])) return null;
+        if (!filter_var($t['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN)) return null;
+        return ['sub' => (string)$t['sub'], 'email' => mb_strtolower((string)$t['email']),
+                'name' => $t['name'] ?? null, 'picture' => $t['picture'] ?? null, 'email_verified' => true];
+    }
+
     public static function handleCallback(): ?array
     {
         if (($_GET['state'] ?? '') !== ($_SESSION['oauth_state'] ?? null)) return null;

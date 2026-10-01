@@ -36,6 +36,28 @@ class AuthController
         redirect('/');
     }
 
+    /**
+     * Вхід кнопкою Google Identity Services: браузер присилає підписаний ID-токен.
+     * Відповідь — JSON, бо кличе її скрипт кнопки, а не перехід сторінкою.
+     */
+    public static function googleToken(): never
+    {
+        Csrf::verify();
+        if (!GoogleAuth::buttonEnabled()) json_response(['ok' => false, 'error' => 'Вхід через Google не налаштовано.'], 400);
+        $profile = GoogleAuth::verifyIdToken((string)($_POST['credential'] ?? ''));
+        if (!$profile) json_response(['ok' => false, 'error' => 'Google не підтвердив вхід. Спробуйте ще раз.'], 401);
+        $existing = DB::row('SELECT * FROM users WHERE google_id = ? OR email = ?', [$profile['sub'], $profile['email']]);
+        if ($existing && !LoginMethods::permits($existing, 'google')) {
+            AuthLog::write((int)$existing['id'], 'login_blocked', 'Google');
+            json_response(['ok' => false, 'error' => LoginMethods::denial('google')], 403);
+        }
+        if ($existing && !$existing['active']) json_response(['ok' => false, 'error' => 'Цей акаунт вимкнено. Зверніться, будь ласка, до магазину.'], 403);
+        Auth::loginWithGoogle($profile);
+        if (!$existing) Notify::fire('user_new', ['name' => $profile['name'] ?? '', 'email' => $profile['email']]);
+        flash('success', 'Вітаємо, ' . ($profile['name'] ?? $profile['email']) . '!');
+        json_response(['ok' => true]);
+    }
+
     /** Крок 1 входу через Telegram: токен + посилання на бота */
     public static function tgStart(): never
     {
