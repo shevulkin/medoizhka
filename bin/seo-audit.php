@@ -49,6 +49,8 @@ $out = []; $bad = 0;
 foreach ($urls as $u) {
     $path = substr($u, strlen($old));
     $o = $snap[$u] ?? ($snap[$u] = meta(get($u)));
+    // Адреси, які навмисно не переносимо (автор, блог-категорія WordPress)
+    if (preg_match('~^/(author|category)/~', $path)) { $out[] = "SKIP  $path (навмисно не переноситься)"; continue; }
     $html = get($new . $path, $code, $loc);
     if ($code === 301 && $loc) { $out[] = "301   $path → " . substr($loc, strlen($new)); continue; }
     $n = meta($html);

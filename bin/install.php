@@ -28,7 +28,11 @@ $steps = [
 ];
 foreach ($steps as [$file, $arg]) {
     echo "\n=== $file $arg ===\n";
-    passthru(escapeshellarg($php) . ' ' . escapeshellarg(__DIR__ . '/' . $file) . ($arg !== '' ? ' ' . escapeshellarg($arg) : ''), $code);
+    // proc_open з масивом — без оболонки: на Windows cmd.exe ламав лапки, і дочірній
+    // PHP, не отримавши шляху до скрипта, мовчки чекав коду зі стандартного вводу
+    $cmd = array_values(array_filter([$php, __DIR__ . '/' . $file, $arg], fn($x) => $x !== ''));
+    $proc = proc_open($cmd, [0 => ['file', PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null', 'r'], 1 => STDOUT, 2 => STDERR], $pipes);
+    $code = is_resource($proc) ? proc_close($proc) : 1;
     if ($code !== 0) { echo "\nКрок $file завершився з помилкою ($code). Виправте й запустіть install.php ще раз.\n"; exit($code); }
 }
 echo "\nГотово. Сайт закритий від пошуковиків (seo_noindex) — відкрийте його в адмінці, коли переключите домен.\n";
