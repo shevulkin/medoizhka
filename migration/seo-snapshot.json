@@ -1,0 +1,427 @@
+{
+    "https://medoizhka.com/": {
+        "title": "Медоїжка - це сімейна медова крамниця - Медоїжка",
+        "desc": "Медоїжка - крамниця натурального меду апіпродуктів з власної пасіки. Мед, пилок, прополіс, креми, свічки, настоянки, крем, віск, вощина.",
+        "canon": "/"
+    },
+    "https://medoizhka.com/about-us/": {
+        "title": "Про Медоїжка: натуральний мед для здоров’я - Медоїжка",
+        "desc": "Медоїжка — це не просто крамниця меду, а унікальна марка, яка представляє українські традиції бджільництва.",
+        "canon": "/about-us/"
+    },
+    "https://medoizhka.com/beekeeping-products/": {
+        "title": "Види продуктів бджільництва - Медоїжка",
+        "desc": "Продукти бджільництва — мед, прополіс, віск, маточне молочко, перга, бджолина отрута, трутневий гомогенат, забрус, пилок (обніжжя)",
+        "canon": "/beekeeping-products/"
+    },
+    "https://medoizhka.com/pasika-medoizhka/": {
+        "title": "Пасіка Медоїжка: Найкращі медові продукти - Медоїжка",
+        "desc": "Відкрийте для себе Пасіка Медоїжка! Пропонуємо ескурсію на пасіку, де зможете побути з бджолами та дізнатись про бджіл усе. Виїзні лекції...",
+        "canon": "/pasika-medoizhka/"
+    },
+    "https://medoizhka.com/privacy-policy/": {
+        "title": "Політика конфіденційності - Медоїжка",
+        "desc": "Дізнайтеся про захист даних. Політика конфіденційності захищає ваші дані та пояснюємо, як їх використовуємо. Все для вашої безпеки.",
+        "canon": "/privacy-policy/"
+    },
+    "https://medoizhka.com/shop/": {
+        "title": "Крамниця - Медоїжка",
+        "desc": "Відкрийте для себе нашу крамницю бджільництва. Пропонуємо тільки натуральні продукти бджільництва з сімейної пасіки.",
+        "canon": "/shop/"
+    },
+    "https://medoizhka.com/delivery-and-payment/": {
+        "title": "Доставка та оплата - Медоїжка",
+        "desc": "Швидка та надійна доставка вашого замовлення через Нова Пошта або Укрпошту. Дізнайтеся більше про доставку.",
+        "canon": "/delivery-and-payment/"
+    },
+    "https://medoizhka.com/contacts/": {
+        "title": "Контакти - Медоїжка",
+        "desc": "Вітаємо на сторінці контакти медової крамниці Медоїжка! Зв'яжіться з нами для отримання інформації від справжнього бджоляра.",
+        "canon": "/contacts/"
+    },
+    "https://medoizhka.com/return-and-exchange/": {
+        "title": "Умови повернення та обміну - Медоїжка",
+        "desc": "Дізнайтеся про політику повернення та обміну в Медоїжка. Ваші права захищені! З нами Ви отримуєте найвищу якість",
+        "canon": "/return-and-exchange/"
+    },
+    "https://medoizhka.com/product/%d0%b2%d1%96%d1%81%d0%ba-%d0%bf%d0%b0%d1%81%d1%96%d1%87%d0%bd%d0%b8%d0%b9-%d0%b7-%d0%bf%d0%b5%d1%80%d0%b5%d1%82%d0%be%d0%bf%d0%bb%d0%b5%d0%bd%d0%b8%d1%85-%d1%81%d1%82%d1%96%d0%bb%d1%8c%d0%bd%d0%b8/": {
+        "title": "Пасічний бджолий віск з перетоплених стільників 100г - Медоїжка",
+        "desc": "Пасічний бджолий віск з перетоплених стільників Пасічний віск: віск, отриманий безпосередньо на пасіці шляхом перетоплювання воскової сировини (стільники, обрізки вощини). Може мати різний колір та якість в залежності від методу переробки. Натуральний віск прямо з пасіки! Зберігає аромат меду та корисні властивості стільників. Ідеальний для свічок, домашньої косметики та народної медицини.",
+        "canon": "/product/віск-пасічний-з-перетоплених-стільни/"
+    },
+    "https://medoizhka.com/product/%d0%b2%d1%96%d1%81%d0%ba-%d0%b1%d0%b4%d0%b6%d0%be%d0%bb%d0%b8%d0%bd%d0%b8%d0%b9-%d0%ba%d0%bb%d0%b0%d1%81%d1%83-%d0%bb%d1%8e%d0%ba%d1%81-%d1%96%d0%b7-%d1%81%d0%b2%d1%96%d1%82%d0%bb%d0%b8%d1%85-%d1%80/": {
+        "title": "Віск бджолиний класу Люкс із світлих стільників 100г - Медоїжка",
+        "desc": "Віск бджолиний (клас Люкс із світлих стільників) Натуральний віск найвищої якості з ніжним ароматом та світлим кольором. Ідеально підходить для косметики, свічок та ароматерапії. 100% натуральний продукт без домішок.",
+        "canon": "/product/віск-бджолиний-класу-люкс-із-світлих-р/"
+    },
+    "https://medoizhka.com/product/turnkey-beekeeping-service/": {
+        "title": "Бджоли під ключ. Встановлення та супроводження цілий рік. - Медоїжка",
+        "desc": "Пасіка з Повним Встановленням та Цілорічним Супроводом. Ми беремо на себе всю рутинну роботу та складні аспекти створення та догляду за вашою пасікою.",
+        "canon": "/product/turnkey-beekeeping-service/"
+    },
+    "https://medoizhka.com/product/buy-wax/": {
+        "title": "Купимо віск - Медоїжка",
+        "desc": "Шукаєте, де вигідно продати віск? Купимо віск за найкращою ціною в Києві та з можливістю відправки поштою з усієї України. Швидка оплата гарантована!",
+        "canon": "/product/buy-wax/"
+    },
+    "https://medoizhka.com/product/wax-exchange/": {
+        "title": "Обмін воску на вощину Кулакова без доплат - Медоїжка",
+        "desc": "Обмін пасічного воску на вощину Кулакова без доплат. Умови: 1 кг воску міняємо на 800 грм вощини. Обмін за адресою, м.Київ, Троєщина, вул. Сержа Лифаря 4",
+        "canon": "/product/wax-exchange/"
+    },
+    "https://medoizhka.com/product/propolis-candles/": {
+        "title": "Прополісні свічки 10шт. - Медоїжка",
+        "desc": "Проблеми зі здоров'ям? Прополісні свічки можуть допомогти вам відновитися і знайти комфорт. Зробіть здоров'я пріоритетом!",
+        "canon": "/product/propolis-candles/"
+    },
+    "https://medoizhka.com/product/%d0%b3%d0%b0%d0%bb%d0%b5%d1%80%d0%b8%d0%bd-%d0%b1%d0%b0%d0%bb%d1%8c%d0%b7%d0%b0%d0%bc/": {
+        "title": "Галерин бальзам для легенів та бронхів - Медоїжка",
+        "desc": "Цілющий Галерин бальзам для легенів та бронхів. Склад: гомогенат личинок воскової молі, настоянка календули, бджолине маточне молочко, бджолине обніжжя.",
+        "canon": "/product/галерин-бальзам/"
+    },
+    "https://medoizhka.com/product/%d0%b1%d0%b4%d0%b6%d0%be%d0%bb%d0%b8%d1%87-%d0%b1%d0%b0%d0%bb%d1%8c%d0%b7%d0%b0%d0%bc/": {
+        "title": "Бджолич бальзам для серця та судин - Медоїжка",
+        "desc": "Бджолич бальзам цілющий для серця та судин. Склад: бджолиний підмор, настоянка глоду, екстракт личинок воскової молі, гомогенат, маточне молочко.",
+        "canon": "/product/бджолич-бальзам/"
+    },
+    "https://medoizhka.com/product/%d0%b1%d0%b4%d0%b6%d0%be%d0%bb%d0%b8%d0%bd%d0%b8%d0%b9-%d0%b1%d0%b0%d0%bb%d1%8c%d0%b7%d0%b0%d0%bc/": {
+        "title": "Бджолиний бальзам для зміцнення судин та чоловічого здоров’я - Медоїжка",
+        "desc": "Бджолиний бальзам - для зміцнення судин та чоловічого здоров’я. Склад: підмор, гемогенат, екстракт ехінацеї пурпурної, маточне молочко, прополіс, пилок.",
+        "canon": "/product/бджолиний-бальзам/"
+    },
+    "https://medoizhka.com/product/%d0%b2%d1%96%d1%82%d0%b0%d0%bc%d1%96%d0%bd%d1%87%d0%b8%d0%ba/": {
+        "title": "Вітамінчик - Медоїжка",
+        "desc": "Кількість: 60 таблеток Природний мультивітамінний комплекс, збагачений вітаміном С. Склад: Квітковий пилок (бджолине обніжжя) натуральний вітамін С (рослинний екстракт). ТУУ-30180024.005-2000",
+        "canon": "/product/вітамінчик/"
+    },
+    "https://medoizhka.com/product/%d0%bf%d0%be%d0%bb%d1%96%d0%ba%d0%be%d1%80/": {
+        "title": "Полікор - Медоїжка",
+        "desc": "Кількість: 60 таблеток Ефективний препарат при стійкій печії та підвищеній кислотності шлунку. Склад: Квітковий пилок (бджолине обніжжя) кореневища аїру супліддя вільхи. ТУУ-30180024.005-2000",
+        "canon": "/product/полікор/"
+    },
+    "https://medoizhka.com/product/%d0%b1%d0%b4%d0%b6%d0%be%d0%bb%d0%b8%d0%bd%d0%b8%d0%b9-%d1%85%d0%bb%d1%96%d0%b1/": {
+        "title": "Бджолиний хліб - Медоїжка",
+        "desc": "Маса: 35 г Профілактичний засіб для зміцнення імунітету. Склад: Хліб бджолиний (перга). ТУУ-30180024.005-2000",
+        "canon": "/product/бджолиний-хліб/"
+    },
+    "https://medoizhka.com/product/linden-honey/": {
+        "title": "Липовий мед - Медоїжка",
+        "desc": "Спробуйте чарівний смак липового меду, зібраного з запашних квітів! Замовляйте сьогодні і насолоджуйтеся натуральним нектаром 🍯.",
+        "canon": "/product/linden-honey/"
+    },
+    "https://medoizhka.com/product/flower-honey/": {
+        "title": "Квітковий мед - Медоїжка",
+        "desc": "Спробуйте справжній квітковий мед та відчуйте багатство аромату і смаку природи. Додайте цей природний дар у вашу кухню сьогодні!",
+        "canon": "/product/flower-honey/"
+    },
+    "https://medoizhka.com/product/prunes-in-acacia-honey/": {
+        "title": "Чорнослив з волоським горіхом у акацієвому меді - Медоїжка",
+        "desc": "Спробуйте наш Чорнослив у акацієвому меді з волоським горіхом, який підкорить ваші смакові рецептори. Насолоджуйтеся натуральними ласощами!",
+        "canon": "/product/prunes-in-acacia-honey/"
+    },
+    "https://medoizhka.com/product/forest-honey-%d0%b0cacia-and-raspberry/": {
+        "title": "Лісовий мед (Акація, Малина, Ожина...) - Медоїжка",
+        "desc": "Скуштуйте наш лісовий мед, наповнений нотками акації, малини, ожини. Відчуйте смак справжнього лісового скарбу, замовте зараз!",
+        "canon": "/product/forest-honey-аcacia-and-raspberry/"
+    },
+    "https://medoizhka.com/product/goldenrod-honey/": {
+        "title": "мед із золотарника: Справжнє Сонячне Диво - Медоїжка",
+        "desc": "Спробуйте мед із золотарника – сонячний подарунок природи! Насолоджуйтеся його приємно солодким смаком та унікальним ароматом. 🌼",
+        "canon": "/product/goldenrod-honey/"
+    },
+    "https://medoizhka.com/product/rapeseed-honey/": {
+        "title": "Ріпаковий мед - Медоїжка",
+        "desc": "Відкрийте для себе ніжний смак ріпакового меду. Колір майже білий. Обирайте натуральний ріпаковий мед для свого здоров'я та гармонії!",
+        "canon": "/product/rapeseed-honey/"
+    },
+    "https://medoizhka.com/product/%d0%bf%d0%b8%d0%bb%d0%be%d0%ba-%d0%ba%d0%b2%d1%96%d1%82%d0%ba%d0%be%d0%b2%d0%b8%d0%b9-%d0%b1%d0%b4%d0%b6%d0%be%d0%bb%d0%b8%d0%bd%d0%b5-%d0%be%d0%b1%d0%bd%d1%96%d0%b6%d0%b6%d1%8f/": {
+        "title": "Пилок квітковий (бджолине обніжжя) - Медоїжка",
+        "desc": "Маса: 150 г Природний мультивітамінний комплекс, який повністю засвоюється організмом людини. Склад: Натуральний очищений квітковий пилок (бджолине обніжжя). ДСТУ 3127-95",
+        "canon": "/product/пилок-квітковий-бджолине-обніжжя/"
+    },
+    "https://medoizhka.com/product/%d0%bf%d1%80%d0%be%d0%bf%d0%be%d0%bb%d1%96%d1%81%d0%bd%d0%b8%d0%b9-%d0%bc%d0%b5%d0%b4/": {
+        "title": "Прополісний мед - Медоїжка",
+        "desc": "Маса: 245 г Медова композиція для захисту організму Склад: Натуральний мед густа витяжка прополісу. ТУУ-30180024.003-99",
+        "canon": "/product/прополісний-мед/"
+    },
+    "https://medoizhka.com/product/%d0%bf%d0%be%d0%bb%d1%96%d1%81%d0%b0%d0%bd/": {
+        "title": "Полісан - Медоїжка",
+        "desc": "Маса: 245 г Це природний антибіотик, збагачений полівітамінним комплексом бджолинного обніжжя Склад: Натуральний мед густа витяжка прополісу квітковий пилок (бджолине обніжжя). ТУУ-30180024.003-99",
+        "canon": "/product/полісан/"
+    },
+    "https://medoizhka.com/product/%d0%bc%d0%b5%d0%bb%d1%96%d1%81%d0%b0%d0%bd/": {
+        "title": "Мелісан - Медоїжка",
+        "desc": "Маса: 245 г Відновлююча медова композиція для підтримання та зміцнення здоров’я людини Склад: Натуральний мед квітковий пилок (бджолине обніжжя) насичений екстракт ехінацеї пурпурової ТУУ-30180024.003-99",
+        "canon": "/product/мелісан/"
+    },
+    "https://medoizhka.com/product/%d0%ba%d0%be%d1%80%d0%be%d0%bb%d1%96%d0%b2%d1%81%d1%8c%d0%ba%d0%b5-%d0%b6%d0%b5%d0%bb%d0%b5/": {
+        "title": "Королівське желе - Медоїжка",
+        "desc": "Маса: 245 г Ефективний загальнозміцнюючий комплекс універсального неспецифічної дії Склад: Натуральний мед бджолине маточне молочко. ТУУ-30180024.003-99",
+        "canon": "/product/королівське-желе/"
+    },
+    "https://medoizhka.com/product/%d0%b7%d0%b5%d0%bb%d0%b5%d0%bd%d0%b8%d0%b9-%d0%bc%d0%b5%d0%b4/": {
+        "title": "Зелений мед - Медоїжка",
+        "desc": "Маса: 245 г Карамельний смак здоров’я, що не має аналогів за хімічним складом та поживними властивостями Склад: натуральний мед порошок спіруліни (мікроводорість Spirulina platensis) ТУУ-30180024.003-99",
+        "canon": "/product/зелений-мед/"
+    },
+    "https://medoizhka.com/product/%d0%b0%d0%bf%d1%96%d1%81%d0%b2%d1%96%d1%82/": {
+        "title": "Апісвіт - Медоїжка",
+        "desc": "Маса: 245 г Універсальна медова композиція, що об’єднала всі основні продукти бджільництва Склад: натуральний мед нативне бджолине маточне молочко густа витяжка прополісу, квітковий пилок (бджолине обніжжя). ТУУ-30180024.003-99",
+        "canon": "/product/апісвіт/"
+    },
+    "https://medoizhka.com/product/%d0%b0%d0%bf%d1%96%d0%bc%d0%be%d0%b4/": {
+        "title": "Апімод - Медоїжка",
+        "desc": "Маса: 245 г Унікальна медова композиція для підвищення імунітету та зміцнення організму Склад: натуральний мед бджолине маточне молочко квітковий пилок (бджолине обніжжя) насичений екстракт ехінацеї пурпурової ТУУ-30180024.003-99",
+        "canon": "/product/апімод/"
+    },
+    "https://medoizhka.com/product/dirty-honey-mixed-herbs-sunflower-1l/": {
+        "title": "Забрусний мед різнотрав'я + соняшник 1л (вага 1300 гр) - Медоїжка",
+        "desc": "Забрусний мед різнотрав'я + соняшник - це натуральний мед, що витік з розпечатаних стільників, зберігши максимум корисних речовин та ароматів. Очищений від воску та має неповторний смак.",
+        "canon": "/product/dirty-honey-mixed-herbs-sunflower-1l/"
+    },
+    "https://medoizhka.com/product/%d0%bc%d0%b5%d0%b4-%d1%80%d1%96%d0%b7%d0%bd%d0%be%d1%82%d1%80%d0%b0%d0%b2%d1%8f-%d1%82%d0%b0-%d1%81%d0%be%d0%bd%d1%8f%d1%88%d0%bd%d0%b8%d0%ba/": {
+        "title": "Мед різнотрав'я + соняшник 1л (вага 1300 гр) - Медоїжка",
+        "desc": "Мед різнотрав'я + соняшник - це натуральний мед, що поєднує солодкість соняшнику з багатим смаком різнотрав'я. Зміцнює імунітет та покращує травлення. Ідеально підходить для щоденного вживання, приготування десертів та лікування застуди.",
+        "canon": "/product/мед-різнотравя-та-соняшник/"
+    },
+    "https://medoizhka.com/product/%d0%be%d1%87%d0%b8%d1%89%d0%b5%d0%bd%d0%b8%d0%b9-%d0%bf%d1%80%d0%be%d0%bf%d0%be%d0%bb%d1%96%d1%81-10-%d0%b3%d1%80/": {
+        "title": "Очищений прополіс по грамах - Медоїжка",
+        "desc": "Прополіс - природний щит для вашого здоров'я! 💪 Зміцнює імунітет та бореться з інфекціями. 🌿 Має антибактеріальні, противірусні та протизапальні властивості. 👌 Сприяє загоєнню ран та покращує стан шкіри. В наявності: 👉 Обирайте натуральний прополіс та будьте здорові!",
+        "canon": "/product/очищений-прополіс-10-гр/"
+    },
+    "https://medoizhka.com/product/acacia-honey/": {
+        "title": "Акацієвий мед - Медоїжка",
+        "desc": "Спробуйте справжній дар природи – Акацієвий мед, що вражає ніжною текстурою і вишуканим ароматом. Замовте його вже сьогодні!",
+        "canon": "/product/acacia-honey/"
+    },
+    "https://medoizhka.com/product/mel-agrocultura-skrab-zaspokiilyvyi-lavanda-apelsyn/": {
+        "title": "Скраб для заспокійливий«Лаванда + апельсин» mel_agrocultura",
+        "desc": "Натуральний скраб для тіла заспокійливий лаванда-апельсин від mel_agrocultura. Глибоке очищення, зволоження шкіри та релакс. Замовляйте!",
+        "canon": "/product/mel-agrocultura-skrab-zaspokiilyvyi-lavanda-apelsyn/"
+    },
+    "https://medoizhka.com/product/mel-agrocultura-skrab-tonizuichyi-miata-evkalipt/": {
+        "title": "Скраб для тілатонізуючий «М'ята + евкаліпт» mel_agrocultura",
+        "desc": "Натуральний скраб для тіла тонізуючий м'ята-евкаліпт від mel_agrocultura. Глибоке очищення, свіжість та боротьба з целюлітом. Замовляйте!",
+        "canon": "/product/mel-agrocultura-skrab-tonizuichyi-miata-evkalipt/"
+    },
+    "https://medoizhka.com/product/mel-agrocultura-skrab-pomiakshuvalnyi-heran-troianda-hvozdyka/": {
+        "title": "Скраб для тіла пом’якшуючий «Герань + Троянда + Гвоздика»",
+        "desc": "Натуральний скраб для тіла пом’якшуючий Герань Троянда Гвоздика від mel_agrocultura. Глибоке очищення, зволоження та квітковий аромат з медом.",
+        "canon": "/product/mel-agrocultura-skrab-pomiakshuvalnyi-heran-troianda-hvozdyka/"
+    },
+    "https://medoizhka.com/product/shampun-lavanda-hlyna-blakytna/": {
+        "title": "Твердий шампунь Лаванда та Блакитна глина для сухої шкіри",
+        "desc": "Натуральний твердий шампунь від mel_agrocultura для сухої шкіри голови з медом та лавандою. Глибоко зволожує, прибирає лупу та відновлює ламке волосся.",
+        "canon": "/product/shampun-lavanda-hlyna-blakytna/"
+    },
+    "https://medoizhka.com/product/mel-agrocultura-skrab-ochyshchuiuchyi-kurkuma-med/": {
+        "title": "Скраб для тіла глибоке очищення «Куркума та Мед»",
+        "desc": "Натуральний скраб для тіла «Куркума та мед» від mel_agrocultura. Глибоке очищення, боротьба з целюлітом та ефект сяючої шкіри. Відчуйте силу меду!",
+        "canon": "/product/mel-agrocultura-skrab-ochyshchuiuchyi-kurkuma-med/"
+    },
+    "https://medoizhka.com/product/mel-agrocultura-shampun-polovi-kvity-kurkuma/": {
+        "title": "Твердий шампунь польові квіти + куркума для всіх типів волосся",
+        "desc": "Натуральний твердий шампунь від mel_agrocultura для всіх типів волосся з медом та куркумою. Зміцнює корені, зупиняє випадіння та дарує природний блиск.",
+        "canon": "/product/mel-agrocultura-shampun-polovi-kvity-kurkuma/"
+    },
+    "https://medoizhka.com/product/mel-agrocultura-shampun-miata-spirulina/": {
+        "title": "Твердий шампунь «М’ята та Спіруліна» для жирного волосся",
+        "desc": "Натуральний твердий шампунь «М’ята та Спіруліна» від Mel Agrocultura. Глибоке очищення та свіжість — ідеальний твердий шампунь для жирного волосся.",
+        "canon": "/product/mel-agrocultura-shampun-miata-spirulina/"
+    },
+    "https://medoizhka.com/product/mel-agrocultura-lodianyk-medovo-propolisnyi/": {
+        "title": "Льодяник медово-прополюсний (8 г) mel_agrocultura",
+        "desc": "Натуральний льодяник з прополісом, медом, імбиром та лимоном. Ручна робота, інгредієнти з власної пасіки від mel_agrocultura.",
+        "canon": "/product/mel-agrocultura-lodianyk-medovo-propolisnyi/"
+    },
+    "https://medoizhka.com/product/mel-agrocultura-lodianyk-medovyi-imunoaktyv/": {
+        "title": "Льодяник медовий «Імуноактив» (8 г) — mel_agrocultura",
+        "desc": "Натуральний льодяник медовий імуноактив з пилком, прополісом, імбиром та лимоном. Ручна робота, інгредієнти з власної пасіки. Замовляйте!",
+        "canon": "/product/mel-agrocultura-lodianyk-medovyi-imunoaktyv/"
+    },
+    "https://medoizhka.com/product/scalding-vat-caro/": {
+        "title": "Шпарильний Чан Каро \"Caro\" (Шпарчан Електр. з Терморег.) - Медоїжка",
+        "desc": "Шпарильний чан каро забезпечує надійний нагрів рідин з терморегулятором. Ідеальний вибір для сільського господарства та обробки сировини!",
+        "canon": "/product/scalding-vat-caro/"
+    },
+    "https://medoizhka.com/product/vidsitjnyk-dlia-vosku-konus-z-krysh/": {
+        "title": "Відстійник для воску \"Конус\" з киршкою на 20л нерж. - Медоїжка",
+        "desc": "Відстійник для воску \"Конус\" з кришкою - ідеальний вибір для бджолярів, що прагнуть до зручності. Поспішайте придбати та полегшити процес роботи!",
+        "canon": "/product/vidsitjnyk-dlia-vosku-konus-z-krysh/"
+    },
+    "https://medoizhka.com/product/electric-wax-press-sincera/": {
+        "title": "Електричний Воскопрес СІНЦЕРА \"SINCERA\" - Медоїжка",
+        "desc": "Отримайте максимальний вихід бджолиного воску з нашим електричним воскопресом СІНЦЕРА. Професійний і ефективний – замовляйте зараз!",
+        "canon": "/product/electric-wax-press-sincera/"
+    },
+    "https://medoizhka.com/product-category/balzamy/": {
+        "title": "Настоянки та Бальзами - Медоїжка",
+        "desc": "",
+        "canon": "/product-category/balzamy/"
+    },
+    "https://medoizhka.com/product-category/kosmetsevtyka/": {
+        "title": "Натуральна косметика з продуктами бджільництва",
+        "desc": "Натуральна косметика на основі продуктів бджільництва та сучасних наукових підходів. Індивідуальний підхід. Крафтове виробництво.",
+        "canon": "/product-category/kosmetsevtyka/"
+    },
+    "https://medoizhka.com/product-category/equipment/": {
+        "title": "Обладнання для Господарства та Фермерства - Медоїжка",
+        "desc": "",
+        "canon": "/product-category/equipment/"
+    },
+    "https://medoizhka.com/product-category/services/": {
+        "title": "Послуги - Медоїжка",
+        "desc": "",
+        "canon": "/product-category/services/"
+    },
+    "https://medoizhka.com/product-category/wax-exchange/": {
+        "title": "Приймаємо пасічний віск - Медоїжка",
+        "desc": "",
+        "canon": "/product-category/wax-exchange/"
+    },
+    "https://medoizhka.com/product-category/honey-and-kompozytsiyi/": {
+        "title": "Мед та Медові композиції - Медоїжка",
+        "desc": "",
+        "canon": "/product-category/honey-and-kompozytsiyi/"
+    },
+    "https://medoizhka.com/product-category/propolis/": {
+        "title": "Прополіс - Медоїжка",
+        "desc": "Прополіс - являє собою смолисту речовину, яку бджоли збирають з бруньок дерев та використовують для захисту вулика від бактерій та вірусів.",
+        "canon": "/product-category/propolis/"
+    },
+    "https://medoizhka.com/product-category/wax/": {
+        "title": "Віск - Медоїжка",
+        "desc": "",
+        "canon": "/product-category/wax/"
+    },
+    "https://medoizhka.com/product-category/nuts/": {
+        "title": "Горішки - Медоїжка",
+        "desc": "",
+        "canon": "/product-category/nuts/"
+    },
+    "https://medoizhka.com/product-category/perga/": {
+        "title": "Перга - Медоїжка",
+        "desc": "Бджолина перга – створений бджолами для власного харчування та розвитку личинок. Вітаміни групи B, вітаміни C, D, E, K, каротиноїди, ферменти...",
+        "canon": "/product-category/perga/"
+    },
+    "https://medoizhka.com/product-category/pollen/": {
+        "title": "Пилок (бдолине обніжжя) - Медоїжка",
+        "desc": "Пилок (бдолине обніжжя) - природний енергетик, джерело білків та вітаміни групи B, вітаміни C, D, E, K, мінерали (калій, кальцій, магній, фосфор, залізо)",
+        "canon": "/product-category/pollen/"
+    },
+    "https://medoizhka.com/product-tag/pregnancy-and-lactation/": {
+        "title": "Вагітність та період лактації Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/pregnancy-and-lactation/"
+    },
+    "https://medoizhka.com/product-tag/child-health/": {
+        "title": "Дитяче здоров'я Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/child-health/"
+    },
+    "https://medoizhka.com/product-tag/endocrine-system/": {
+        "title": "Ендокринна система Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/endocrine-system/"
+    },
+    "https://medoizhka.com/product-tag/womens-health/": {
+        "title": "Жіноче здоров'я Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/womens-health/"
+    },
+    "https://medoizhka.com/product-tag/nervous-system/": {
+        "title": "Нервова система Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/nervous-system/"
+    },
+    "https://medoizhka.com/product-tag/kidneys-and-urinary-bladder/": {
+        "title": "Нирки та сечовий міхур Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/kidneys-and-urinary-bladder/"
+    },
+    "https://medoizhka.com/product-tag/respiratory-system/": {
+        "title": "Органи дихання Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/respiratory-system/"
+    },
+    "https://medoizhka.com/product-tag/eyes/": {
+        "title": "Очі Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/eyes/"
+    },
+    "https://medoizhka.com/product-tag/liver-and-gallbladder/": {
+        "title": "Печінка та жовчний міхур Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/liver-and-gallbladder/"
+    },
+    "https://medoizhka.com/product-tag/oral-cavity/": {
+        "title": "Ротова порожнина Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/oral-cavity/"
+    },
+    "https://medoizhka.com/product-tag/cardiovascular-system/": {
+        "title": "Серцево-судинна система Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/cardiovascular-system/"
+    },
+    "https://medoizhka.com/product-tag/athletes/": {
+        "title": "Спортсменам Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/athletes/"
+    },
+    "https://medoizhka.com/product-tag/joints/": {
+        "title": "Суглоби Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/joints/"
+    },
+    "https://medoizhka.com/product-tag/mens-health/": {
+        "title": "Чоловіче здоров'я Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/mens-health/"
+    },
+    "https://medoizhka.com/product-tag/skin/": {
+        "title": "Шкіра Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/skin/"
+    },
+    "https://medoizhka.com/product-tag/digestive-system/": {
+        "title": "Шлунок та кишечник Архіви - Медоїжка",
+        "desc": "",
+        "canon": "/product-tag/digestive-system/"
+    },
+    "https://medoizhka.com/brand/beekeeper-of-ukraine-and-medoizhka/": {
+        "title": "beekeeper_of_ukraine & medoizhka - Медоїжка",
+        "desc": "Дізнайтеся про beekeeper_of_ukraine та medoizhka. Ми пропонуємо вироби, які допоможуть вам у вашому бізнесі на пасіці.",
+        "canon": "/brand/beekeeper-of-ukraine-and-medoizhka/"
+    },
+    "https://medoizhka.com/brand/mel-agrocultura/": {
+        "title": "mel_agrocultura - Медоїжка",
+        "desc": "Сімейна пасіка mel_agrocultura пропонує натуральні продукти бджільництва та свічки. Замовляйте в Києві натуральні якісні товари.",
+        "canon": "/brand/mel-agrocultura/"
+    },
+    "https://medoizhka.com/brand/apiprodukt/": {
+        "title": "Апіпродукт - Медоїжка",
+        "desc": "",
+        "canon": "/brand/apiprodukt/"
+    },
+    "https://medoizhka.com/brand/kulakova/": {
+        "title": "Житомирський воско-вощинний завод (Кулакова) - Медоїжка",
+        "desc": "",
+        "canon": "/brand/kulakova/"
+    },
+    "https://medoizhka.com/brand/medoizhka/": {
+        "title": "ТМ \"Медоїжка\" - Медоїжка",
+        "desc": "Медоїжка пропонує натуральні продукти бджільництва з власної пасіки. Замовляйте у нас якісні продукти на будь-який смак.",
+        "canon": "/brand/medoizhka/"
+    },
+    "https://medoizhka.com/category/kurs-bdzhilnictva/": {
+        "title": "Курс з бджільництва - Медоїжка",
+        "desc": "",
+        "canon": "/category/kurs-bdzhilnictva/"
+    },
+    "https://medoizhka.com/author/iuad1737/": {
+        "title": "Обліковий запис",
+        "desc": "налаштування профілю або історію замовлень",
+        "canon": "/author/iuad1737/"
+    }
+}

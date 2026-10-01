@@ -1,0 +1,41 @@
+# База даних MySQL для Медоїжка (локальна розробка)
+# Запуск:  docker compose up -d
+# Зупинка: docker compose stop
+# Дані зберігаються у томі medoizhka_db_data і переживають перезапуски.
+services:
+  db:
+    image: mysql:8.0
+    container_name: medoizhka-mysql
+    restart: unless-stopped
+    ports:
+      - "3309:3306"          # порт 3307, щоб не конфліктувати з MySQL від XAMPP
+    environment:
+      MYSQL_DATABASE: medoizhka
+      MYSQL_USER: medoizhka
+      MYSQL_PASSWORD: medoizhka_secret
+      MYSQL_ROOT_PASSWORD: root_secret
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - medoizhka_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pmedoizhka_secret"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Веб-інтерфейс до бази: http://localhost:8081 (логін bofu / medoizhka_secret)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: medoizhka-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: medoizhka
+      PMA_PASSWORD: medoizhka_secret
+    depends_on:
+      - db
+
+volumes:
+  medoizhka_db_data:

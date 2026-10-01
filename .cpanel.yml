@@ -1,0 +1,26 @@
+---
+# Розгортання через cPanel → Git Version Control → «Deploy HEAD Commit».
+#
+# cPanel тримає власний клон репозиторію (у ~/repositories, не в public_html) і при
+# «Deploy» виконує ці команди. Сайт лягає в ~/public_html/medoizhka-v2 і відкривається
+# за адресою https://medoizhka.com/medoizhka-v2/ — поруч зі старим сайтом, не чіпаючи його.
+#
+# rsync, а не «cp -R *»: зірочка не бачить файлів із крапкою, а на них тримається
+# захист (.htaccess у корені, app/, bin/, storage/, assets/uploads/). Тека .git, локальні
+# та службові файли не копіюються.
+#
+# --delete навмисно немає: поруч на сервері лежать завантажені фото й config.local.php,
+# яких у git немає. Їх не можна стерти помилкою в одному виключенні.
+deployment:
+  tasks:
+    - export DEPLOYPATH=$HOME/public_html/medoizhka-v2
+    - /bin/mkdir -p $DEPLOYPATH
+    # ./ зі скісною — «вміст теки», а не тека всередину теки
+    - /usr/bin/rsync -a --exclude=.git --exclude=.gitignore --exclude=.cpanel.yml --exclude=docker-compose.yml --exclude=router.php --exclude=config.local.php ./ $DEPLOYPATH/
+    # Права ПІСЛЯ rsync: -a переносить 0700 клону cPanel на теку сайту, і веб-сервер
+    # переставав би в неї заходити («File not found» на наявний файл)
+    - /bin/chmod 755 $DEPLOYPATH
+    # Теки, у які пише сайт. Без -R: усередині storage — файли сесій (діючі входи)
+    - /bin/mkdir -p $DEPLOYPATH/storage/logs $DEPLOYPATH/storage/sessions $DEPLOYPATH/storage/cache $DEPLOYPATH/assets/uploads
+    - /bin/chmod 755 $DEPLOYPATH/storage $DEPLOYPATH/storage/logs $DEPLOYPATH/storage/sessions $DEPLOYPATH/storage/cache $DEPLOYPATH/assets/uploads
+    - /bin/echo "Розгорнуто в $DEPLOYPATH. Перше встановлення — php bin/install.php (див. README)."

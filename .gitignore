@@ -1,0 +1,27 @@
+# налаштування сервера/машини (секрети!) — зразок лежить у config.local.example.php
+/config.local.php
+# робочі дані: логи, сесії, кеш, ключі, знімки — у репозиторії лише порожні теки й захист
+/storage/*
+!/storage/.htaccess
+!/storage/logs/
+/storage/logs/*
+!/storage/logs/.gitkeep
+!/storage/sessions/
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+!/storage/cache/
+/storage/cache/*
+!/storage/cache/.gitkeep
+!/storage/keys/
+/storage/keys/*
+!/storage/keys/.gitkeep
+# завантажені й перенесені фото — це вміст, не код (на сервер їх кладе bin/install.php)
+/assets/uploads/*
+!/assets/uploads/.htaccess
+# сміття IDE/ОС
+.vs/
+.idea/
+.vscode/
+Thumbs.db
+desktop.ini
+.DS_Store

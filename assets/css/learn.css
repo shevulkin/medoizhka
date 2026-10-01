@@ -1,0 +1,43 @@
+/* Плеєр курсу. Спокійний професійний стиль поверх site.css. */
+.ln{max-width:1440px;margin:0 auto;padding:36px 32px 90px}
+.ln-top{display:grid;grid-template-columns:1fr auto;gap:14px 32px;align-items:end;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.ln-back{grid-column:1/-1;font:600 10.5px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.ln-back:hover{color:var(--ink)}
+.ln-course{font-size:clamp(28px,3vw,44px);line-height:1.1}
+.ln-progress{display:grid;gap:8px;min-width:240px;font-size:13px;color:var(--muted)}
+.ln-bar{height:3px;background:var(--line);position:relative;overflow:hidden;border:0}
+.ln-bar i{display:block;height:100%;background:var(--amber-d);transition:width .5s}
+.ln-warn{background:#fbf3e4;border-left:2px solid var(--amber-d);padding:12px 16px;margin-bottom:22px;font-size:14px;color:var(--muted)}
+.ln-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:36px;align-items:start}
+.ln-stage{position:relative;aspect-ratio:16/9;background:#111;box-shadow:0 40px 80px -50px rgba(0,0,0,.6)}
+.ln-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ln-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ddd;text-align:center;padding:20px}
+.ln-resume{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(17,15,13,.72)}
+.ln-resume[hidden]{display:none}
+.ln-resume-box{background:#fff;padding:28px 32px;text-align:center;display:grid;gap:16px}
+.ln-resume-box p{font:500 24px/1.2 var(--serif);color:var(--ink)} .ln-resume-box>div{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ln-bar2{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:30px 0 10px}
+.ln-bar2 h2{font-size:clamp(24px,2.4vw,34px);flex:1 1 320px}
+.ln-ctrl{display:flex;gap:10px;flex-wrap:wrap}
+.ln-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;background:transparent;color:var(--ink)!important;border:1px solid var(--line2);font:600 10.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.ln-btn:hover{border-color:var(--ink)}
+.ln-btn-gold{background:var(--ink);border-color:var(--ink);color:#fff!important}
+.ln-btn-gold:hover{background:#3a332c;border-color:#3a332c}
+.ln-btn:disabled{opacity:.35;cursor:not-allowed}
+.ln-mark.on{background:#eef5ee;border-color:var(--ok);color:var(--ok)!important}
+.ln-notes{margin-top:28px;background:#fff;border:1px solid var(--line);padding:22px 24px}
+.ln-notes label{display:flex;justify-content:space-between;gap:12px;font:600 10.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.ln-notes textarea{width:100%;border:0;border-top:1px solid var(--line);padding:14px 0 0;font:16px/1.7 var(--sans);resize:vertical;min-height:150px;background:transparent;color:var(--ink)}
+.ln-notes textarea:focus{outline:0}
+.ln-saved{opacity:0;transition:opacity .3s;color:var(--ok);text-transform:none;letter-spacing:0;font-weight:500}
+.ln-saved.on{opacity:1}
+.ln-list{background:#fff;border:1px solid var(--line);max-height:calc(100vh - 130px);overflow:auto;position:sticky;top:96px}
+.ln-list ol{list-style:none}
+.ln-item{width:100%;display:grid;grid-template-columns:30px 1fr 18px;gap:12px;align-items:center;text-align:left;padding:15px 18px;background:#fff;border:0;border-bottom:1px solid var(--line);font:500 14.5px/1.4 var(--sans);color:var(--ink);cursor:pointer;transition:background .15s}
+.ln-item:hover{background:var(--bg)}
+.ln-item.is-active{background:var(--bg2);box-shadow:inset 2px 0 0 var(--amber-d)}
+.ln-item.is-locked{color:var(--dim)}
+.ln-num{font:500 13px/1 var(--sans);color:var(--dim);font-variant-numeric:tabular-nums}
+.ln-state{color:var(--ok);text-align:center;font-weight:600}
+.ln-item.is-done .ln-name{color:var(--dim)}
+@media (max-width:1020px){.ln-grid{grid-template-columns:1fr}.ln-list{position:static;max-height:440px}.ln-top{grid-template-columns:1fr}.ln{padding:24px 20px 70px}}

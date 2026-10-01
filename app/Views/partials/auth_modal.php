@@ -1,0 +1,237 @@
+<div class="modal-back" id="authModal">
+  <div class="modal">
+    <h3>Вхід і реєстрація</h3>
+    <?php /* Навіщо входити — і, головне, що для покупки це не обовʼязково.
+             Без цього рядка модалка читається як обовʼязкова реєстрація перед
+             замовленням, і частина покупців закриває її разом із кошиком.
+
+             Другий рядок — про те, що окремої реєстрації тут немає й не буде.
+             Це навмисний задум (див. EmailAuth): пароля в системі не існує,
+             акаунт створює саме володіння скринькою чи номером, а доводиться
+             воно тим самим кодом. Але задум був видний лише з коду: вікно
+             називалось «Вхід на сайт», кнопки казали «Увійти», і новий покупець
+             шукав кнопку «Зареєструватися», якої немає. Тепер сказано вголос. */ ?>
+    <p class="dim" style="margin:-4px 0 16px">Історія замовлень, збережені адреси й сповіщення
+      про наявність. Щоб купити, входити не обовʼязково.<br>
+      <b>Окремої реєстрації немає:</b> якщо акаунта ще нема, він створиться сам — паролів ми не питаємо.</p>
+    <div class="stack">
+      <?php if (GoogleAuth::configured()): ?>
+        <a class="btn btn-gold" href="<?= e(url('/auth/google')) ?>">Увійти через Google</a>
+      <?php endif; ?>
+      <?php if (Telegram::configured()): ?>
+        <button class="btn btn-line" id="tgLoginBtn" type="button">Увійти через Telegram</button>
+      <?php endif; ?>
+      <?php /* Входу через Viber тут немає навмисно, і це не забута кнопка.
+               Viber не має чим довести, що надісланий номер належить саме
+               співрозмовнику: у контакті немає поля, з яким це можна звірити
+               (у Telegram воно є — див. Telegram::onContact). Тому Viber
+               лишається каналом сповіщень і доставки коду, а не способом
+               увійти: код приходить у ВЖЕ підключений месенджер, тобто туди,
+               куди сторонній не дістане. */ ?>
+      <?php if (Telegram::configured() || Viber::configured()): ?>
+        <button class="btn btn-line" id="phoneLoginBtn" type="button">Увійти за номером телефону</button>
+      <?php endif; ?>
+      <?php /* Вхід поштою показуємо завжди — і навмисно без жодної умови
+               «якщо налаштовано». Це єдиний шлях, який не вимагає ні акаунта
+               Google, ні Telegram: людина з телефоном і будь-якою поштою
+               (ukr.net, meta.ua, робоча) заводить кабінет сама. Саме через
+               його відсутність такий покупець лишався вічним гостем —
+               міг купити, але не міг мати історії замовлень. */ ?>
+      <button class="btn btn-line" id="emailLoginBtn" type="button">Увійти за поштою</button>
+    </div>
+
+    <?php /* Відповідь сайту стоїть над обома формами, а не між ними: раніше
+             для пошти вона зʼявлялась під полем, а для телефону — над, і те
+             саме повідомлення доводилось шукати щоразу в іншому місці. */ ?>
+    <div id="loginHint" class="auth-note" role="status" aria-live="polite" style="display:none"></div>
+
+    <div id="emailLoginBox" style="display:none;margin-top:14px">
+      <div class="field"><label>Пошта</label><input type="email" id="emailInput" placeholder="you@ukr.net" autocomplete="email"></div>
+      <div class="field" id="emailCodeField" style="display:none"><label>Код з листа</label><input type="text" id="emailCodeInput" placeholder="123456" inputmode="numeric" autocomplete="one-time-code"></div>
+      <button class="btn btn-gold btn-sm" id="emailSendBtn" type="button">Отримати код</button>
+      <button class="btn btn-gold btn-sm" id="emailVerifyBtn" type="button" style="display:none">Увійти</button>
+      <?php /* Лист загубився — і до цього моменту зробити з цим не можна було
+               нічого: кнопка «Отримати код» ховалась назавжди, лишалась сама
+               «Увійти», а вводити не було чого. Єдиним виходом було
+               перезавантажити сторінку — здогадатись до цього мусив покупець
+               сам. Стеля в три листи на адресу за годину нікуди не ділась, і
+               саме вона тут захист, а не прихована кнопка. */ ?>
+      <button class="btn btn-line btn-sm" id="emailResendBtn" type="button" style="display:none">Надіслати ще раз</button>
+      <?php /* Про теку «Спам» сказано наперед, а не після скарги: лист іде
+               звичайним mail() з хостингу, і поки на домені не налаштовані
+               SPF і DKIM, частина поштових служб кладе його саме туди. */ ?>
+      <p class="dim" style="margin-top:8px">Надішлемо код одним листом — на будь-яку вашу адресу,
+        знайому нам чи ні: у другому випадку акаунт створиться після введення коду.
+        Якщо листа немає за хвилину — подивіться в теці «Спам»: код видно прямо в темі листа.</p>
+    </div>
+
+    <div id="phoneLoginBox" style="display:none;margin-top:14px">
+      <div class="field"><label>Номер телефону</label><input type="tel" id="phoneInput" placeholder="067 123 45 67"></div>
+      <div class="field" id="codeField" style="display:none"><label>Код з месенджера</label><input type="text" id="codeInput" placeholder="123456" inputmode="numeric"></div>
+      <button class="btn btn-gold btn-sm" id="phoneSendBtn" type="button">Отримати код</button>
+      <button class="btn btn-gold btn-sm" id="codeVerifyBtn" type="button" style="display:none">Увійти</button>
+      <?php /* Те саме, що й у пошті: месенджер теж буває мовчазний */ ?>
+      <button class="btn btn-line btn-sm" id="phoneResendBtn" type="button" style="display:none">Надіслати ще раз</button>
+      <p class="dim" style="margin-top:8px">Код прийде у ваш Telegram або Viber, привʼязаний до акаунта.</p>
+    </div>
+
+    <?php /* Демо-входу тут більше немає. Він видавав адмін-права одним POST без
+             пароля, а стримував його один прапорець у config.local.php — тобто
+             випадково скопійований на сервер рядок віддавав магазин чужому, і
+             ніщо про це не попереджало. Для локальної розробки те саме дає
+             `php bin/cli.php grant-admin`, і воно не живе в бойовому коді. */ ?>
+    <div class="stack"><button class="btn btn-line btn-sm" id="authClose" type="button">Скасувати</button></div>
+  </div>
+</div>
+<script>
+(function(){
+  var base = '<?= e(url('/')) ?>'.replace(/\/$/, '');
+  var csrf = '<?= e(Csrf::token()) ?>';
+  var hint = document.getElementById('loginHint');
+  /*
+   * kind: 'info' — що робити далі, 'ok' — вийшло, 'error' — не вийшло.
+   * Типово 'error': сюди потрапляє все, що сервер повернув як помилку, і
+   * мовчазне перефарбовування невдачі в нейтральне було б гіршим за помилку.
+   */
+  var SIGN = { info: 'i', ok: '✓', error: '!' };
+  function show(msg, kind){
+    if (!hint) return;
+    kind = SIGN[kind] ? kind : 'error';
+    hint.style.display = 'flex';
+    hint.textContent = msg;
+    hint.setAttribute('data-sign', SIGN[kind]);
+    // Клас знімається й ставиться заново, щоб анімація програлась і тоді, коли
+    // одне повідомлення змінює інше: інакше текст підмінявся б беззвучно
+    hint.className = 'auth-note is-' + kind;
+    void hint.offsetWidth;
+    hint.classList.add('is-new');
+  }
+  function pollStatus(url){
+    var n = 0;
+    var t = setInterval(function(){
+      if (++n > 60) { clearInterval(t); show('Час вийшов. Спробуйте ще раз.'); return; }
+      fetch(base + url).then(r=>r.json()).then(function(d){
+        if (d.logged_in) { clearInterval(t); location.reload(); }
+      });
+    }, 2500);
+  }
+  function startLogin(startUrl, statusUrl, hintMsg){
+    fetch(base + startUrl).then(r=>r.json()).then(function(d){
+      if (!d.ok) { show(d.error || 'Недоступно', d.kind); return; }
+      window.open(d.url, '_blank');
+      show(hintMsg, 'info');
+      pollStatus(statusUrl);
+    });
+  }
+  var tg = document.getElementById('tgLoginBtn');
+  if (tg) tg.addEventListener('click', function(){ startLogin('/auth/tg/start', '/auth/tg/status', 'У боті натисніть Start, а тоді «Поділитися номером» — сайт увійде автоматично…'); });
+
+  var eb = document.getElementById('emailLoginBtn');
+  if (eb) eb.addEventListener('click', function(){
+    var box = document.getElementById('emailLoginBox');
+    var pBox = document.getElementById('phoneLoginBox');
+    if (pBox) pBox.style.display = 'none';
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  });
+  /*
+   * Відлік на кнопці «Надіслати ще раз».
+   *
+   * Пауза все одно тримається на сервері — тут лише видно, скільки лишилось.
+   * Без цього кнопка або мовчки відмовляє, або людина тисне її раз за разом,
+   * не розуміючи, чому нічого не відбувається.
+   */
+  function cooldown(btn, sec, label){
+    if (!btn) return;
+    var left = sec;
+    btn.disabled = true;
+    btn.textContent = label + ' (' + left + ')';
+    clearInterval(btn._t);
+    btn._t = setInterval(function(){
+      if (--left > 0) { btn.textContent = label + ' (' + left + ')'; return; }
+      clearInterval(btn._t);
+      btn.disabled = false;
+      btn.textContent = label;
+    }, 1000);
+  }
+
+  var emailSend = document.getElementById('emailSendBtn');
+  var emailResend = document.getElementById('emailResendBtn');
+  function emailStart(resent){
+    var fd = new FormData();
+    fd.append('_csrf', csrf); fd.append('email', document.getElementById('emailInput').value);
+    return fetch(base + '/auth/email/start', {method:'POST', body: fd}).then(r=>r.json()).then(function(d){
+      if (!d.ok) {
+        show(d.error || 'Помилка', d.kind);
+        // Сервер сам каже, скільки чекати — не вигадуємо це на клієнті.
+        // Відлік вішаємо на ту кнопку, яка зараз на екрані: до першого коду це
+        // «Отримати код», далі — «Надіслати ще раз».
+        if (d.retry_after) {
+          var vis = (emailResend && emailResend.style.display !== 'none') ? emailResend : emailSend;
+          cooldown(vis, d.retry_after, vis === emailSend ? 'Отримати код' : 'Надіслати ще раз');
+        }
+        return;
+      }
+      show(resent
+        ? 'Новий код надіслано. Попередній більше не діє.'
+        : 'Код надіслано. Введіть його нижче — і не забувайте про теку «Спам».', 'ok');
+      document.getElementById('emailCodeField').style.display = 'block';
+      document.getElementById('emailVerifyBtn').style.display = 'inline-flex';
+      if (emailSend) emailSend.style.display = 'none';
+      if (emailResend) { emailResend.style.display = 'inline-flex'; cooldown(emailResend, 60, 'Надіслати ще раз'); }
+    });
+  }
+  if (emailSend) emailSend.addEventListener('click', function(){ emailStart(false); });
+  if (emailResend) emailResend.addEventListener('click', function(){ emailStart(true); });
+  var emailVer = document.getElementById('emailVerifyBtn');
+  if (emailVer) emailVer.addEventListener('click', function(){
+    var fd = new FormData();
+    fd.append('_csrf', csrf); fd.append('code', document.getElementById('emailCodeInput').value);
+    fetch(base + '/auth/email/verify', {method:'POST', body: fd}).then(r=>r.json()).then(function(d){
+      if (d.logged_in) location.reload(); else show(d.error || 'Невірний код');
+    });
+  });
+
+  var pb = document.getElementById('phoneLoginBtn');
+  if (pb) pb.addEventListener('click', function(){
+    var box = document.getElementById('phoneLoginBox');
+    var eBox = document.getElementById('emailLoginBox');
+    if (eBox) eBox.style.display = 'none';
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  });
+  var sendBtn = document.getElementById('phoneSendBtn');
+  var phoneResend = document.getElementById('phoneResendBtn');
+  function phoneStart(resent){
+    var fd = new FormData();
+    fd.append('_csrf', csrf); fd.append('phone', document.getElementById('phoneInput').value);
+    return fetch(base + '/auth/phone/start', {method:'POST', body: fd}).then(r=>r.json()).then(function(d){
+      if (!d.ok) {
+        show(d.error || 'Помилка', d.kind);
+        if (d.retry_after) {
+          var vis = (phoneResend && phoneResend.style.display !== 'none') ? phoneResend : sendBtn;
+          cooldown(vis, d.retry_after, vis === sendBtn ? 'Отримати код' : 'Надіслати ще раз');
+        }
+        return;
+      }
+      // Сервер сам каже, у який месенджер і на який номер пішов код: у людини
+      // може бути підключений і Telegram, і Viber, і «перевірте месенджер»
+      // означало б відкрити обидва
+      show((d.where || ('Код надіслано у ' + d.via + '.'))
+         + (resent ? ' Попередній більше не діє.' : ' Введіть його нижче.'), 'ok');
+      document.getElementById('codeField').style.display = 'block';
+      document.getElementById('codeVerifyBtn').style.display = 'inline-flex';
+      if (sendBtn) sendBtn.style.display = 'none';
+      if (phoneResend) { phoneResend.style.display = 'inline-flex'; cooldown(phoneResend, 60, 'Надіслати ще раз'); }
+    });
+  }
+  if (sendBtn) sendBtn.addEventListener('click', function(){ phoneStart(false); });
+  if (phoneResend) phoneResend.addEventListener('click', function(){ phoneStart(true); });
+  var verBtn = document.getElementById('codeVerifyBtn');
+  if (verBtn) verBtn.addEventListener('click', function(){
+    var fd = new FormData();
+    fd.append('_csrf', csrf); fd.append('code', document.getElementById('codeInput').value);
+    fetch(base + '/auth/phone/verify', {method:'POST', body: fd}).then(r=>r.json()).then(function(d){
+      if (d.logged_in) location.reload(); else show(d.error || 'Невірний код');
+    });
+  });
+})();
+</script>
