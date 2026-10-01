@@ -59,18 +59,18 @@ php -S localhost:8090 router.php     # сайт: http://localhost:8090
 
 ## Розгортання на хостинг (cPanel)
 
-Репозиторій: https://github.com/shevulkin/medoizhka.git. Тека сайту: `~/public_html/medoizhka-v2`
-(адреса `https://medoizhka.com/medoizhka-v2/`, поруч зі старим сайтом).
+Репозиторій: https://github.com/shevulkin/medoizhka.git. Тека сайту: `~/public_html/medoizhka` — на неї дивиться
+домен medoizhka.com. `.cpanel.yml` не розгортає поверх WordPress: якщо в теці є `wp-config.php`, Deploy зупиниться.
 
 1. cPanel → **Git Version Control** → Create → Clone URL `https://github.com/shevulkin/medoizhka.git`,
    Repository Path, наприклад `~/repositories/medoizhka` (НЕ в public_html).
-2. **Manage → Pull or Deploy → Deploy HEAD Commit.** `.cpanel.yml` скопіює код у `~/public_html/medoizhka-v2`
+2. **Manage → Pull or Deploy → Deploy HEAD Commit.** `.cpanel.yml` скопіює код у `~/public_html/medoizhka`
    (rsync із прихованими `.htaccess`, без `.git`, `docker-compose.yml`, `router.php`).
 3. cPanel → **MySQL Databases**: створити базу й користувача, дати йому ALL PRIVILEGES.
-4. У `~/public_html/medoizhka-v2/` створити `config.local.php` за зразком `config.local.example.php`.
-5. cPanel → **Terminal**: `cd ~/public_html/medoizhka-v2 && php bin/install.php` — таблиці, налаштування,
+4. У `~/public_html/medoizhka/` створити `config.local.php` за зразком `config.local.example.php`.
+5. cPanel → **Terminal**: `cd ~/public_html/medoizhka && php bin/install.php` — таблиці, налаштування,
    каталог із фото зі старого сайту, курси, контакти. Старий сайт має бути доступний у цей момент.
-6. Відкрити `https://medoizhka.com/medoizhka-v2/`. Вхід адміна — «Увійти за поштою» на yevgenii.vasylenko@gmail.com
+6. Відкрити `https://medoizhka.com/`. Вхід адміна — «Увійти за поштою» на yevgenii.vasylenko@gmail.com
    (лист піде, коли в адмінці → Налаштування буде задано пошту відправника).
 
 Далі кожне оновлення: push у GitHub → у cPanel «Update from Remote» → «Deploy HEAD Commit».
@@ -84,7 +84,7 @@ php -S localhost:8090 router.php     # сайт: http://localhost:8090
 - **Вхід через Google** — Google Identity Services, як у Site Kit: потрібен лише Client ID
   `181991088530-…apps.googleusercontent.com`, секрет не потрібен. ID-токен перевіряється на сервері
   (`GoogleAuth::verifyIdToken`: підпис через Google, `aud` = наш Client ID, підтверджена пошта). Client ID дозволений
-  Google для домену medoizhka.com, тому працює і на `/medoizhka-v2/`, і після запуску; на localhost — ні.
+  Google для домену medoizhka.com, тому працює на бойовому сайті; на localhost — ні.
 - **GA4** `GT-M63L9WSM` і **Tag Manager** `GTM-P2NJJJTV`, Consent Mode v2 як був. Події e-commerce GA4:
   `view_item` (товар), `add_to_cart` (будь-яка кнопка «У кошик»), `purchase` (сторінка «Замовлення прийнято»).
   Аналітика вантажиться **лише коли сайт відкритий** (`seo_noindex` вимкнено), щоб тестування не засмічувало статистику.
@@ -92,3 +92,15 @@ php -S localhost:8090 router.php     # сайт: http://localhost:8090
   мета-тегом — Налаштування → «Search Console: код мета-тегу».
 - **CSP** (`Security::csp`) дозволяє лише Google (вхід, теги, аналітика) і плеєр Bunny. Новий сервіс у Tag Manager
   (наприклад, піксель Facebook) — дописати його домен туди.
+
+## Переїзд зі старого сайту на новий (порядок)
+
+1. cPanel → File Manager: перейменувати теку старого WordPress `public_html/medoizhka` → `medoizhka-wp-old`
+   (не видаляти — це резервна копія).
+2. Перейменувати тестову `public_html/medoizhka-v2` → `public_html/medoizhka`. Разом із нею переїдуть
+   `config.local.php` і фото — розгортання їх не чіпає.
+3. Відкрити https://medoizhka.com/ → увійти адміном → Налаштування → зняти «закрито від пошуковиків».
+   Разом із цим вмикаються аналітика (GA4, Tag Manager) і sitemap.
+4. Git Version Control → Update from Remote → Deploy HEAD Commit — перевірити, що оновлення лягають у нову теку.
+5. Перевірити адреси: `cd ~/public_html/medoizhka && php bin/seo-audit.php https://medoizhka.com` (має бути 0 розбіжностей).
+6. Search Console → Sitemaps: додати `https://medoizhka.com/sitemap.xml` (старі `*-sitemap.xml` видалити).
