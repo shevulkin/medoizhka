@@ -8,6 +8,12 @@ class App
         // Найпершими: заголовки мають піти навіть із тією відповіддю, яка
         // впаде помилкою або редіректом. Усе, що нижче, вже може щось віддати.
         Security::headers();
+        // LiteSpeed (хостинг): сторінки не кешуємо — вони персональні (кошик, ім'я, CSRF).
+        // А кеш, що лишився від WordPress, один раз чистимо цілком: інакше сервер ще
+        // віддавав би старі сторінки замість нових. Прапорець — щоб не чистити щоразу.
+        header('X-LiteSpeed-Cache-Control: no-cache');
+        $purged = BOFU_ROOT . '/storage/cache/.lscache-purged';
+        if (!is_file($purged) && is_dir(dirname($purged))) { header('X-LiteSpeed-Purge: *'); @touch($purged); }
         if (!self::dbReady()) return;
         $path = request_path();
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';

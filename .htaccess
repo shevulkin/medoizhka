@@ -50,6 +50,13 @@ Options -Indexes
   </FilesMatch>
 </IfModule>
 
+# Кеш LiteSpeed для цього сайту вимкнено. Він лишився від WordPress (LiteSpeed Cache)
+# і віддавав старі сторінки замість нових. Сторінки тут персональні: кошик, ім'я,
+# CSRF-токен у формах, тож спільна кешована копія показала б одній людині дані іншої.
+<IfModule LiteSpeed>
+  CacheLookup off
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   # Поки сайт закритий від пошуковиків (налаштування seo_noindex), PHP тримає в корені
