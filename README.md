@@ -106,7 +106,9 @@ php -S localhost:8090 router.php     # сайт: http://localhost:8090
 6. Search Console → Sitemaps: додати `https://medoizhka.com/sitemap.xml` (старі `*-sitemap.xml` видалити).
 7. Наявність, ціни й фасовки зі старої бази WordPress (її лише читає):
    `php bin/wp-stock.php` — показує, що зміниться; `php bin/wp-stock.php --apply` — записує.
-   Шлях до старого `wp-config.php` можна передати аргументом (за замовчуванням `~/public_html/medoizhka-v2/wp-config.php`).
+   Стару установку скрипт шукає сам (`~/public_html/*/wp-config.php`, `~/*/wp-config.php` — береться та, де є товари).
+   Можна вказати шлях до старого `wp-config.php` аргументом, а якщо теки старого сайту вже немає —
+   задати базу змінними: `WP_DB_NAME=… WP_DB_USER=… WP_DB_PASSWORD=… php bin/wp-stock.php`.
 
 ## Наявність на вітрині
 

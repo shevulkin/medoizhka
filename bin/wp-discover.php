@@ -4,24 +4,14 @@ declare(strict_types=1);
  * Розвідка старої бази WordPress перед переносом даних. ЛИШЕ ЧИТАЄ.
  *
  *   php bin/wp-discover.php [шлях до старого wp-config.php]
- *   (за замовчуванням ~/public_html/medoizhka-v2/wp-config.php)
+ *   Без шляху стару установку шукає сам (див. bin/wp-old.php).
  *
  * Виводить лише кількості, назви таблиць, ключів і плагінів — жодних імен, пошт,
  * телефонів чи паролів. Вивід можна безпечно скопіювати в чат розробнику.
  */
-$cfg = $argv[1] ?? (getenv('HOME') . '/public_html/medoizhka-v2/wp-config.php');
-if (!is_file($cfg)) { fwrite(STDERR, "Не знайдено $cfg — вкажіть шлях до старого wp-config.php аргументом\n"); exit(1); }
-$src = file_get_contents($cfg);
-$def = function (string $k) use ($src): string {
-    return preg_match("~define\(\s*['\"]" . $k . "['\"]\s*,\s*['\"](.*?)['\"]\s*\)~", $src, $m) ? stripcslashes($m[1]) : '';
-};
-$prefix = preg_match('~\$table_prefix\s*=\s*[\'"]([^\'"]+)[\'"]~', $src, $m) ? $m[1] : 'wp_';
-$host = $def('DB_HOST') ?: 'localhost';
-$port = 3306;
-if (str_contains($host, ':')) [$host, $port] = explode(':', $host, 2);
-$pdo = new PDO("mysql:host=$host;port=$port;dbname=" . $def('DB_NAME') . ';charset=utf8mb4', $def('DB_USER'), $def('DB_PASSWORD'),
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-$q = fn(string $sql, array $a = []) => ($s = $pdo->prepare($sql)) && $s->execute($a) ? $s->fetchAll(PDO::FETCH_ASSOC) : [];
+require __DIR__ . '/wp-old.php';
+[$pdo, $prefix] = wpOldConnect($argv[1] ?? null);
+$q =fn(string $sql, array $a = []) => ($s = $pdo->prepare($sql)) && $s->execute($a) ? $s->fetchAll(PDO::FETCH_ASSOC) : [];
 $v = fn(string $sql, array $a = []) => ($r = $q($sql, $a)) ? array_values($r[0])[0] : null;
 $t = fn(string $name) => $prefix . $name;
 $exists = fn(string $table) => (bool)$q('SHOW TABLES LIKE ?', [$table]);
