@@ -35,7 +35,7 @@ $items = [
     [
         'show'  => Auth::can('orders.create'),
         'href'  => '/admin/orders/new',
-        'label' => 'Каса',
+        'label' => 'Продаж',
         'on'    => $cur === '/admin/orders/new',
         'icon'  => '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/>'
                  . '<path d="M2.5 3.5h2.6l2.4 11.1a1 1 0 0 0 1 .8h9a1 1 0 0 0 1-.8L20.5 7H6"/>',
@@ -47,7 +47,7 @@ $items = [
     [
         'show'  => Auth::can('offers.manage') && Offers::enabled(),
         'href'  => '/admin/offers',
-        'label' => 'Торг',
+        'label' => 'Ціни',
         'on'    => str_starts_with($cur, '/admin/offers'),
         'icon'  => '<path d="M21 11.5a8 8 0 0 1-11.7 7.1L4 20.5l1.9-5.2A8 8 0 1 1 21 11.5z"/>',
         // Розмова, помічена через тиждень, дорівнює відмові: покупець на той

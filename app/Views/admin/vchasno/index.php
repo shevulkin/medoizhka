@@ -1,4 +1,4 @@
-<div class="admin-head"><h1 class="h-serif">Каса (ПРРО)</h1></div>
+<div class="admin-head"><h1 class="h-serif">Фіскальні чеки (ПРРО)</h1></div>
 
 <p class="card-lead" style="margin:-14px 0 22px">
   Стан каси, зміна та звіти. Самі чеки живуть у картках замовлень — тут лише те, що

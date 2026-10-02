@@ -1,4 +1,4 @@
-<div class="admin-head"><h1 class="h-serif">Власники точок</h1></div>
+<div class="admin-head"><h1 class="h-serif">Юридичні особи (ФОП)</h1></div>
 
 <p class="card-lead" style="margin:-14px 0 22px">
   Мережа буває однією лише на вигляд: два магазини можуть належати одному ФОПу, а третій —

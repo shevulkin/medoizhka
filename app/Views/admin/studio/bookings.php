@@ -1,6 +1,6 @@
 <?php /** @var array $rows */
 $st = ['new' => 'Нова', 'confirmed' => 'Підтверджена', 'done' => 'Виконана', 'cancelled' => 'Скасована']; ?>
-<div class="admin-head"><h1 class="h-serif">Заявки</h1></div>
+<div class="admin-head"><h1 class="h-serif">Бронювання</h1></div>
 <p class="dim" style="margin-bottom:16px">Заявки на візити, майстер-класи та консультації. Нові приходять у Telegram, пошту й push (налаштовується в «Сповіщення»).</p>
 <div class="admin-card"><div style="overflow:auto"><table class="admin-table" style="width:100%">
   <tr><th>Коли надійшла</th><th>Що</th><th>Хто</th><th>Дата / гостей</th><th>Повідомлення</th><th>Статус</th></tr>

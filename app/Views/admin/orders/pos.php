@@ -16,7 +16,7 @@
  * кроці разом і працюють як раніше — тап по плитці, скан, Enter.
  */
 ?>
-<div class="admin-head"><h1 class="h-serif">Каса</h1>
+<div class="admin-head"><h1 class="h-serif">Продаж у крамниці</h1>
   <?php if ($active): ?>
     <form method="post" action="<?= e(url('/admin/orders/new')) ?>" style="margin:0">
       <?= Csrf::field() ?><input type="hidden" name="_action" value="cancel">

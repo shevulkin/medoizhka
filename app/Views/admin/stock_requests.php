@@ -1,4 +1,4 @@
-<div class="admin-head"><h1 class="h-serif">Очікують товар</h1></div>
+<div class="admin-head"><h1 class="h-serif">Запити на надходження</h1></div>
 
 <p class="card-lead" style="margin:-14px 0 22px">
   Люди, які просили повідомити про наявність. Це не побажання, а <b>черга на виробництво</b>:

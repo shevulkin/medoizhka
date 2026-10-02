@@ -110,7 +110,7 @@ class Kasa
                                  LEFT JOIN orders o ON o.id = f.order_id
                                  WHERE f.status = 'done' AND f.type <> 'service' AND f.store_id = ?
                                  ORDER BY f.id DESC LIMIT 20", [$case['store_id']]) : [],
-            'page_title' => 'Каса — адмінка',
+            'page_title' => 'Фіскальні чеки — Панель керування',
         ], 'layouts/admin');
     }
 
@@ -209,7 +209,7 @@ class Kasa
             'parsed' => $parsed,
             'report' => $report,
             'tax_groups' => \Vchasno::TAX_GROUPS,
-            'page_title' => 'Каса: товари — адмінка',
+            'page_title' => 'Фіскальні чеки: товари — Панель керування',
         ], 'layouts/admin');
     }
 

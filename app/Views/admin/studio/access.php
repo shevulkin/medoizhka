@@ -1,5 +1,5 @@
 <?php /** @var array $courses, $rows */ ?>
-<div class="admin-head"><h1 class="h-serif">Доступ до курсів</h1></div>
+<div class="admin-head"><h1 class="h-serif">Доступ до відеокурсів</h1></div>
 <p class="dim" style="max-width:760px;margin-bottom:18px">Доступ відкривається сам після оплати курсу на сайті. Тут його видають вручну: наприклад, тим, хто купив курс на старому сайті. Людина входить на сайт тією поштою, яку ви вказали, і бачить курс у «Мої курси».</p>
 <form class="admin-card" method="post" action="<?= e(url('/admin/access')) ?>" style="display:flex;gap:14px;flex-wrap:wrap;align-items:end">
   <?= Csrf::field() ?><input type="hidden" name="_action" value="grant">

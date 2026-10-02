@@ -8,7 +8,7 @@
  */
 $imageKeys = [];   // ключі з фото — приховані форми для них лежать унизу сторінки
 ?>
-<div class="admin-head"><h1 class="h-serif">Контент сайту</h1></div>
+<div class="admin-head"><h1 class="h-serif">Тексти сайту</h1></div>
 
 <div class="admin-card" style="border-color:var(--gold);display:flex;gap:20px;align-items:center;flex-wrap:wrap">
   <div style="flex:1;min-width:260px">

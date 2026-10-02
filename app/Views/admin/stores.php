@@ -1,4 +1,4 @@
-<div class="admin-head"><h1 class="h-serif">Магазини</h1></div>
+<div class="admin-head"><h1 class="h-serif">Точки продажу</h1></div>
 <form class="admin-card" method="post" action="<?= e(url('/admin/stores')) ?>" style="display:flex;gap:14px;align-items:end;flex-wrap:wrap">
   <?= Csrf::field() ?><input type="hidden" name="_action" value="add">
   <div style="flex:1;min-width:160px" data-help-title="Назва магазину"

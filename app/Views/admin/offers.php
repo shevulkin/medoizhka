@@ -9,7 +9,7 @@
  * а вони важать лише разом.
  */
 ?>
-<div class="admin-head"><h1 class="h-serif">Торг</h1></div>
+<div class="admin-head"><h1 class="h-serif">Пропозиції ціни</h1></div>
 
 <p class="card-lead" style="margin:-14px 0 22px">
   Покупці пропонують свою ціну за свою кількість. Ви можете <b>погодитись</b>,

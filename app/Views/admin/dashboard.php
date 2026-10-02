@@ -1,4 +1,4 @@
-<div class="admin-head"><h1 class="h-serif">Панель</h1></div>
+<div class="admin-head"><h1 class="h-serif">Огляд</h1></div>
 <div class="stat-grid">
   <div class="stat" data-help-title="Нових замовлень"
        data-help="Скільки замовлень чекають, щоб ними зайнялись, — тих, що ще в статусі «Нове».

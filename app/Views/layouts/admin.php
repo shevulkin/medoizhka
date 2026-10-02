@@ -19,7 +19,7 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= e($page_title ?? 'Адмінка') ?></title>
+<title><?= e($page_title ?? 'Панель керування') ?></title>
 <meta name="theme-color" content="#ffffff">
 <?php /* Легкий значок вкладки; велика іконка лишається манифесту й apple-touch */ ?>
 <link rel="icon" href="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" type="image/webp">
@@ -33,7 +33,7 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
 <div class="admin-mobilebar">
   <button class="mobile-menu-btn" style="display:flex" onclick="document.querySelector('.admin-side').classList.toggle('open')">☰</button>
   <img src="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" width="34" height="34" alt="" class="admin-mobilebar-logo">
-  <b><?= Auth::isAdmin() ? 'Адмінпанель' : 'Кабінет продавця' ?></b>
+  <b><?= Auth::isAdmin() ? 'Панель керування' : 'Кабінет продавця' ?></b>
   <?php if (Auth::actingAs() !== null): ?>
     <span class="role-tag"><?= e(Roles::label(Auth::actingAs())) ?></span>
   <?php endif; ?>
@@ -41,7 +41,7 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
 <div class="admin-wrap">
   <aside class="admin-side">
     <a class="brand" href="<?= e(url('/')) ?>">
-      <img src="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" width="46" height="46" alt="Медоїжка"> <span class="brand-text">Медоїжка<small><?= Auth::isAdmin() ? 'Адмінпанель' : 'Кабінет продавця' ?></small></span>
+      <img src="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" width="46" height="46" alt="Медоїжка"> <span class="brand-text">Медоїжка<small><?= Auth::isAdmin() ? 'Панель керування' : 'Кабінет продавця' ?></small></span>
     </a>
     <?php
     /**
@@ -55,7 +55,7 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
      */
     $groups = [
         ['', [
-            ['/admin', 'Панель', true],
+            ['/admin', 'Огляд', true],
         ]],
         ['Продажі', [
             ['/admin/orders', 'Замовлення', true],
@@ -64,16 +64,16 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
             // покупець на той час уже купив деінде.
             // Число тут — єдине, що нагадує про чергу саме. Замовлення, помічене
             // через день, це день, який покупець прочекав дарма.
-            ['/admin/dispatch', 'Розподіл' . (($d = Dispatch::todoCount()) > 0 ? ' · ' . $d : ''),
+            ['/admin/dispatch', 'Розподіл замовлень' . (($d = Dispatch::todoCount()) > 0 ? ' · ' . $d : ''),
                 Auth::can('orders.manage')],
-            ['/admin/offers', 'Торг' . ($offers_todo > 0 ? ' · ' . $offers_todo : ''),
+            ['/admin/offers', 'Пропозиції ціни' . ($offers_todo > 0 ? ' · ' . $offers_todo : ''),
                 Auth::can('offers.manage') && Offers::enabled()],
-            ['/admin/orders/new', Pos::active() ? '🛒 Каса · продаж триває' : 'Каса (новий продаж)', Auth::can('orders.create')],
+            ['/admin/orders/new', Pos::active() ? 'Продаж у крамниці · триває' : 'Продаж у крамниці', Auth::can('orders.create')],
             // Пункт зʼявляється лише там, де налаштована каса: без токена він
             // веде на екран, який уміє тільки сказати «токена немає»
-            ['/admin/vchasno', 'Каса (ПРРО)', Auth::can('fiscal.manage') && FiscalProvider::anyConfigured()],
+            ['/admin/vchasno', 'Фіскальні чеки (ПРРО)', Auth::can('fiscal.manage') && FiscalProvider::anyConfigured()],
             ['/admin/promos', 'Акції та промокоди', Auth::can('promos.manage')],
-            ['/admin/bundles', 'Набори (разом дешевше)', Auth::can('promos.manage')],
+            ['/admin/bundles', 'Набори товарів', Auth::can('promos.manage')],
             ['/admin/wholesale', 'Оптові знижки', Auth::can('promos.manage')],
             ['/admin/subscribers', 'Розсилка', Auth::can('subscribers.manage')],
         ]],
@@ -81,27 +81,27 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
             ['/admin/products', 'Товари', true],
             ['/admin/products/bulk', 'Масове редагування', true],
             ['/admin/products/codes', 'Коди й штрихкоди', Auth::can('products.manage')],
-            ['/admin/stock-requests', 'Очікують товар', true],
+            ['/admin/stock-requests', 'Запити на надходження', true],
             ['/admin/categories', 'Категорії', Auth::can('catalog.manage')],
             ['/admin/attributes', 'Характеристики', Auth::can('catalog.manage')],
             ['/admin/brands', 'Бренди', Auth::can('catalog.manage')],
         ]],
-        ['Мережа', [
-            ['/admin/stores', 'Магазини', Auth::can('stores.manage')],
-            ['/admin/owners', 'Власники (ФОПи)', Auth::can('stores.manage')],
-            ['/admin/users', 'Користувачі', Auth::can('users.manage')],
+        ['Компанія', [
+            ['/admin/stores', 'Точки продажу', Auth::can('stores.manage')],
+            ['/admin/owners', 'Юридичні особи (ФОП)', Auth::can('stores.manage')],
+            ['/admin/users', 'Користувачі та ролі', Auth::can('users.manage')],
         ]],
-        ['Медоїжка', [
-            ['/admin/bookings', 'Заявки (візити, консультації)', Auth::can('content.manage')],
-            ['/admin/lessons', 'Відеокурси (Bunny)', Auth::can('content.manage')],
+        ['Послуги й навчання', [
+            ['/admin/bookings', 'Бронювання', Auth::can('content.manage')],
+            ['/admin/lessons', 'Відеокурси', Auth::can('content.manage')],
             ['/admin/access', 'Доступ до відеокурсів', Auth::can('users.manage')],
             ['/admin/practitioners', 'Апітерапевти', Auth::can('content.manage')],
             ['/admin/places', 'Пасіки й апібудиночки', Auth::can('content.manage')],
         ]],
         ['Сайт', [
-            ['/admin/content', 'Контент сайту', Auth::can('content.manage')],
+            ['/admin/content', 'Тексти сайту', Auth::can('content.manage')],
             ['/admin/partners', 'Партнери', Auth::can('content.manage')],
-            ['/admin/media', 'Медіа-бібліотека', Auth::can('media.manage')],
+            ['/admin/media', 'Медіатека', Auth::can('media.manage')],
             ['/admin/diplomas', 'Дипломи', Auth::can('diplomas.manage')],
         ]],
         ['Система', [
@@ -170,6 +170,7 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
 window.BOFU = { base: '<?= e(url('/')) ?>', vapid: '<?= e(Settings::get('vapid_public', '')) ?>', csrf: '<?= e(Csrf::token()) ?>' };
 </script>
 <script src="<?= e(asset_v('js/admin.js')) ?>" defer></script>
+<script src="<?= e(asset_v('js/rich-editor.js')) ?>" defer></script>
 <?php /* На самій касі смужка зайва — чек там і так перед очима */ ?>
 <?php if (Pos::active() && !$pos_screen) echo View::partial('partials/pos_bar'); ?>
 <?php /* Нижня панель — лише на телефоні (сховану ширшим за 900px робить CSS).

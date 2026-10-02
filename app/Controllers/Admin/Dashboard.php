@@ -23,7 +23,7 @@ class Dashboard
         $recent = DB::all("SELECT * FROM orders WHERE $where ORDER BY id DESC LIMIT 8");
         View::show('admin/dashboard', [
             'stats' => $stats, 'recent' => $recent,
-            'page_title' => 'Панель — ' . cfg('app_name'),
+            'page_title' => 'Огляд — Панель керування',
         ], 'layouts/admin');
     }
 }

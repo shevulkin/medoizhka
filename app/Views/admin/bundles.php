@@ -44,7 +44,7 @@ $helpKind = '«Відсоток» — набір дешевший на N% від
 Ціна — за один комплект: два комплекти по 500 коштують 1000.';
 ?>
 <div class="admin-head">
-  <h1 class="h-serif" data-help-title="Набори «разом дешевше»" data-help="<?= e($intro) ?>">Набори</h1>
+  <h1 class="h-serif" data-help-title="Набори «разом дешевше»" data-help="<?= e($intro) ?>">Набори товарів</h1>
   <?php if ($list): ?>
     <button class="btn btn-gold btn-sm" type="button" id="newBundleToggle">+ Новий набір</button>
   <?php endif; ?>
