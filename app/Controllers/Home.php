@@ -231,8 +231,15 @@ class Home
         ]);
     }
 
+    /** Перевірка дипломів має сенс, лише коли дипломи видано; доти сторінки для відвідувачів немає */
+    public static function diplomasEnabled(): bool
+    {
+        return (bool)DB::val('SELECT 1 FROM diplomas LIMIT 1');
+    }
+
     public static function diploma(): never
     {
+        if (!self::diplomasEnabled() && !\Auth::isStaff()) { http_response_code(404); View::show('errors/404'); }
         View::show('home/diploma', [
             'result' => null,
             /*

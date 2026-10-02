@@ -87,7 +87,7 @@
       </div>
     <?php endif; ?>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-      <a class="btn btn-gold" href="<?= e(url('/shop')) ?>">Продовжити покупки</a>
+      <a class="btn btn-gold" href="<?= e(url('/shop/')) ?>">Продовжити покупки</a>
       <a class="btn btn-line" href="<?= e(url('/')) ?>">На головну</a>
     </div>
   </div>

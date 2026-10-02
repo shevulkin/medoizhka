@@ -49,8 +49,8 @@ if (count($vars) > 1) {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
           <span>Повідомити</span>
         </a>
-      <?php elseif (count($vars) > 1 || $pr === null): ?>
-        <a class="pc-btn" href="<?= e($href) ?>" aria-label="Обрати: <?= e($prod['name']) ?>"><?= $pr === null ? 'Детальніше' : 'Обрати' ?></a>
+      <?php elseif (count($vars) > 1 || $pr === null || Catalog::isService($prod)): ?>
+        <a class="pc-btn" href="<?= e($href) ?>" aria-label="Обрати: <?= e($prod['name']) ?>"><?= $pr === null || Catalog::isService($prod) ? 'Детальніше' : 'Обрати' ?></a>
       <?php else: ?>
         <form method="post" action="<?= e(url('/cart/add')) ?>" class="add-cart-form" data-product-name="<?= e($prod['name']) ?>"><?= Csrf::field() ?>
           <input type="hidden" name="product_id" value="<?= (int)$prod['id'] ?>">

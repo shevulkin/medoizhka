@@ -41,6 +41,9 @@ class Directory
         $f = ['kind' => (string)($_GET['type'] ?? ''), 'region' => trim((string)($_GET['region'] ?? ''))];
         View::show('directory/places', [
             'items' => Dir::places($f), 'f' => $f, 'regions' => Dir::regions('places'),
+            // порожній розділ і відфільтровані варіанти — не для індексу (дублі й «місць немає»)
+            'noindex' => !Dir::hasPlaces() || $f['kind'] !== '' || $f['region'] !== '',
+            'canonical' => abs_url('/pasiky/'),
             'page_title' => seo_title('Відвідування пасік, апібудиночки та майстер-класи'),
             'meta_description' => 'Платні відвідування пасік, відпочинок в апібудиночках, дихання бджолиним повітрям і майстер-класи: опис, вартість, як дістатися й запис онлайн.',
             'jsonld' => [JsonLd::breadcrumbs([['Головна', '/'], ['Пасіки й апібудиночки', null]])],

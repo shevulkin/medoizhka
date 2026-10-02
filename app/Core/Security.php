@@ -64,6 +64,13 @@ class Security
         // тому адресу сторінки адмінки з номером замовлення.
         header('Referrer-Policy: strict-origin-when-cross-origin');
 
+        // Лише HTTPS: браузер, раз побачивши сайт, більше не йде на http:// навіть за
+        // старим посиланням — підмінити першу відповідь у кафе-Wi-Fi вже не вийде.
+        // Без includeSubDomains: піддомени (nubip…) живуть своїм життям.
+        if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+            header('Strict-Transport-Security: max-age=31536000');
+        }
+
         // Можливості, яких сайту не треба. Камера — виняток: нею читають
         // штрихкоди на касі й на екрані кодів, і лише з нашого ж домену.
         header('Permissions-Policy: camera=(self), microphone=(), geolocation=(), '
@@ -117,6 +124,8 @@ class Security
     private const GOOGLE_TAGS = 'https://www.googletagmanager.com https://*.googletagmanager.com';
     private const GOOGLE_ANALYTICS = 'https://*.google-analytics.com https://*.analytics.google.com https://*.g.doubleclick.net https://www.google.com';
     private const BUNNY_PLAYER = 'https://iframe.mediadelivery.net';
+    // Карта на сторінці «Контакти» (Google Maps embed) — див. Site::pageHtml
+    private const GOOGLE_MAPS = 'https://www.google.com';
 
     private static function csp(): string
     {
@@ -132,7 +141,7 @@ class Security
             "connect-src $self " . self::GOOGLE_AUTH . '/gsi/ ' . self::GOOGLE_TAGS . ' ' . self::GOOGLE_ANALYTICS,
             "media-src $self blob:",          // потік із камери
             "worker-src $self blob:",         // service worker (PWA) і декодер коду
-            "frame-src " . self::BUNNY_PLAYER . ' ' . self::GOOGLE_AUTH . ' ' . self::GOOGLE_TAGS,
+            "frame-src " . self::BUNNY_PLAYER . ' ' . self::GOOGLE_MAPS . ' ' . self::GOOGLE_AUTH . ' ' . self::GOOGLE_TAGS,
             "object-src 'none'",
             "base-uri $self",
             "form-action $self",

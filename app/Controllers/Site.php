@@ -25,14 +25,6 @@ class Site
         // вітрині бренду виглядає як недбалість. Спершу те, що є на складі, далі «під замовлення».
         $av = Catalog::AVAIL_SQL;
         $buyable = "$av < " . Catalog::AVAIL_OUT;
-        // Хіти: спершу позначені «хіт», далі ті, що мають і фото, і ціну — порожня картка на головній гірша за відсутню
-        // Мед і апіпродукти — першими: саме по них приходять на головну
-        $products = DB::all("SELECT p.*, $av AS _avail FROM products p JOIN categories c ON c.id = p.category_id
-                             WHERE p.active = 1 AND p.type <> 'course' AND $buyable
-                             ORDER BY _avail, p.featured DESC, (c.slug = 'honey-and-kompozytsiyi') DESC,
-                                      (c.slug IN ('pollen','perga','propolis')) DESC,
-                                      (p.image IS NULL), (p.base_price IS NULL), p.id DESC LIMIT 8");
-        Catalog::preloadBrands($products);
         // Плитка категорії — лише там, де зараз є що купити; фото — з товару, який є
         $cats = [];
         foreach (Catalog::rootCategories() as $c) {
@@ -40,7 +32,8 @@ class Site
             if ((int)$row['n'] === 0) continue;
             $cats[] = $c + ['n' => (int)$row['n'], 'img' => $row['img']];
         }
-        // Медова палітра: сорти від світлого до темного. Колір — умовний відтінок сорту.
+        // «Наш мед»: сорти від світлого до темного — ті, що є; далі решта меду з наявності.
+        // Колір — умовний відтінок сорту.
         $palette = [];
         foreach ([['Акацієвий', '#f4e3a1', 'Світлий, ніжний, довго не кристалізується'], ['Ріпак', '#f2ead0', 'Кремовий, швидко кристалізується'],
                   ['Липов', '#efcd6a', 'Запашний, з м’ятною нотою'], ['Квіткови', '#e8ae45', 'Класичний смак літнього поля'],
@@ -51,9 +44,29 @@ class Site
                           ['%' . $needle . '%', $needle . '%']);
             if ($p) $palette[] = ['p' => $p, 'color' => $color, 'note' => $note];
         }
+        $shownIds = array_map(fn($h) => (int)$h['p']['id'], $palette);
+        if (count($palette) < 4) {
+            $more = DB::all("SELECT p.*, $av AS _avail FROM products p JOIN categories c ON c.id = p.category_id
+                             WHERE p.active = 1 AND c.slug = 'honey-and-kompozytsiyi' AND $buyable"
+                             . ($shownIds ? ' AND p.id NOT IN (' . implode(',', $shownIds) . ')' : '')
+                             . ' ORDER BY _avail, p.featured DESC, p.id LIMIT ' . (4 - count($palette)));
+            foreach ($more as $p) { $palette[] = ['p' => $p, 'color' => '', 'note' => '']; $shownIds[] = (int)$p['id']; }
+        }
+        // «Обладнання та послуги» — окремий блок нижче
+        $beeCats = "'equipment','services','wax-exchange'";
         $forBeekeepers = DB::all("SELECT p.*, $av AS _avail FROM products p JOIN categories c ON c.id = p.category_id
-                                  WHERE p.active = 1 AND c.slug IN ('equipment','services','wax-exchange') AND $buyable
+                                  WHERE p.active = 1 AND c.slug IN ($beeCats) AND $buyable
                                   ORDER BY _avail, c.sort, p.id LIMIT 4");
+        // «Популярні» не повторюють того, що вже стоїть на головній вище й нижче:
+        // ні меду з «Нашого меду», ні обладнання з окремого блоку для бджолярів.
+        // Хіти першими; далі мед і апіпродукти — саме по них приходять на головну.
+        $products = DB::all("SELECT p.*, $av AS _avail FROM products p JOIN categories c ON c.id = p.category_id
+                             WHERE p.active = 1 AND p.type <> 'course' AND $buyable AND c.slug NOT IN ($beeCats)"
+                             . ($shownIds ? ' AND p.id NOT IN (' . implode(',', $shownIds) . ')' : '') . "
+                             ORDER BY _avail, p.featured DESC, (c.slug = 'honey-and-kompozytsiyi') DESC,
+                                      (c.slug IN ('pollen','perga','propolis')) DESC,
+                                      (p.image IS NULL), (p.base_price IS NULL), p.id DESC LIMIT 8");
+        Catalog::preloadBrands($products);
         View::show('home/index', [
             'products' => $products,
             'cats' => $cats,
@@ -155,10 +168,7 @@ class Site
 
     private static function page(array $page): never
     {
-        // Скрипти зі старої верстки не переносимо: сторінка лише читається
-        $body = preg_replace('~<script\b[^>]*>.*?</script>~is', '', (string)$page['body']);
-        // {assets} — маркер, яким bin/localize-images.php замінив адреси картинок старого сайту
-        $body = str_replace('{assets}/', base_url('assets/'), $body);
+        $body = self::pageHtml((string)$page['body']);
         View::show('site/page', [
             'page' => $page, 'body' => $body,
             'page_title' => $page['seo_title'] ?: seo_title($page['title']),
@@ -166,6 +176,47 @@ class Site
             'canonical' => abs_url(course_path($page['slug'])),
             'jsonld' => [JsonLd::breadcrumbs([['Головна', '/'], [$page['title'], null]])],
         ]);
+    }
+
+    /**
+     * Текст сторінки, перенесеної з WordPress, — до показу. База не змінюється: правила
+     * застосовуються щоразу, тож і старі, і відредаговані тексти виглядають однаково.
+     */
+    public static function pageHtml(string $html): string
+    {
+        // Скрипти зі старої верстки не переносимо: сторінка лише читається
+        $html = preg_replace('~<script\b[^>]*>.*?</script>~is', '', $html);
+        // {assets} — маркер, яким bin/localize-images.php замінив адреси картинок старого сайту
+        $html = str_replace('{assets}/', base_url('assets/'), $html);
+        // Фото, обгорнуте посиланням на «сторінку вкладення» WordPress (/med02/?v=…):
+        // таких сторінок у нас немає, посилання вело на 404. Лишаємо саме фото.
+        $html = preg_replace('~<a\b[^>]*>\s*(<img\b[^>]*>)\s*</a>~i', '$1', $html);
+        // H1 на сторінці один — її назва; заголовки першого рівня з тексту стають другим
+        $html = preg_replace('~<(/?)h1\b~i', '<$1h2', $html);
+        // Наші посилання — відносні й одразу зі скісною в кінці: без зайвого 301 і
+        // однаково на домені й на локальній копії
+        $html = preg_replace_callback('~\bhref="(?:https?://(?:www\.)?medoizhka\.com)?(/[^"#?]*)([?#][^"]*)?"~i', function ($m) {
+            $path = $m[1]; $tail = $m[2] ?? '';
+            if ($path !== '/' && !str_ends_with($path, '/') && !preg_match('~\.[a-z0-9]{2,5}$~i', $path)) $path .= '/';
+            return 'href="' . e(url($path)) . e(html_entity_decode($tail)) . '"';
+        }, $html);
+        // Карта-локатор зі стороннього сховища (800px завширшки, блокується політикою
+        // безпеки) — звичайна карта Google з адресою крамниці
+        $addr = Content::title('contact_address', 'м. Київ, вул. Сержа Лифаря, 4');
+        $html = preg_replace('~<iframe\b[^>]*storage\.googleapis\.com[^>]*>\s*</iframe>~i',
+            '<div class="map-embed"><iframe src="https://www.google.com/maps?q=' . rawurlencode('Медоїжка, ' . $addr)
+            . '&amp;output=embed" title="Медоїжка на мапі" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>', $html);
+        // Телефони в тексті — натискаються (поза вже наявними посиланнями й тегами)
+        $parts = preg_split('~(<a\b.*?</a>|<[^>]+>)~is', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+        foreach ($parts as $i => $part) {
+            if ($i % 2 === 1) continue;
+            $parts[$i] = preg_replace_callback('~(?<![\d+])(?:\+?38[\s\x{00A0}]?)?\(?0\d{2}\)?[\s\x{00A0}-]?\d{3}[\s\x{00A0}-]?\d{2}[\s\x{00A0}-]?\d{2}(?!\d)~u', function ($m) {
+                $digits = preg_replace('~\D~', '', $m[0]);
+                $tel = '+38' . substr($digits, -10);
+                return '<a href="tel:' . $tel . '">' . $m[0] . '</a>';
+            }, $part);
+        }
+        return implode('', $parts);
     }
 
     private static function tag(string $slug): never

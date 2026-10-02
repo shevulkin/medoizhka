@@ -6,7 +6,8 @@ $hours = Content::title('contact_hours');
 $entity = Content::title('legal_entity');
 $cols = [
     'Крамниця' => [['/shop/', 'Весь каталог'], ['/product-category/honey-and-kompozytsiyi/', 'Мед і композиції'], ['/product-category/propolis/', 'Прополіс'], ['/product-category/kosmetsevtyka/', 'Натуральна косметика'], ['/product-category/equipment/', 'Обладнання']],
-    'Медоїжка' => [['/pasiky/', 'Пасіки й апібудиночки'], ['/pasika-medoizhka/', 'Пасіка Медоїжка'], ['/beekeeping-products/', 'Продукти бджільництва']],
+    // «Пасіки й апібудиночки» — лише коли там є хоч одне місце: порожній розділ гірший за відсутній
+    'Медоїжка' => [...(Hub::hasPlaces() ? [['/pasiky/', 'Пасіки й апібудиночки']] : []), ['/pasika-medoizhka/', 'Пасіка Медоїжка'], ['/beekeeping-products/', 'Продукти бджільництва']],
     'Покупцеві' => [['/delivery-and-payment/', 'Доставка та оплата'], ['/return-and-exchange/', 'Обмін і повернення'], ['/contacts/', 'Контакти'], ['/about-us/', 'Про нас'], ['/privacy-policy/', 'Політика конфіденційності']],
 ];
 ?>

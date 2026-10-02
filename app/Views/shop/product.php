@@ -39,8 +39,18 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
     <?php if ($brands): ?><div class="pd-brand">Виробник: <?php foreach ($brands as $i => $b): ?><?= $i ? ', ' : '' ?><a href="<?= e(url('/brand/' . slug_enc($b['slug']) . '/')) ?>"><?= e($b['name']) ?></a><?php endforeach; ?></div><?php endif; ?>
     <?php if (!empty($p['short_desc'])): ?><p class="pd-short"><?= e(mb_strimwidth($p['short_desc'], 0, 320, '…')) ?></p><?php endif; ?>
 
-    <?php if (count($variants) > 1 && isset($variant_data[$checkedIdx]['price'])) $pr = (float)$variant_data[$checkedIdx]['price'] ?: $pr; ?>
-    <div class="pd-price<?= $isOut ? ' is-out' : '' ?>"><span id="pdPrice"><?= $pr !== null ? e($fmt($pr)) : 'Ціну уточнюйте' ?></span><?php if ($old_price !== null && $pr !== null && !$isOut): ?> <s><?= e($fmt($old_price)) ?></s><?php endif; ?></div>
+    <?php
+      // Кілька фасовок: доступну — ціна обраної; коли немає жодної, вибору не видно,
+      // тож чесніше «від …» — як на картці в каталозі, а не ціна першої фасовки без підпису
+      $from = false;
+      if (count($variants) > 1 && $isOut) {
+          $vp = array_filter(array_map(fn($v) => (float)($v['price'] ?? 0), $variant_data));
+          if ($vp) { $pr = min($vp); $from = true; }
+      } elseif (count($variants) > 1 && isset($variant_data[$checkedIdx]['price'])) {
+          $pr = (float)$variant_data[$checkedIdx]['price'] ?: $pr;
+      }
+    ?>
+    <div class="pd-price<?= $isOut ? ' is-out' : '' ?>"><span id="pdPrice"><?= $pr !== null ? ($from ? '<small>від</small> ' : '') . e($fmt($pr)) : 'Ціну уточнюйте' ?></span><?php if ($old_price !== null && $pr !== null && !$isOut): ?> <s><?= e($fmt($old_price)) ?></s><?php endif; ?></div>
 
     <?php $svc = Catalog::isService($p); ?>
     <?php if ($avail === Catalog::AVAIL_IN && !Courses::isCourse($p) && !$svc): ?>
@@ -68,7 +78,7 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
       <?php if ($phone !== ''): ?><a class="btn btn-line" href="tel:<?= e(preg_replace('~[^\d+]~', '', $phone)) ?>">Запитати за телефоном</a><?php endif; ?>
       <?php if (empty($watching) && !Auth::check()): ?><small>Попросимо увійти — щоб було куди написати.</small><?php endif; ?>
     </div>
-    <?php elseif ($pr !== null): ?>
+    <?php elseif ($pr !== null && !$svc): /* послугу не кладуть у кошик: її обговорюють — дата, обсяг, адреса */ ?>
     <form class="pd-buy add-cart-form" method="post" action="<?= e(url('/cart/add')) ?>" data-product-name="<?= e($p['name']) ?>">
       <?= Csrf::field() ?>
       <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
@@ -87,6 +97,7 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
       </div>
     </form>
     <?php else: ?>
+      <?php if ($svc): ?><p class="pd-svc-note">Послугу замовляють за телефоном або повідомленням — обговоримо деталі, обсяг і зручний час.</p><?php endif; ?>
       <div class="pd-row"><?php if ($phone !== ''): ?><a class="btn btn-gold" href="tel:<?= e(preg_replace('~[^\d+]~', '', $phone)) ?>">Замовити за телефоном</a><?php endif; ?><a class="btn btn-line" href="<?= e(url('/contacts/')) ?>">Написати нам</a></div>
     <?php endif; ?>
 

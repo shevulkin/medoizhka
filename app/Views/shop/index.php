@@ -54,7 +54,12 @@ foreach (DB::all("SELECT category_id, COUNT(*) n FROM products WHERE active = 1 
     </form>
 
     <?php if (!$products): ?>
-      <div class="shop-empty"><h2>Нічого не знайдено</h2><p>Спробуйте інше слово або <a href="<?= e(url('/shop/')) ?>">перегляньте весь каталог</a>.</p></div>
+      <?php if ($filters['q'] !== '' || $filters['min'] !== '' || $filters['max'] !== '' || $filters['attr'] || $filters['brand']): ?>
+        <div class="shop-empty"><h2>Нічого не знайдено</h2><p>Спробуйте інше слово або <a href="<?= e(url('/shop/')) ?>">перегляньте весь каталог</a>.</p></div>
+      <?php else: /* розділ, де зараз нічого немає: не «нічого не знайдено» — людина нічого й не шукала */ ?>
+        <div class="shop-empty"><h2>Зараз тут порожньо</h2><p>Нова партія вже готується. Поки що <a href="<?= e(url('/shop/')) ?>">перегляньте інші розділи крамниці</a>
+          <?php if (($ph = Content::title('contact_phone')) !== ''): ?> або зателефонуйте: <a href="tel:<?= e(preg_replace('~[^\d+]~', '', $ph)) ?>"><?= e($ph) ?></a><?php endif; ?>.</p></div>
+      <?php endif; ?>
     <?php else: ?>
       <?= View::partial('partials/m_grid', ['products' => $products, 'cols' => 'pgrid-3']) ?>
     <?php endif; ?>

@@ -188,7 +188,7 @@ function price_fmt($amount): string {
     $n = (float)$amount;
     if ($n <= 0) return 'За запитом';
     $s = number_format($n, ((int)round($n * 100) % 100) ? 2 : 0, ',', ' ');
-    return $s . ' грн';
+    return $s . ' ₴';   // як на картках і сторінках товару — один знак гривні на весь сайт
 }
 
 /**

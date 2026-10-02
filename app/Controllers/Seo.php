@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Controllers;
 
-use DB, WebPush, Settings;
+use DB, WebPush, Settings, Hub as Dir;
 
 class Seo
 {
@@ -41,17 +41,22 @@ class Seo
         // доступні окремими адресами.
         // Адреси — у тому вигляді, в якому їх уже проіндексовано зі старого сайту
         // (зі скісною в кінці, кирилиця відсотковими кодами): див. Controllers\Site.
-        $urls = [
-            ['/', '1.0'], ['/shop/', '0.9'], ['/pasiky/', '0.8'],
-            ['/diploma', '0.4'], ['/offer', '0.3'],
-        ];
+        // Розділи, яких зараз немає на сайті (порожні «Пасіки», перевірка дипломів без
+        // жодного диплома), у карту не потрапляють: пошуковику нема що там знайти.
+        $urls = [['/', '1.0'], ['/shop/', '0.9'], ['/offer', '0.3']];
+        if (Dir::hasPlaces()) $urls[] = ['/pasiky/', '0.8'];
+        if (Home::diplomasEnabled()) $urls[] = ['/diploma', '0.4'];
         foreach (DB::all('SELECT slug, updated_at FROM pages') as $pg) {
             $urls[] = [course_path($pg['slug']), '0.6', $pg['updated_at']];
         }
-        foreach (DB::all("SELECT slug, updated_at FROM products WHERE active = 1 AND type <> 'course'") as $p) {
+        // Усі товари, і вимкнені теж: їхні сторінки відкриваються за прямим посиланням
+        // («Немає в наявності») і мають лишатися в пошуку — див. Shop::product.
+        foreach (DB::all("SELECT slug, updated_at FROM products WHERE type <> 'course'") as $p) {
             $urls[] = [product_path($p['slug']), '0.8', $p['updated_at']];
         }
-        foreach (DB::all("SELECT slug FROM categories WHERE active = 1 AND type <> 'course'") as $c) {
+        // Категорії — лише ті, де є що показати
+        foreach (DB::all("SELECT c.slug FROM categories c WHERE c.active = 1 AND c.type <> 'course'
+                          AND EXISTS (SELECT 1 FROM products p WHERE p.category_id = c.id AND p.active = 1)") as $c) {
             $urls[] = [shop_path($c['slug']), '0.7'];
         }
         foreach (DB::all('SELECT slug FROM tags') as $t) $urls[] = ['/product-tag/' . slug_enc($t['slug']) . '/', '0.5'];

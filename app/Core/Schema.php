@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 class Schema
 {
-    public const VERSION = 58;
+    public const VERSION = 59;
 
     /** Оновлення існуючої бази до поточної версії без втрати даних */
     public static function upgrade(): void
@@ -844,6 +844,14 @@ class Schema
             self::addColumn('products', 'paused', 'bool default 0');
             DB::query("UPDATE products SET service = 1 WHERE category_id IN
                        (SELECT id FROM categories WHERE slug IN ('services', 'wax-exchange'))");
+        }
+        if ($ver < 59) {
+            // Аналітика зі старого сайту (Site Kit): ті самі GA4 і Tag Manager, щоб статистика
+            // йшла без розриву. Лише якщо поля порожні — змінене в Налаштуваннях не чіпаємо.
+            // Самі теги вмикаються, коли сайт відкрито пошуковикам (analytics_on()).
+            foreach (['google_tag_id' => 'GT-M63L9WSM', 'gtm_id' => 'GTM-P2NJJJTV'] as $k => $v) {
+                if (trim((string)Settings::get($k, '')) === '') Settings::set($k, $v);
+            }
         }
         Settings::set('schema_version', (string)self::VERSION);
     }

@@ -262,7 +262,7 @@ USB-СКАНЕР: піднесіть сканер до етикетки — ві
             <button type="button" class="btn btn-line" data-go="1">← Покупець</button>
             <button type="button" class="btn btn-gold" data-go="3">Далі: отримання →</button>
           </div>
-          <a class="btn btn-line" style="width:100%;margin-top:10px" href="<?= e(url('/shop')) ?>"
+          <a class="btn btn-line" style="width:100%;margin-top:10px" href="<?= e(url('/shop/')) ?>"
              data-help-title="Кнопка «Вийти на сайт»"
              data-help="Відкриває вітрину, не втрачаючи чек: унизу зʼявиться смужка продажу, і кнопки «У кошик» на сайті додаватимуть товар у цей самий чек.
 

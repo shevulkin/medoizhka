@@ -26,6 +26,13 @@ class Hub
         return DB::all('SELECT * FROM practitioners WHERE ' . implode(' AND ', $w) . ' ORDER BY verified DESC, sort, name' . $limit, $a);
     }
 
+    /** Чи є хоч одне місце для відвідування — без цього розділ «Пасіки» не показуємо */
+    public static function hasPlaces(): bool
+    {
+        static $has = null;
+        return $has ??= (bool)DB::val('SELECT 1 FROM places WHERE active = 1 LIMIT 1');
+    }
+
     public static function places(array $f = []): array
     {
         $w = ['active = 1']; $a = [];

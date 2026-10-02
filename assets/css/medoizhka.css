@@ -275,3 +275,64 @@ footer.ink-block::before{display:none}
 .pd-vars label.is-out span{opacity:.5;text-decoration:line-through;text-decoration-color:var(--dim);cursor:not-allowed}
 .pd-vars label.is-out small{text-decoration:none;font-size:11px;margin-left:4px}
 .mz-out-head.is-first{margin-top:8px;padding-top:0;border-top:0}
+
+/* ---------- Тексти сторінок і описів ---------- */
+/* Заголовки в описах — розділи тексту, а не банер: зі старого сайту приходили цілі абзаци в <h2> */
+.prose h2{font-size:clamp(21px,2.2vw,27px);line-height:1.3;font-weight:700}
+.prose h3{font-size:clamp(18px,1.8vw,21px);line-height:1.35}
+.prose iframe,.prose video{max-width:100%}
+.prose table{display:block;max-width:100%;overflow-x:auto}
+.map-embed{position:relative;aspect-ratio:16/10;margin:20px 0;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--sand)}
+.map-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+@media (max-width:760px){.map-embed{aspect-ratio:4/5}}
+.pd-svc-note{margin:16px 0 4px;color:var(--muted);font-size:15px}
+
+/* ---------- Кошик і оформлення — у стилі сайту (було від bofu) ---------- */
+.mz-cart h1{font:700 clamp(30px,4vw,40px)/1.15 var(--display);margin:4px 0 0}
+.cart-thumb{border-radius:12px;border-color:var(--line)}
+.cart-table th{font-family:var(--display);font-weight:600;color:var(--dim)}
+.cart-table td{border-bottom-color:var(--line)}
+.cart-table .btn-xs{border-radius:999px;min-width:34px}
+.totals .grand{color:var(--ink);font-family:var(--display);font-weight:700}
+.totals .grand span:last-child{color:var(--orange-d)}
+.cart-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:12px;margin-top:26px}
+@media (max-width:760px){
+  /* Таблиця кошика на телефоні — картка на позицію: фото, назва, ціна, кількість, сума */
+  .cart-table,.cart-table tbody{display:block}
+  .cart-table tr:has(th){display:none}
+  .cart-table tr{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:6px 14px;padding:16px 0;border-bottom:1px solid var(--line);align-items:start}
+  .cart-table td{display:block;padding:0;border:0}
+  .cart-table td:nth-child(1){grid-row:1 / span 3;width:auto!important}
+  .cart-table td:nth-child(2){display:block;grid-column:2;font-size:15px}   /* bofu ховав назву на телефоні */
+  .cart-table td:nth-child(6){grid-column:3;grid-row:1;text-align:right}
+  .cart-table td:nth-child(3){grid-column:2;grid-row:2;color:var(--muted);font-size:14px}
+  .cart-table td:nth-child(4){grid-column:2;grid-row:3}
+  .cart-table td:nth-child(5){grid-column:3;grid-row:3;text-align:right;align-self:center}
+  .totals{max-width:none}
+  .cart-actions{flex-direction:column-reverse}
+  .cart-actions .btn{width:100%;justify-content:center}
+}
+
+.co-step{background:#fff;border-radius:var(--r);border-color:var(--line);box-shadow:0 10px 30px -26px rgba(60,40,10,.45)}
+.co-step-h{font-family:var(--display);font-weight:700;font-size:21px}
+.co-num{border-color:var(--orange);color:var(--orange-d);font-family:var(--display);font-weight:700}
+.co-num.is-done{background:var(--orange);border-color:var(--orange);color:#fff}
+.co-grid label,.mz-cart label{text-transform:none;letter-spacing:0;font:600 13.5px/1.35 var(--sans);color:var(--text)}
+.co-grid input[type=text],.co-grid input[type=tel],.co-grid input[type=email],.co-grid input[type=number],
+.co-grid select,.co-grid textarea{border-radius:12px;border:1px solid var(--line2);background:#fff;color:var(--text)}
+.co-grid input:focus,.co-grid select:focus,.co-grid textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(233,140,0,.15);outline:none}
+.co-grid .chip{background:#fff;border:1px solid var(--line2);color:var(--text);font:600 13.5px/1 var(--sans);letter-spacing:0;text-transform:none;padding:11px 16px;border-radius:999px}
+.co-grid .chip:hover{border-color:var(--orange);color:var(--orange-d)}
+.co-grid .chip.active{background:var(--orange-l);border-color:var(--orange);color:var(--orange-d)}
+#coFold > summary::after{color:var(--orange-d)}
+.co-fold-total{color:var(--orange-d)}
+@media (max-width:1000px){
+  .co-bar{background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:0 -10px 30px -18px rgba(60,40,10,.4);color:var(--text)}
+  .co-bar-total span{color:var(--dim);letter-spacing:.04em}
+  .co-bar-total b{color:var(--ink);font-family:var(--display)}
+}
+.pd-price small{font:500 15px var(--sans);color:var(--dim)}
+@media (max-width:1000px){
+  #coFold > summary.co-sum-h{font-size:18px;gap:8px;align-items:center;flex-wrap:nowrap}
+  #coFold > summary .dim,.co-fold-total{white-space:nowrap}
+}

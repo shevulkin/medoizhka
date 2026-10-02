@@ -1,15 +1,15 @@
-<section class="section" style="padding-top:48px">
+<section class="section mz-cart" style="padding-top:48px">
   <div class="container narrow">
-    <div class="kicker">Кошик</div>
-    <h2>Ваше замовлення</h2>
+    <div class="kicker">Ваше замовлення</div>
+    <h1>Кошик</h1>
     <?php if (!$rows): ?>
       <p class="muted" style="padding:28px 0 4px">Тут поки порожньо.
-        <a href="<?= e(url('/shop')) ?>">Перейти до магазину →</a></p>
+        <a href="<?= e(url('/shop/')) ?>">Перейти до крамниці →</a></p>
       <?php if ($suggest): ?>
         <div class="kicker" style="margin-top:40px">З чого почати</div>
-        <div class="grid grid-4" style="margin-top:16px">
+        <div class="pgrid" style="margin-top:16px">
           <?php foreach ($suggest as $prod): ?>
-            <?= View::partial('partials/product_card', ['prod' => $prod]) ?>
+            <?= View::partial('partials/m_card', ['prod' => $prod]) ?>
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
@@ -160,8 +160,8 @@
         <?php endif; ?>
         <div class="row grand"><span>Разом:</span><span><?= e(price_fmt($totals['total'])) ?></span></div>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap:14px;margin-top:26px">
-        <a class="btn btn-line" href="<?= e(url('/shop')) ?>">Продовжити покупки</a>
+      <div class="cart-actions">
+        <a class="btn btn-line" href="<?= e(url('/shop/')) ?>">Продовжити покупки</a>
         <a class="btn btn-gold" href="<?= e(url('/checkout')) ?>">Оформити замовлення</a>
       </div>
     <?php endif; ?>

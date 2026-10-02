@@ -30,9 +30,9 @@
         <?php if (trim($entity_details) !== ''): ?>
           <p class="dim" style="white-space:pre-line;margin-top:6px"<?= edit_mark('legal_entity', 'body') ?>><?= e($entity_details) ?></p>
         <?php endif; ?>
-      <?php else: ?>
-        <p class="dim" style="margin:0"<?= edit_mark('legal_entity', 'title') ?>>Реквізити продавця не заповнені.
-          Їх треба вказати в адмінці: Контент сайту → «Хто продавець (реквізити)».</p>
+      <?php elseif (Auth::isStaff()): /* підказка власнику — не покупцю: службовий текст на юридичній сторінці підриває довіру */ ?>
+        <p class="dim" style="margin:0"<?= edit_mark('legal_entity', 'title') ?>>Реквізити продавця не заповнені (це бачить лише персонал).
+          Їх треба вказати: Панель керування → Тексти сайту → «Хто продавець (реквізити)».</p>
       <?php endif; ?>
 
       <?php $phone = Content::title('contact_phone'); $email = Content::title('contact_email'); ?>

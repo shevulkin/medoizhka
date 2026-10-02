@@ -281,7 +281,7 @@
           <?php endforeach; ?>
           <div class="row" id="sumDiscountRow"<?= ($totals['promo_discount'] ?? 0) > 0 ? '' : ' style="display:none"' ?>>
             <span class="muted" id="sumDiscountLabel"><?= $promo ? e(Promo::label($promo)) : 'Знижка' ?>:</span>
-            <span id="sumDiscount">−<?= e(($totals['promo_discount'] ?? 0) > 0 ? price_fmt($totals['promo_discount']) : '0 грн') ?></span>
+            <span id="sumDiscount">−<?= e(($totals['promo_discount'] ?? 0) > 0 ? price_fmt($totals['promo_discount']) : '0 ₴') ?></span>
           </div>
           <?php /* Доставка окремим рядком, хай навіть без суми.
                    «До сплати: 600 грн» без згадки про доставку читається як

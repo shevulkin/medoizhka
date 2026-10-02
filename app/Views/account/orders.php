@@ -3,7 +3,7 @@
     <div class="kicker">Кабінет</div>
     <h2>Мої замовлення</h2>
     <?php if (!$orders): ?>
-      <p class="muted" style="padding:36px 0">Замовлень поки немає. <a href="<?= e(url('/shop')) ?>">До магазину →</a></p>
+      <p class="muted" style="padding:36px 0">Замовлень поки немає. <a href="<?= e(url('/shop/')) ?>">До крамниці →</a></p>
     <?php else: ?>
       <div style="display:flex;flex-direction:column;gap:14px;margin-top:28px">
         <?php foreach ($orders as $o): $parts = $children[$o['id']] ?? []; $split = count($parts) > 1; ?>

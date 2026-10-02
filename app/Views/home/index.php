@@ -64,7 +64,8 @@ $honey = array_map(fn($h) => $h['p'], $palette);
   </div>
 </section>
 
-<?php if ($honey): ?>
+<?php /* Одна картка в ряду на чотири виглядає як порожня вітрина — блок лише з двох сортів */ ?>
+<?php if (count($honey) >= 2): ?>
 <section class="sec">
   <div class="wrap">
     <div class="sec-head"><div><div class="kicker">Сорти меду</div><h2>Наш мед</h2></div><a class="link-arrow" href="<?= e(url('/product-category/honey-and-kompozytsiyi/')) ?>">Увесь мед →</a></div>
@@ -115,13 +116,14 @@ $honey = array_map(fn($h) => $h['p'], $palette);
 
 <section class="sec">
   <div class="wrap">
-    <a class="mz-visit" href="<?= e(url('/pasiky/')) ?>">
+    <?php $hasPlaces = Hub::hasPlaces(); /* поки місць для запису немає — ведемо на сторінку нашої пасіки */ ?>
+    <a class="mz-visit" href="<?= e(url($hasPlaces ? '/pasiky/' : '/pasika-medoizhka/')) ?>">
       <img src="<?= e($img('beestory.png')) ?>" alt="" loading="lazy">
       <div class="mz-visit-in">
         <div class="kicker">Завітайте до нас</div>
-        <h2>Пасіки й апібудиночки</h2>
+        <h2><?= $hasPlaces ? 'Пасіки й апібудиночки' : 'Пасіка Медоїжка' ?></h2>
         <p>Екскурсія пасікою, дегустація меду просто з сот і відпочинок серед квітучих полів.</p>
-        <span class="btn btn-gold">Обрати місце</span>
+        <span class="btn btn-gold"><?= $hasPlaces ? 'Обрати місце' : 'Про пасіку' ?></span>
       </div>
     </a>
   </div>

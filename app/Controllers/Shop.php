@@ -164,17 +164,12 @@ class Shop
         $p = DB::row('SELECT * FROM products WHERE slug = ?', [$slug]);
         if (!$p) { http_response_code(404); View::show('errors/404'); }
         /*
-         * Два різні «немає»:
-         *  - тимчасово немає (залишок 0) — сторінка лишається: 200, «Немає в наявності»,
-         *    schema.org OutOfStock, «Повідомити»; на головній і в порадах її не видно;
-         *  - знято з продажу назавжди (товар вимкнено) — 301 у його категорію: вага сторінки
-         *    переходить туди, а не згорає на 404, яку Google викидає з пошуку.
-         * Персонал бачить і вимкнену сторінку — щоб було що редагувати.
+         * Вимкнений товар («Активний» знято) сховано з каталогу, головної й пошуку, але
+         * його сторінка відкривається за прямим посиланням — так хоче власник: адреси
+         * вже в пошуку й у чужих посиланнях. Показуємо її як «Немає в наявності»
+         * (OutOfStock, «Повідомити», поради з того, що є), купити не можна (Cart::limit).
          */
-        if (!(int)$p['active'] && !Auth::isStaff()) {
-            $catSlug = DB::val('SELECT slug FROM categories WHERE id = ? AND active = 1', [$p['category_id']]);
-            Site::permanent(shop_path($catSlug ? (string)$catSlug : null));
-        }
+        $hidden = !(int)$p['active'];
         $cat = DB::row('SELECT * FROM categories WHERE id = ?', [$p['category_id']]);
         $catParent = Catalog::parentCategory($cat);   // «Мед» над «Липовим» — для крихт
         $variants = Catalog::variants((int)$p['id']);
@@ -251,7 +246,7 @@ class Shop
                             ORDER BY _avail, p.featured DESC, p.id DESC LIMIT 4', [$p['category_id'], $p['id']]);
         Catalog::preloadBrands($related);
 
-        $avail = Catalog::avail($p);
+        $avail = $hidden ? Catalog::AVAIL_OUT : Catalog::avail($p);
         View::show('shop/product', [
             'p' => $p, 'cat' => $cat, 'variants' => $variants, 'attrs' => $attrs,
             'avail' => $avail,
@@ -349,7 +344,8 @@ class Shop
         $vid = (int)($_POST['variant_id'] ?? 0) ?: null;
         $sid = (int)($_POST['store_id'] ?? 0) ?: null;
 
-        $p = DB::row('SELECT id FROM products WHERE id = ? AND active = 1', [$pid]);
+        // і вимкнений теж: його сторінка відкривається за прямим посиланням (див. product())
+        $p = DB::row('SELECT id FROM products WHERE id = ?', [$pid]);
         if (!$p) { flash('error', 'Товар не знайдено.'); redirect($back); }
         // Варіант мусить належати цьому товару: інакше в чергу очікувань
         // потрапила б чужа позиція, і продавець виробляв би не те

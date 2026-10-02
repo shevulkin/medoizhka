@@ -412,7 +412,7 @@
     if (!isFinite(got) || got <= due) { changeBox.hidden = true; return; }
     changeBox.hidden = false;
     if (changeEl) changeEl.textContent = (Math.round((got - due) * 100) / 100)
-      .toFixed(2).replace('.', ',') + ' грн';
+      .toFixed(2).replace('.', ',') + ' ₴';
   }
 
   Array.prototype.forEach.call(form.querySelectorAll('[data-pos-pay-type]'), function (el) {
