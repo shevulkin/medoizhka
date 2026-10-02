@@ -208,6 +208,60 @@ class Studio
         ], 'layouts/admin');
     }
 
+    // ---------- Послуги ----------
+    /**
+     * Усі послуги в одній таблиці: ціна, «доступна зараз», «на сайті» — правляться прямо тут.
+     * Послуга — це товар із позначкою service (без складу, замовляють за телефоном), тож опис
+     * і фото — у картці товару, але щоденне (ціна, пауза) — тут, без пошуку по каталогу.
+     */
+    public static function services(): never
+    {
+        Auth::requireCap('products.manage');
+        if (is_post()) {
+            $a = (string)($_POST['_action'] ?? '');
+            if ($a === 'create') {
+                $name = trim((string)($_POST['name'] ?? ''));
+                $cat = (int)($_POST['category_id'] ?? 0);
+                if ($name === '' || !DB::row("SELECT id FROM categories WHERE id = ? AND type <> 'course'", [$cat])) {
+                    flash('error', 'Вкажіть назву й розділ.'); self::back('/admin/services');
+                }
+                $price = trim((string)($_POST['price'] ?? ''));
+                $id = (int)DB::insert('products', ['name' => $name, 'slug' => self::slug('products', $name), 'type' => 'product',
+                    'category_id' => $cat, 'service' => 1, 'paused' => 0, 'made_to_order' => 0, 'active' => 1,
+                    'base_price' => $price === '' ? null : max(0, (float)$price), 'created_at' => now(), 'updated_at' => now()]);
+                flash('success', 'Послугу додано й показано на сайті. Опис і фото — кнопкою «Опис і фото».');
+                self::back('/admin/services#s' . $id);
+            }
+            if ($a === 'save') {
+                foreach ((array)($_POST['s'] ?? []) as $id => $d) {
+                    $p = DB::row('SELECT id, paused FROM products WHERE id = ? AND service = 1', [(int)$id]);
+                    if (!$p) continue;
+                    $price = trim((string)($d['price'] ?? ''));
+                    $paused = empty($d['available']) ? 1 : 0;
+                    DB::update('products', ['base_price' => $price === '' ? null : max(0, (float)$price),
+                        'paused' => $paused, 'active' => !empty($d['active']) ? 1 : 0, 'updated_at' => now()], 'id = ?', [(int)$id]);
+                    // знову доступна — тим, хто натискав «Повідомити, коли відновимо», приходить сповіщення
+                    if ((int)$p['paused'] === 1 && $paused === 0) \StockWatch::fulfil((int)$id, null);
+                }
+                flash('success', 'Збережено.');
+                self::back('/admin/services');
+            }
+            if ($a === 'unmark') {
+                // Позначили послугою помилково — повертається звичайним товаром зі складом
+                DB::update('products', ['service' => 0, 'updated_at' => now()], 'id = ?', [(int)($_POST['id'] ?? 0)]);
+                flash('success', 'Це знову звичайний товар — його наявність рахується за залишком.');
+                self::back('/admin/services');
+            }
+            self::back('/admin/services');
+        }
+        View::show('admin/studio/services', [
+            'rows' => DB::all("SELECT p.*, c.name AS cat_name FROM products p LEFT JOIN categories c ON c.id = p.category_id
+                               WHERE p.service = 1 ORDER BY p.active DESC, c.sort, p.name"),
+            'cats' => DB::all("SELECT id, name, slug FROM categories WHERE type <> 'course' ORDER BY (slug = 'services') DESC, sort, name"),
+            'page_title' => 'Послуги — Адмінпанель',
+        ], 'layouts/admin');
+    }
+
     // ---------- Доступ до курсів ----------
     /** Окремої сторінки більше немає: учні кожного курсу — на сторінці самого курсу */
     public static function access(): never

@@ -466,6 +466,7 @@ class App
             '/admin/settings/check'     => [$A.'SettingsAdmin', 'check', 'settings.manage'],
             '/admin/notifications'      => [$A.'Notifications', 'index', 'notifications.manage'],
             // Медоїжка: навчання, апітерапевти, пасіки, заявки
+            '/admin/services'           => [$A.'Studio', 'services', 'products.manage'],
             '/admin/lessons'            => [$A.'Studio', 'lessons', 'content.manage'],
             '/admin/access'             => [$A.'Studio', 'access', 'users.manage'],
             '/admin/practitioners'      => [$A.'Studio', 'practitioners', 'content.manage'],

@@ -178,3 +178,7 @@ body.is-admin.help-on [data-help]:hover{background:rgba(233,140,0,.05);border-ra
 .is-admin .crs-grant textarea{min-height:46px}
 .is-admin .crs-bar{width:140px;height:6px;border-radius:6px;background:#f1ebe2;overflow:hidden;margin-bottom:4px}
 .is-admin .crs-bar i{display:block;height:100%;background:var(--gold);border-radius:6px}
+.is-admin .svc-table td{vertical-align:middle}
+.is-admin .svc-table input[type=number]{max-width:140px}
+.is-admin .svc-table .toggle{justify-content:center}
+.is-admin .svc-table th{white-space:nowrap}
