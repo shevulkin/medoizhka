@@ -449,11 +449,11 @@ class Products
                 'short_desc' => trim($_POST['short_desc'] ?? '') ?: null,
                 'description' => trim($_POST['description'] ?? '') ?: null,
                 'base_price' => $_POST['base_price'] === '' ? null : (float)$_POST['base_price'],
-                'type' => Catalog::normType($_POST['type'] ?? null),
+                'type' => Catalog::normType(($_POST['type'] ?? '') === 'service' ? 'product' : ($_POST['type'] ?? null)),
                 'active' => isset($_POST['active']) ? 1 : 0,
                 'featured' => isset($_POST['featured']) ? 1 : 0,
                 'made_to_order' => isset($_POST['made_to_order']) ? 1 : 0,
-                'service' => isset($_POST['service']) ? 1 : 0,
+                'service' => ($_POST['type'] ?? '') === 'service' ? 1 : 0,   // «Послуга» в полі «Тип» — товар без складу
                 'paused' => isset($_POST['paused']) ? 1 : 0,
                 'low_stock_threshold' => ($_POST['low_stock_threshold'] ?? '') === '' ? null : (int)$_POST['low_stock_threshold'],
                 // Строк доступу до курсу; порожньо — назавжди (див. Courses::grant)
@@ -667,11 +667,11 @@ class Products
                 'description' => trim($_POST['description'] ?? '') ?: null,
                 'base_price' => ($_POST['base_price'] ?? '') === '' ? null : (float)$_POST['base_price'],
                 'old_price' => ($_POST['old_price'] ?? '') === '' ? null : (float)$_POST['old_price'],
-                'type' => Catalog::normType($_POST['type'] ?? null, (string)$p['type']),
+                'type' => Catalog::normType(($_POST['type'] ?? '') === 'service' ? 'product' : ($_POST['type'] ?? null), (string)$p['type']),
                 'active' => isset($_POST['active']) ? 1 : 0,
                 'featured' => isset($_POST['featured']) ? 1 : 0,
                 'made_to_order' => isset($_POST['made_to_order']) ? 1 : 0,
-                'service' => isset($_POST['service']) ? 1 : 0,
+                'service' => ($_POST['type'] ?? '') === 'service' ? 1 : 0,   // «Послуга» в полі «Тип» — товар без складу
                 'paused' => isset($_POST['paused']) ? 1 : 0,
                 'low_stock_threshold' => ($_POST['low_stock_threshold'] ?? '') === '' ? null : (int)$_POST['low_stock_threshold'],
                 // Строк доступу до курсу; порожньо — назавжди (див. Courses::grant)

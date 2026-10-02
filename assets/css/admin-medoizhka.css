@@ -182,3 +182,8 @@ body.is-admin.help-on [data-help]:hover{background:rgba(233,140,0,.05);border-ra
 .is-admin .svc-table input[type=number]{max-width:140px}
 .is-admin .svc-table .toggle{justify-content:center}
 .is-admin .svc-table th{white-space:nowrap}
+.is-admin [data-for][hidden]{display:none!important}
+/* Картка товару: рідкісні поля — під «Додаткові поля» (product-form.js) */
+.is-admin:not(.pf-adv-on) [data-adv]{display:none!important}
+.is-admin .pf-adv-toggle{display:block;margin:18px 0 4px;padding:0;border:0;background:none;color:var(--gold-text);font:600 13.5px var(--serif);cursor:pointer;text-align:left}
+.is-admin .pf-adv-toggle:hover{text-decoration:underline}

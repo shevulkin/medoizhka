@@ -222,6 +222,47 @@
     reindex();
   });
 
+  // вимкнені поля не відправляються — знімаємо блокування перед сабмітом
+  if (form) form.addEventListener('submit', function () {
+    vRows && vRows.querySelectorAll('.variant-row.deleted').forEach(function (row) {
+      var flag = row.querySelector('input[name$="[_delete]"]');
+      if (flag) flag.disabled = false;
+    });
+  });
+})();
+
+/*
+ * «Додаткові поля»: артикул, штрихкод, податки, поріг «закінчується», опт, торг — для
+ * Медоїжки рідкісні, тож за замовчуванням сховані. Розгорнуто, якщо людина так обрала
+ * минулого разу або в товару вже заповнено артикул чи штрихкод.
+ */
+(function () {
+  var btn = document.querySelector('[data-adv-toggle]');
+  if (!btn) return;
+  var on = false;
+  try { on = localStorage.getItem('pf-adv') === '1'; } catch (e) {}
+  ['sku', 'barcode', 'uktzed'].forEach(function (n) {
+    var i = document.querySelector('input[name="' + n + '"]');
+    if (i && i.value.trim() !== '') on = true;
+  });
+  function apply() {
+    document.body.classList.toggle('pf-adv-on', on);
+    btn.textContent = on ? 'Сховати додаткові поля' : 'Показати додаткові поля: артикул, штрихкод, податки, опт, торг';
+  }
+  btn.addEventListener('click', function () {
+    on = !on; apply();
+    try { localStorage.setItem('pf-adv', on ? '1' : '0'); } catch (e) {}
+  });
+  apply();
+})();
+
+
+/*
+ * Тип і категорія — окремо від характеристик: блоку характеристик на сторінці «Новий товар»
+ * ще немає, і скрипт вище там зупиняється одразу, а тип обирають саме при створенні.
+ */
+(function () {
+  var catSel = document.getElementById('catSelect');
   /*
    * Категорії — лише ті, що відповідають типу товару.
    *
@@ -241,7 +282,8 @@
   var TYPE_LABELS = { product: 'Товар', service: 'Послуга', video: 'Відео', course: 'Курс' };
   function syncCategories() {
     if (!typeSel || !catSel) return;
-    var want = typeSel.value || 'product';
+    // Послуга живе у звичайних категоріях товарів — це товар без складу
+    var want = typeSel.value === 'service' ? 'product' : (typeSel.value || 'product');
     var fit = 0, current = null;
     Array.prototype.forEach.call(catSel.options, function (o) {
       var ok = (o.dataset.type || 'product') === want;
@@ -266,11 +308,27 @@
   if (typeSel) typeSel.addEventListener('change', syncCategories);
   syncCategories();
 
-  // вимкнені поля не відправляються — знімаємо блокування перед сабмітом
-  if (form) form.addEventListener('submit', function () {
-    vRows && vRows.querySelectorAll('.variant-row.deleted').forEach(function (row) {
-      var flag = row.querySelector('input[name$="[_delete]"]');
-      if (flag) flag.disabled = false;
+  /*
+   * Поля за типом: залишки, вага, «під замовлення» — лише товару; строк доступу — лише курсу.
+   * Сховане поле лишається у формі й відправляється як було — нічого не губиться,
+   * якщо тип перемкнули туди й назад.
+   */
+  function syncKind() {
+    var kind = typeSel ? typeSel.value : 'product';
+    document.querySelectorAll('[data-for]').forEach(function (el) {
+      el.hidden = el.getAttribute('data-for').split(' ').indexOf(kind) === -1;
     });
+  }
+  if (typeSel) typeSel.addEventListener('change', syncKind);
+  syncKind();
+
+  // Розділ «Послуги» / «Приймаємо віск» обрали для «Товару» — це майже напевно послуга
+  if (catSel && typeSel) catSel.addEventListener('change', function () {
+    var o = catSel.selectedOptions[0];
+    if (o && ['services', 'wax-exchange'].indexOf(o.dataset.slug) !== -1 && typeSel.value === 'product') {
+      typeSel.value = 'service';
+      typeSel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   });
+
 })();

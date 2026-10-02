@@ -60,20 +60,20 @@ $roEdit = $canEdit ? '' : 'disabled';
                  щоб не обирати те, що потім не збережеться. */ ?>
         <select name="category_id" id="catSelect" <?= $roEdit ?>>
           <?php foreach ($categories as $c): ?>
-            <option value="<?= (int)$c['id'] ?>" data-type="<?= e((string)($c['type'] ?? 'product')) ?>"
+            <option value="<?= (int)$c['id'] ?>" data-type="<?= e((string)($c['type'] ?? 'product')) ?>" data-slug="<?= e((string)($c['slug'] ?? '')) ?>"
                     <?= ($p['category_id'] ?? 0) == $c['id'] ? 'selected' : '' ?>><?= e(cat_label($c)) ?></option>
           <?php endforeach; ?>
         </select>
         <p class="field-hint" id="catTypeHint" hidden></p>
       </div>
-      <div class="field" data-help-title="Артикул (SKU)"
+      <div class="field" data-adv data-help-title="Артикул (SKU)"
            data-help="Ваш внутрішній код товару для обліку: «MED-LIP-05».
 
 У каталозі покупцю не показується, але за ним працює пошук в адмінці — зручно, коли назви схожі й треба знайти рівно те, що на етикетці.
 
 Поле необовʼязкове. Якщо ведете склад у таблиці чи 1С, ставте тут той самий код, що й там.">
         <label>Артикул</label><input type="text" name="sku" value="<?= e($p['sku'] ?? '') ?>" <?= $roEdit ?>></div>
-      <div class="field" data-help-title="Штрихкод"
+      <div class="field" data-adv data-help-title="Штрихкод"
            data-help="Код із етикетки — той, що під смужками (EAN-13, зазвичай 13 цифр). Саме його читає сканер на касі.
 
 Це не те саме, що артикул: артикул придумуєте ви для обліку, штрихкод друкує виробник. Тому й поля два — інакше вони рано чи пізно перетруть одне одного.
@@ -118,23 +118,28 @@ $roEdit = $canEdit ? '' : 'disabled';
           <?php endif; ?>
         </div>
       </div>
+      <?php $kind = ($p['type'] ?? 'product') === 'course' ? 'course' : (!empty($p['service']) ? 'service' : 'product'); ?>
       <div class="field" data-help-title="Тип"
-           data-help="Що це за позиція: звичайний Товар, Послуга, Відео чи Курс.
+           data-help="Що це за позиція.
 
-Для меду й усього, що можна покласти в коробку, лишайте «Товар» — це варіант за замовчуванням.
+Товар — те, що лежить на складі й відправляється: мед, віск, обладнання. Наявність рахується за залишками.
 
-Решта типів потрібні для нематеріальних позицій, які не возять і не рахують на складі.">
+Послуга — без складу: виїзд бджоляра, консультація, обмін воску. Її замовляють за телефоном чи повідомленням, у кошик вона не кладеться. Ціни й доступність усіх послуг зручно правити в розділі «Послуги».
+
+Курс — відеокурс: відео й учні — в розділі «Відеокурси».
+
+Поля, які обраного типу не стосуються (залишки, вага, строк доступу), форма ховає сама.">
         <label>Тип</label>
-        <select name="type" <?= $roEdit ?>>
-          <?php foreach (Catalog::TYPES as $t => $lbl): ?>
-            <option value="<?= $t ?>" <?= ($p['type'] ?? 'product') === $t ? 'selected' : '' ?>><?= $lbl ?></option>
+        <select name="type" id="kindSelect" <?= $roEdit ?>>
+          <?php foreach (['product' => 'Товар', 'service' => 'Послуга', 'course' => 'Курс'] as $t => $lbl): ?>
+            <option value="<?= $t ?>" <?= $kind === $t ? 'selected' : '' ?>><?= $lbl ?></option>
           <?php endforeach; ?>
         </select>
       </div>
       <?php /* Поле курсу серед полів товару — бо курс і є товар. Показуємо
                завжди: воно порожнє в усіх, крім курсів, і ховати його скриптом
                означало б ще один стан інтерфейсу заради одного числа. */ ?>
-      <div class="field" data-help-title="Доступ до курсу, днів"
+      <div class="field" data-for="course" data-help-title="Доступ до курсу, днів"
            data-help="Скільки днів курс лишається відкритим у кабінеті після оплати.
 
 Порожньо означає «назавжди» — саме так продається більшість курсів, і цей випадок не має вимагати заповнення поля.
@@ -193,7 +198,7 @@ $roEdit = $canEdit ? '' : 'disabled';
 
 Ставте небагатьом позиціям. Якщо позначити половину каталогу, позначка перестане щось означати, а сортування — допомагати.">
         <input type="checkbox" name="featured" <?= ($p['featured'] ?? 0) ? 'checked' : '' ?> <?= $roEdit ?>> Рекомендований (на головній)</label>
-      <label class="checkbox" data-help-title="Виготовляємо під замовлення"
+      <label class="checkbox" data-for="product" data-help-title="Виготовляємо під замовлення"
              data-help="Змінює те, що бачить покупець, коли товару немає на складі.
 
 Галка стоїть — товар можна замовити в будь-якій кількості, навіть коли на складі порожньо. Замість «немає в наявності» покупець побачить, що позицію зроблять під замовлення. Текст залежить від поля «Бренд»: свій товар — «ми виробник», чужий — нейтральне «привеземо для вас».
@@ -202,13 +207,6 @@ $roEdit = $canEdit ? '' : 'disabled';
 
 Тобто це не лише напис, а й межа продажу. Знімайте галку там, де виготовити додатково неможливо.">
         <input type="checkbox" name="made_to_order" <?= ($p['made_to_order'] ?? 1) ? 'checked' : '' ?> <?= $roEdit ?>> Виготовляємо під замовлення</label>
-      <label class="checkbox" data-help-title="Послуга"
-             data-help="Послуга — не товар на полиці: залишок на складі її не стосується.
-
-Галка стоїть — позиція доступна завжди, доки ви не поставите її на паузу нижче. Коли вона недоступна, покупець бачить «Тимчасово недоступна», а не «немає в наявності».
-
-Для меду, воску й решти товарів галку не ставте: їх наявність рахується за залишком.">
-        <input type="checkbox" name="service" <?= !empty($p['service']) ? 'checked' : '' ?> <?= $roEdit ?>> Послуга (без складу)</label>
       <label class="checkbox" data-help-title="Тимчасово недоступно"
              data-help="Швидко зняти позицію з продажу, не видаляючи її й не чіпаючи залишків.
 
@@ -219,7 +217,7 @@ $roEdit = $canEdit ? '' : 'disabled';
 Якщо ж позицію знято з продажу назавжди — зніміть «Активний»: тоді її адреса поведе в категорію.">
         <input type="checkbox" name="paused" <?= !empty($p['paused']) ? 'checked' : '' ?> <?= $roEdit ?>> Тимчасово недоступно</label>
     </div>
-    <div class="field" style="max-width:360px" data-help-title="Поріг «закінчується»"
+    <div class="field" style="max-width:360px" data-for="product" data-adv data-help-title="Поріг «закінчується»"
          data-help="З якої кількості показувати покупцю «закінчується» замість «в наявності».
 
 Поставте 3 — і щойно в магазині лишиться 3 штуки або менше, поруч із цією точкою зʼявиться «закінчується». Це підштовхує не відкладати покупку.
@@ -230,7 +228,7 @@ $roEdit = $canEdit ? '' : 'disabled';
       <label>Поріг «закінчується», шт.</label>
       <input type="number" min="0" step="1" name="low_stock_threshold" value="<?= e($p['low_stock_threshold'] ?? '') ?>" placeholder="порожньо — показувати просто «в наявності»" <?= $roEdit ?>>
     </div>
-    <div class="field" data-help-title="Вага, кг"
+    <div class="field" data-for="product" data-help-title="Вага, кг"
          data-help="Скільки важить одна штука разом із тарою — це те, за чим Нова Пошта рахує доставку.
 
 Проставте — і форма накладної сама порахує вагу посилки: вага × кількість по всіх позиціях. Продавцю лишиться звірити, а не зважувати кожне замовлення.
@@ -241,7 +239,7 @@ $roEdit = $canEdit ? '' : 'disabled';
       <label>Вага, кг</label>
       <input type="text" name="weight" value="<?= e(num_val($p['weight'] ?? null)) ?>" placeholder="0.5 — для розрахунку накладної" <?= $roEdit ?>>
     </div>
-    <div class="field" data-help-title="Податкова група"
+    <div class="field" data-adv data-help-title="Податкова група"
          data-help="З якою ставкою товар потрапляє у фіскальний чек і в ДПС.
 
 Порожньо — береться типова група магазину, який продає (а якщо в нього своєї немає — загальна з Налаштувань). Так стоїть у більшості товарів: уся полиця оподатковується однаково.
@@ -258,7 +256,7 @@ $roEdit = $canEdit ? '' : 'disabled';
         <?php endforeach; ?>
       </select>
     </div>
-    <div class="field" data-help-title="Код УКТЗЕД"
+    <div class="field" data-adv data-help-title="Код УКТЗЕД"
          data-help="Потрібен у чеку лише для окремих груп товарів — підакцизних та тих, для яких його вимагає закон.
 
 Для меду й решти звичайних товарів залишайте порожнім: зайвий код у чеку нікому не допомагає, а помилковий створює розбіжність у звітності.">
@@ -266,6 +264,7 @@ $roEdit = $canEdit ? '' : 'disabled';
       <input type="text" name="uktzed" value="<?= e($p['uktzed'] ?? '') ?>" maxlength="32"
              placeholder="лише для підакцизних" <?= $roEdit ?>>
     </div>
+    <button type="button" class="pf-adv-toggle" data-adv-toggle>Показати додаткові поля: артикул, штрихкод, податки, опт, торг</button>
   </div>
 
   <?php if (!$isNew && $canEdit): ?>
@@ -276,7 +275,7 @@ $roEdit = $canEdit ? '' : 'disabled';
     $inherited = $qty_inherit ?? ['tiers' => [], 'level' => 'none', 'category_id' => null];
     $wholesaleOn = Catalog::wholesale($p);
   ?>
-  <div class="admin-card">
+  <div class="admin-card" data-for="product" data-adv>
     <h2 class="h-serif">Оптова знижка</h2>
     <p class="dim" style="margin:-8px 0 18px">
       Чим більше штук бере покупець, тим дешевша штука. Шкала показується в картці товару
@@ -393,12 +392,10 @@ $roEdit = $canEdit ? '' : 'disabled';
   <?php /* Торг стоїть одразу під оптом, бо відповідає на те саме питання
            покупця — «а дешевше буде?» — але іншим способом: опт роздає знижку
            за правилом, торг дає її живою людиною й лише цій людині. */ ?>
-  <?php /* Блок курсу показуємо лише курсам: у картці меду ці поля були б двома
-           великими порожніми прямокутниками, які щоразу треба проминати. Тип
-           міняють рідко й свідомо, тож після зміни на «Курс» блок зʼявиться
-           наступним збереженням — це чесніше за поле, яке блимає від select. */ ?>
-  <?php if (($p['type'] ?? '') === 'course'): ?>
-  <div class="admin-card">
+  <?php /* Блок курсу видно лише при типі «Курс» (product-form.js, data-for): у картці меду ці поля
+           були б двома великими порожніми прямокутниками, які щоразу треба проминати. */ ?>
+  <?php if (true): /* показується скриптом лише при типі «Курс» */ ?>
+  <div class="admin-card" data-for="course">
     <h2 class="h-serif">Сторінка курсу</h2>
     <p class="card-lead">Те, що читає студент перед покупкою. Порожнє поле —
       блока на сторінці не буде взагалі: курс без програми виглядає скромніше,
@@ -424,7 +421,7 @@ $roEdit = $canEdit ? '' : 'disabled';
   </div>
   <?php endif; ?>
 
-  <div class="admin-card">
+  <div class="admin-card" data-adv>
     <h2 class="h-serif">Торг</h2>
     <p class="dim" style="margin:-8px 0 18px">
       Покупець може запропонувати свою ціну за свою кількість, а ви — погодитись,
@@ -449,7 +446,7 @@ $roEdit = $canEdit ? '' : 'disabled';
 
   <?php if (!$isNew): ?>
   <?php if ($canEdit): ?>
-  <div class="admin-card">
+  <div class="admin-card" data-for="product service">
     <h2 class="h-serif">Характеристики</h2>
     <p class="dim" style="margin:-8px 0 14px">
       Обирайте зі спільного словника — так значення однакові в усіх товарів і працюють фільтри.
@@ -460,7 +457,7 @@ $roEdit = $canEdit ? '' : 'disabled';
     <button class="btn btn-line btn-sm" type="button" id="attrAdd" style="margin-top:12px">+ Додати характеристику</button>
   </div>
 
-  <div class="admin-card">
+  <div class="admin-card" data-for="product">
     <h2 class="h-serif">Варіанти</h2>
     <p class="dim" style="margin:-8px 0 14px">Різні виконання того самого товару: розмір, колір, обʼєм. Покупець обирає їх на сторінці товару.</p>
 
@@ -510,7 +507,7 @@ $roEdit = $canEdit ? '' : 'disabled';
   <?php endif; ?>
 
   <?php $activeVariants = array_values(array_filter($variants, fn($v) => (int)$v['active'] === 1)); ?>
-  <div class="admin-card">
+  <div class="admin-card" data-for="product">
     <h2 class="h-serif" data-help-title="Ціни та залишки по магазинах"
         data-help="Таблиця, де для кожної точки задають свою ціну й свою кількість.
 
@@ -682,5 +679,6 @@ window.BOFU_PRODUCT_ATTRS = <?= json_js(array_map(fn($a) => [
     'value' => $a['value'],
 ], array_values(array_filter($attrs, fn($a) => !empty($a['attribute_id']))))) ?>;
 </script>
-<script src="<?= e(asset_v('js/product-form.js')) ?>" defer></script>
 <?php endif; ?>
+<?php /* Скрипт форми — і для нового товару: тип, категорії й зайві поля ховаються вже при створенні */ ?>
+<script src="<?= e(asset_v('js/product-form.js')) ?>" defer></script>
