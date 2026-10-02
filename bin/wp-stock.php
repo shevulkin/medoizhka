@@ -62,10 +62,20 @@ if (!$store) { fwrite(STDERR, "У новій базі немає активно�
 $curQty = fn(int $pid, ?int $vid) => (int)DB::val('SELECT COALESCE(SUM(qty),0) FROM store_stock WHERE product_id = ? AND store_id = ? AND '
     . ($vid === null ? 'variant_id IS NULL' : 'variant_id = ?'), $vid === null ? [$pid, $store] : [$pid, $store, $vid]);
 
-$stat = ['in' => [], 'order' => [], 'out' => [], 'prices' => 0, 'variants' => 0, 'missing' => []];
+/*
+ * Послуги складу не мають: «Купимо віск» чи обмін воску не «закінчуються». У WordPress їх
+ * позначали «немає», щоб сховати кнопку кошика, — переносити це як «немає в наявності»
+ * означало б написати на вітрині нісенітницю. Їх наявність не чіпаємо.
+ */
+const SERVICE_CATS = ['services', 'wax-exchange'];
 
-foreach (DB::all('SELECT * FROM products WHERE wp_id IS NOT NULL ORDER BY id') as $p) {
+$stat = ['in' => [], 'order' => [], 'out' => [], 'prices' => 0, 'variants' => 0, 'missing' => [], 'services' => []];
+
+// Курси не беремо: доступ до відео від складу не залежить (Catalog::AVAIL_SQL)
+foreach (DB::all("SELECT p.*, c.slug AS cat_slug FROM products p LEFT JOIN categories c ON c.id = p.category_id
+                  WHERE p.wp_id IS NOT NULL AND p.type <> 'course' ORDER BY p.id") as $p) {
     $pid = (int)$p['id']; $wid = (int)$p['wp_id'];
+    if (in_array($p['cat_slug'], SERVICE_CATS, true)) { $stat['services'][] = $p['name']; continue; }
     if (!$v("SELECT ID FROM {$T('posts')} WHERE ID = ? AND post_type = 'product'", [$wid])) { $stat['missing'][] = $p['name']; continue; }
     $m = $meta($wid);
     $stock = [];            // [variant_id|0 => qty]
@@ -138,5 +148,6 @@ echo 'В наявності: ', count($stat['in']), "\n";
 if ($stat['order']) echo 'Під замовлення (у WordPress було дозволено передзамовлення): ', count($stat['order']), "\n  - ", implode("\n  - ", $stat['order']), "\n";
 echo 'Немає в наявності: ', count($stat['out']), ($stat['out'] ? "\n  - " . implode("\n  - ", $stat['out']) : ''), "\n";
 echo "Цін дописано: {$stat['prices']}, фасовок додано: {$stat['variants']}\n";
+if ($stat['services']) echo 'Послуги — наявність не застосовується, лишились як є: ', implode(', ', $stat['services']), "\n";
 if ($stat['missing']) echo 'У старій базі не знайшлось (лишились як є): ', implode(', ', $stat['missing']), "\n";
-echo $apply ? "Записано.\n" : "\nЦе перегляд — нічого не записано. Щоб записати: php bin/wp-stock.php --apply\n";
+echo $apply ? "Записано.\n" : "\nЦе перегляд — нічого не записано. Щоб записати, додайте --apply\n";
