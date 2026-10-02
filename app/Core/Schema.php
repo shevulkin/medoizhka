@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 class Schema
 {
-    public const VERSION = 59;
+    public const VERSION = 60;
 
     /** Оновлення існуючої бази до поточної версії без втрати даних */
     public static function upgrade(): void
@@ -844,6 +844,17 @@ class Schema
             self::addColumn('products', 'paused', 'bool default 0');
             DB::query("UPDATE products SET service = 1 WHERE category_id IN
                        (SELECT id FROM categories WHERE slug IN ('services', 'wax-exchange'))");
+        }
+        if ($ver < 60) {
+            // У кожного виду свої категорії (Catalog::KINDS): розділи послуг — вид «service».
+            // «Послуги» перейменовано на «Бджільництво»; адреса /product-category/services/
+            // лишається — вона в пошуку. SEO-заголовок зі старого сайту («Послуги - …»)
+            // знято, щоб він будувався з нової назви.
+            DB::query("UPDATE categories SET type = 'service' WHERE slug IN ('services', 'wax-exchange')");
+            DB::query("UPDATE categories SET name = 'Бджільництво', seo_title = NULL WHERE slug = 'services' AND name = 'Послуги'");
+            // Усе, що лежить у розділах послуг, — послуги (і створене там як «Товар» до цієї зміни)
+            DB::query("UPDATE products SET service = 1 WHERE type <> 'course'
+                       AND category_id IN (SELECT id FROM categories WHERE type = 'service')");
         }
         if ($ver < 59) {
             // Аналітика зі старого сайту (Site Kit): ті самі GA4 і Tag Manager, щоб статистика

@@ -45,7 +45,6 @@
         <td style="white-space:nowrap;text-align:right">
           <a class="btn btn-line btn-xs" href="<?= e(url('/admin/products/' . $id)) ?>">Опис і фото</a>
           <a class="btn btn-line btn-xs" href="<?= e(product_url($r['slug'])) ?>" target="_blank" rel="noopener" title="Як бачить покупець">↗</a>
-          <button class="btn btn-line btn-xs" type="submit" form="un<?= $id ?>" title="Це не послуга, а товар зі складом">Це товар</button>
         </td>
       </tr>
     <?php endforeach; ?>
@@ -53,8 +52,4 @@
   <div style="margin-top:16px"><button class="btn btn-gold btn-sm" type="submit">Зберегти</button></div>
   <?php endif; ?>
 </form>
-<?php foreach ($rows as $r): ?>
-  <form id="un<?= (int)$r['id'] ?>" method="post" action="<?= e(url('/admin/services')) ?>" hidden onsubmit="return confirm('Зробити це звичайним товаром? Його наявність рахуватиметься за залишком на складі.')"><?= Csrf::field() ?>
-    <input type="hidden" name="_action" value="unmark"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"></form>
-<?php endforeach; ?>
-<p class="dim" style="margin-top:6px">Будь-який товар можна зробити послугою: у його картці поставте галку «Послуга (без складу)» — і він зʼявиться тут.</p>
+<p class="dim" style="margin-top:6px">Будь-який товар можна зробити послугою: у його картці оберіть «Тип: Послуга» й категорію послуг — і він зʼявиться тут. Категорії послуг (зараз це «Бджільництво») — у розділі «Категорії» з видом «Послуга».</p>

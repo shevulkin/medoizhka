@@ -222,7 +222,7 @@ class Studio
             if ($a === 'create') {
                 $name = trim((string)($_POST['name'] ?? ''));
                 $cat = (int)($_POST['category_id'] ?? 0);
-                if ($name === '' || !DB::row("SELECT id FROM categories WHERE id = ? AND type <> 'course'", [$cat])) {
+                if ($name === '' || !DB::row("SELECT id FROM categories WHERE id = ? AND type = 'service'", [$cat])) {
                     flash('error', 'Вкажіть назву й розділ.'); self::back('/admin/services');
                 }
                 $price = trim((string)($_POST['price'] ?? ''));
@@ -246,18 +246,12 @@ class Studio
                 flash('success', 'Збережено.');
                 self::back('/admin/services');
             }
-            if ($a === 'unmark') {
-                // Позначили послугою помилково — повертається звичайним товаром зі складом
-                DB::update('products', ['service' => 0, 'updated_at' => now()], 'id = ?', [(int)($_POST['id'] ?? 0)]);
-                flash('success', 'Це знову звичайний товар — його наявність рахується за залишком.');
-                self::back('/admin/services');
-            }
             self::back('/admin/services');
         }
         View::show('admin/studio/services', [
             'rows' => DB::all("SELECT p.*, c.name AS cat_name FROM products p LEFT JOIN categories c ON c.id = p.category_id
                                WHERE p.service = 1 ORDER BY p.active DESC, c.sort, p.name"),
-            'cats' => DB::all("SELECT id, name, slug FROM categories WHERE type <> 'course' ORDER BY (slug = 'services') DESC, sort, name"),
+            'cats' => DB::all("SELECT id, name, slug FROM categories WHERE type = 'service' ORDER BY sort, name"),   // у послуг свої категорії
             'page_title' => 'Послуги — Адмінпанель',
         ], 'layouts/admin');
     }

@@ -492,10 +492,31 @@ class Catalog
      */
     public const TYPES = ['product' => 'Товар', 'course' => 'Курс'];
 
+    /**
+     * Вид позиції — те, що людина обирає в полі «Тип»: товар, послуга чи курс.
+     * Послуга зберігається як товар із позначкою service (без складу), тож у products.type
+     * її немає; а от категорії мають свій вид прямо в categories.type — у кожного виду
+     * свої розділи («Мед…» — товари, «Бджільництво» — послуги, «Курси…» — курси).
+     */
+    public const KINDS = ['product' => 'Товар', 'service' => 'Послуга', 'course' => 'Курс'];
+
+    /** Вид позиції: курс, послуга чи звичайний товар */
+    public static function kindOf(array $product): string
+    {
+        if (($product['type'] ?? '') === Courses::TYPE) return 'course';
+        return !empty($product['service']) ? 'service' : 'product';
+    }
+
+    /** Вид із форми: приймаємо лише відомий */
+    public static function normKind(?string $kind, string $fallback = 'product'): string
+    {
+        return isset(self::KINDS[(string)$kind]) ? (string)$kind : $fallback;
+    }
+
     /** Назва типу для людини; невідомий повертається як є */
     public static function typeLabel(string $type): string
     {
-        return self::TYPES[$type] ?? $type;
+        return self::KINDS[$type] ?? $type;
     }
 
     /** Тип із форми: приймаємо лише відомий, решта — звичайний товар */

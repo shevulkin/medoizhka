@@ -351,8 +351,8 @@ class Products
      */
     private static function categoryTypeError(string $type, int $categoryId): string
     {
-        $labels = Catalog::TYPES;
-        $type = Catalog::normType($type);
+        $labels = Catalog::KINDS;   // товар, послуга, курс — у кожного виду свої категорії
+        $type = Catalog::normKind($type);
         $cat = $categoryId ? DB::row('SELECT name, type FROM categories WHERE id = ?', [$categoryId]) : null;
         if (!$cat) return 'Оберіть категорію.';
         $catType = (string)($cat['type'] ?? 'product');

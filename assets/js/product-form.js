@@ -279,11 +279,11 @@
    */
   var typeSel = document.querySelector('select[name="type"]');
   var catHint = document.getElementById('catTypeHint');
-  var TYPE_LABELS = { product: 'Товар', service: 'Послуга', video: 'Відео', course: 'Курс' };
+  var TYPE_LABELS = { product: 'Товар', service: 'Послуга', course: 'Курс' };
   function syncCategories() {
     if (!typeSel || !catSel) return;
-    // Послуга живе у звичайних категоріях товарів — це товар без складу
-    var want = typeSel.value === 'service' ? 'product' : (typeSel.value || 'product');
+    // У кожного виду свої категорії: товари, послуги, курси (categories.type)
+    var want = typeSel.value || 'product';
     var fit = 0, current = null;
     Array.prototype.forEach.call(catSel.options, function (o) {
       var ok = (o.dataset.type || 'product') === want;
@@ -322,13 +322,6 @@
   if (typeSel) typeSel.addEventListener('change', syncKind);
   syncKind();
 
-  // Розділ «Послуги» / «Приймаємо віск» обрали для «Товару» — це майже напевно послуга
-  if (catSel && typeSel) catSel.addEventListener('change', function () {
-    var o = catSel.selectedOptions[0];
-    if (o && ['services', 'wax-exchange'].indexOf(o.dataset.slug) !== -1 && typeSel.value === 'product') {
-      typeSel.value = 'service';
-      typeSel.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  });
+
 
 })();

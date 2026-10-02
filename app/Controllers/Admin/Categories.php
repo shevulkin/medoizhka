@@ -34,8 +34,8 @@ class Categories
                     'parent_id' => $parent ? (int)$parent['id'] : null,
                     // Тип підрозділу — батьківський: «Курси» всередині «Товарів»
                     // означало б, що розділ показує те, чим не є.
-                    // Перелік типів один на всю систему — Catalog::TYPES.
-                    'type' => $parent ? $parent['type'] : \Catalog::normType($_POST['type'] ?? null),
+                    // Вид категорії — Catalog::KINDS (товари, послуги, курси).
+                    'type' => $parent ? $parent['type'] : \Catalog::normKind($_POST['type'] ?? null),
                     'sort' => (int)DB::val('SELECT COALESCE(MAX(sort),0)+1 FROM categories'), 'active' => 1,
                 ]);
                 flash('success', $parent ? 'Підрозділ додано в «' . $parent['name'] . '»' : 'Категорію додано');

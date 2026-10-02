@@ -54,10 +54,10 @@ $roots = array_values(array_filter($cats, fn($c) => !($c['depth'] ?? 0)));
 
 Для підрозділу поле не діє: він успадковує тип свого розділу.">
     <label>Тип</label>
-    <?php /* Перелік типів один на всю систему — Catalog::TYPES. Доти він був
+    <?php /* Вид категорії — Catalog::KINDS: товари, послуги чи курси. Доти перелік був
              переписаний тут і ще в пʼятьох місцях, і розходились вони мовчки. */ ?>
     <select name="type">
-      <?php foreach (Catalog::TYPES as $t => $lbl): ?>
+      <?php foreach (Catalog::KINDS as $t => $lbl): ?>
         <option value="<?= e($t) ?>"><?= e($lbl) ?></option>
       <?php endforeach; ?>
     </select>
