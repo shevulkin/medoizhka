@@ -12,7 +12,7 @@ class StockRequests
         Auth::requireCap('products.view');
         View::show('admin/stock_requests', [
             'rows' => StockWatch::pending(),
-            'page_title' => 'Запити на надходження — Панель керування',
+            'page_title' => 'Запити на надходження — Адмінпанель',
         ], 'layouts/admin');
     }
 }

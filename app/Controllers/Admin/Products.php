@@ -77,7 +77,7 @@ class Products
             'stores' => Catalog::stores(), 'stocks' => Catalog::stockTotals(), 'variant_count' => $variantCount,
             'q' => $q, 'cat' => $cat,
             'brand' => Catalog::brand($brand),
-            'page_title' => 'Товари — Панель керування',
+            'page_title' => 'Товари — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -159,7 +159,7 @@ class Products
             'prices' => $prices, 'stocks' => $stocks, 'vprices' => $vprices, 'vstocks' => $vstocks,
             'categories' => Catalog::categories(), 'brands' => Catalog::brands(),
             'f' => self::bulkInput(), 'query' => self::bulkQuery(),
-            'page_title' => 'Масове редагування — Панель керування',
+            'page_title' => 'Масове редагування — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -213,7 +213,7 @@ class Products
             'f' => self::codesFilter(),
             'query' => self::codesQuery(),
             'dupes' => self::duplicateCodes(),
-            'page_title' => 'Коди й штрихкоди — Панель керування',
+            'page_title' => 'Коди й штрихкоди — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -480,7 +480,7 @@ class Products
             'p' => null, 'categories' => Catalog::categories(), 'stores' => Catalog::stores(),
             'variants' => [], 'attrs' => [], 'images' => [], 'store_prices' => [], 'store_stock' => [],
             'variant_options' => [], 'variant_prices' => [], 'variant_stock' => [], 'dict' => Attrs::all(),
-            'page_title' => 'Новий товар — Панель керування',
+            'page_title' => 'Новий товар — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -516,7 +516,7 @@ class Products
             // читається як «знижок немає», а знижка при цьому діє.
             'qty_tiers' => QtyDiscounts::level($id, null),
             'qty_inherit' => Catalog::qtyResolve($p),
-            'page_title' => 'Товар: ' . $p['name'] . ' — Панель керування',
+            'page_title' => 'Товар: ' . $p['name'] . ' — Адмінпанель',
         ], 'layouts/admin');
     }
 

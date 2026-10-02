@@ -248,7 +248,7 @@ class ProdCheck
             $stuck = (int)DB::val("SELECT COUNT(*) FROM fiscal_receipts WHERE status = 'error'");
             if ($stuck > 0) {
                 $out[] = self::row(self::BAD, 'Непробиті чеки',
-                    $stuck . ' — розберіться до запуску (Панель керування → Фіскальні чеки → «Чеки, які не пройшли»)');
+                    $stuck . ' — розберіться до запуску (Адмінпанель → Фіскальні чеки → «Чеки, які не пройшли»)');
             }
         }
 

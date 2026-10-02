@@ -30,7 +30,7 @@ class Partners
         }
         View::show('admin/partners', [
             'partners' => DB::all('SELECT * FROM partners ORDER BY sort, name'),
-            'page_title' => 'Партнери — Панель керування',
+            'page_title' => 'Партнери — Адмінпанель',
         ], 'layouts/admin');
     }
 

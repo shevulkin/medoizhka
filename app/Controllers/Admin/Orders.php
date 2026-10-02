@@ -150,7 +150,7 @@ class Orders
             'is_seller_view' => $mine !== null,
             'my_store_ids' => $mine ?? [],
             'sees_all' => $seesAll, 'scope' => $scope,
-            'page_title' => 'Замовлення — Панель керування',
+            'page_title' => 'Замовлення — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -215,7 +215,7 @@ class Orders
             'kasa_on' => FiscalProvider::anyConfigured(),
             'pay_types' => Vchasno::PAY_TYPES,
             'np_enabled' => Settings::get('np_api_key') !== null && Settings::get('np_api_key') !== '',
-            'page_title' => 'Продаж у крамниці — Панель керування',
+            'page_title' => 'Продаж у крамниці — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -1022,7 +1022,7 @@ class Orders
             'pay_types' => Vchasno::PAY_TYPES,
             'statuses' => self::STATUSES,
             'can_manage_parent' => Auth::can('orders.manage'),
-            'page_title' => 'Замовлення ' . $order['number'] . ' — Панель керування',
+            'page_title' => 'Замовлення ' . $order['number'] . ' — Адмінпанель',
         ], 'layouts/admin');
     }
 

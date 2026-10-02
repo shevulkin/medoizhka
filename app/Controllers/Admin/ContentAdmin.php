@@ -87,7 +87,7 @@ class ContentAdmin
             'blocks' => Content::all(),
             'faq' => ContentSave::currentList('faq'),
             'gallery' => ContentSave::currentList('gallery'),
-            'page_title' => 'Тексти сайту — Панель керування',
+            'page_title' => 'Тексти сайту — Адмінпанель',
         ], 'layouts/admin');
     }
 }

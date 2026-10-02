@@ -107,7 +107,7 @@ class Media
         }
         View::show('admin/media', [
             'items' => self::listAll(),
-            'page_title' => 'Медіатека — Панель керування',
+            'page_title' => 'Медіатека — Адмінпанель',
         ], 'layouts/admin');
     }
 }

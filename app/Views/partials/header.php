@@ -53,7 +53,7 @@ $svg = fn($k) => '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" st
       </form>
       <?php if ($auth_user): ?>
         <?php if ($myCourses > 0): ?><a class="ico-link" href="<?= e(url('/my-account/my-course/')) ?>" title="Мої відеокурси"><?= $svg('play') ?></a><?php endif; ?>
-        <?php if (Auth::isStaff()): ?><a class="ico-link staff" href="<?= e(url('/admin')) ?>" title="Панель керування"><span>Керування</span></a><?php endif; ?>
+        <?php if (Auth::isStaff()): ?><a class="ico-link staff" href="<?= e(url('/admin')) ?>" title="Адмінпанель"><span>Адмінпанель</span></a><?php endif; ?>
         <a class="ico-link" href="<?= e(url('/profile')) ?>" title="Мій кабінет"><?= $svg('user') ?></a>
       <?php else: ?>
         <a class="ico-link" href="#" id="loginBtn" title="Увійти"><?= $svg('user') ?></a>
@@ -74,7 +74,7 @@ $svg = fn($k) => '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" st
     <?php foreach ($nav as [$href, $label]): ?><a href="<?= e(url($href)) ?>"><?= e($label) ?></a><?php endforeach; ?>
     <?php if ($myCourses > 0): ?><a href="<?= e(url('/my-account/my-course/')) ?>">Мої відеокурси</a><?php endif; ?>
     <?php if ($auth_user): ?>
-      <?php if (Auth::isStaff()): ?><a href="<?= e(url('/admin')) ?>">Панель керування</a><?php endif; ?>
+      <?php if (Auth::isStaff()): ?><a href="<?= e(url('/admin')) ?>">Адмінпанель</a><?php endif; ?>
       <a href="<?= e(url('/orders')) ?>">Мої замовлення</a>
       <form method="post" action="<?= e(url('/logout')) ?>"><?= Csrf::field() ?><button class="btn btn-line btn-sm" type="submit" style="margin-top:14px">Вийти</button></form>
     <?php endif; ?>

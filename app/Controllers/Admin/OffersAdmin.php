@@ -34,7 +34,7 @@ class OffersAdmin
             'rows' => Offers::queue($tab),
             'tab' => $tab, 'tabs' => self::TABS,
             'todo' => Offers::todoCount(),
-            'page_title' => 'Пропозиції ціни — Панель керування',
+            'page_title' => 'Пропозиції ціни — Адмінпанель',
         ], 'layouts/admin');
     }
 

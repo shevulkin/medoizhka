@@ -87,7 +87,7 @@ class Studio
             'course' => $cid ? DB::row('SELECT * FROM products WHERE id = ?', [$cid]) : null,
             'lessons' => $cid ? Lessons::forCourse($cid) : [],
             'bunny' => ['library' => Lessons::libraryId(), 'has_key' => Lessons::configured()],
-            'page_title' => 'Відеокурси — Панель керування',
+            'page_title' => 'Відеокурси — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -118,7 +118,7 @@ class Studio
             'rows' => DB::all("SELECT a.*, u.email, u.name AS uname, p.name AS course FROM course_access a
                                JOIN users u ON u.id = a.user_id JOIN products p ON p.id = a.product_id
                                ORDER BY a.granted_at DESC LIMIT 300"),
-            'page_title' => 'Доступ до відеокурсів — Панель керування',
+            'page_title' => 'Доступ до відеокурсів — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -152,7 +152,7 @@ class Studio
         View::show('admin/studio/practitioners', [
             'rows' => DB::all('SELECT * FROM practitioners ORDER BY active DESC, sort, name'),
             'edit' => $id ? DB::row('SELECT * FROM practitioners WHERE id = ?', [$id]) : (isset($_GET['new']) ? [] : null),
-            'page_title' => 'Апітерапевти — Панель керування',
+            'page_title' => 'Апітерапевти — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -186,7 +186,7 @@ class Studio
         View::show('admin/studio/places', [
             'rows' => DB::all('SELECT * FROM places ORDER BY active DESC, sort, name'),
             'edit' => $id ? DB::row('SELECT * FROM places WHERE id = ?', [$id]) : (isset($_GET['new']) ? [] : null),
-            'page_title' => 'Пасіки й апібудиночки — Панель керування',
+            'page_title' => 'Пасіки й апібудиночки — Адмінпанель',
         ], 'layouts/admin');
     }
 
@@ -206,6 +206,6 @@ class Studio
             $t = $r['kind'] === 'place' ? 'places' : 'practitioners';
             $r['subject'] = (string)DB::val("SELECT name FROM $t WHERE id = ?", [$r['ref_id']]);
         }
-        View::show('admin/studio/bookings', ['rows' => $rows, 'page_title' => 'Бронювання — Панель керування'], 'layouts/admin');
+        View::show('admin/studio/bookings', ['rows' => $rows, 'page_title' => 'Бронювання — Адмінпанель'], 'layouts/admin');
     }
 }
