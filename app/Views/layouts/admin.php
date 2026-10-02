@@ -94,7 +94,6 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
         ['Послуги й навчання', [
             ['/admin/bookings', 'Бронювання', Auth::can('content.manage')],
             ['/admin/lessons', 'Відеокурси', Auth::can('content.manage')],
-            ['/admin/access', 'Доступ до відеокурсів', Auth::can('users.manage')],
             ['/admin/practitioners', 'Апітерапевти', Auth::can('content.manage')],
             ['/admin/places', 'Пасіки й апібудиночки', Auth::can('content.manage')],
         ]],

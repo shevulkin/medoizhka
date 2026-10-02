@@ -55,6 +55,79 @@ class Lessons
     public static function configured(): bool { return self::tokenKey() !== ''; }
 
     /**
+     * API-ключ бібліотеки Bunny Stream (бібліотека → API → API Key). Це НЕ ключ
+     * підписаних посилань: з ним адмінпанель бачить список відео й обирає їх
+     * галочками, а не вимагає копіювати guid по одному.
+     */
+    public static function apiKey(): string
+    {
+        return trim((string)(cfg('bunny.api_key') ?: Settings::get('bunny_api_key', '')));
+    }
+
+    /** Запит до Bunny Stream API; null — ключа немає або Bunny не відповів */
+    private static function api(string $path): ?array
+    {
+        $key = self::apiKey();
+        if ($key === '' || !function_exists('curl_init')) return null;
+        $ch = curl_init('https://video.bunnycdn.com/library/' . rawurlencode(self::libraryId()) . $path);
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 12, CURLOPT_CONNECTTIMEOUT => 6,
+            CURLOPT_HTTPHEADER => ['AccessKey: ' . $key, 'Accept: application/json']]);
+        $body = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($code !== 200 || !is_string($body)) return null;
+        $j = json_decode($body, true);
+        return is_array($j) ? $j : null;
+    }
+
+    /**
+     * Усі відео бібліотеки, новіші зверху: [['guid','title','length'(сек),'date'], …].
+     * null — ключа немає або Bunny не відповів (тоді лишається вставка посилань).
+     */
+    public static function libraryVideos(): ?array
+    {
+        $out = [];
+        for ($page = 1; $page <= 20; $page++) {
+            $j = self::api('/videos?page=' . $page . '&itemsPerPage=100&orderBy=date');
+            if ($j === null) return $page === 1 ? null : $out;
+            foreach ($j['items'] ?? [] as $v) {
+                $out[] = ['guid' => (string)$v['guid'], 'title' => trim((string)($v['title'] ?? '')),
+                          'length' => (int)($v['length'] ?? 0), 'date' => (string)($v['dateUploaded'] ?? '')];
+            }
+            if (count($j['items'] ?? []) < 100) break;
+        }
+        return $out;
+    }
+
+    /** Назва й тривалість одного відео з Bunny — щоб не вписувати їх руками */
+    public static function videoInfo(string $guid): ?array
+    {
+        $j = self::api('/videos/' . rawurlencode($guid));
+        return $j ? ['title' => trim((string)($j['title'] ?? '')), 'length' => (int)($j['length'] ?? 0)] : null;
+    }
+
+    /**
+     * Відео з того, що вставили: посилання на плеєр, на сторінку відео в кабінеті Bunny
+     * чи сам guid — по одному в рядку; назва — після «|» або просто поруч із посиланням.
+     * @return array<array{guid:string,title:string}>
+     */
+    public static function parseVideoLines(string $text): array
+    {
+        $out = [];
+        foreach (preg_split('~\R+~', $text) as $line) {
+            if (!preg_match('~[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}~i', $line, $m)) continue;
+            $guid = strtolower($m[0]);
+            $title = str_contains($line, '|') ? trim(explode('|', $line, 2)[1]) : '';
+            if ($title === '') {   // «Вступ https://iframe.mediadelivery.net/play/…» — назва поруч із посиланням
+                $title = trim(preg_replace(['~https?://\S+~', '~[0-9a-f-]{36}~i', '~\s+~u'], ['', '', ' '], $line), " \t-–—:|");
+            }
+            // те саме відео двічі — лишається перше, але назва з будь-якого рядка, де вона є
+            if (!isset($out[$guid]) || ($out[$guid]['title'] === '' && $title !== '')) $out[$guid] = ['guid' => $guid, 'title' => $title];
+        }
+        return array_values($out);
+    }
+
+    /**
      * Адреса плеєра з підписом.
      *
      * Bunny Token Authentication для embed: token = SHA256_HEX(ключ + guid + expires).

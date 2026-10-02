@@ -6,7 +6,7 @@ namespace Controllers\Admin;
 use DB, View, Auth, Images, Courses, Lessons, Settings, Hub;
 
 /**
- * Адмінка нових розділів Медоїжки: уроки курсів і доступ, апітерапевти,
+ * Адмінпанель нових розділів Медоїжки: відеокурси (відео й учні), апітерапевти,
  * пасіки й апібудиночки, заявки. Один контролер, бо всі екрани однакового
  * складу: список зверху, форма правки під ним, POST із полем _action.
  */
@@ -31,95 +31,189 @@ class Studio
     }
 
     // ---------- Відеокурси ----------
+    /**
+     * Усе про курс — на одній сторінці: основне (назва, ціна, строк, опубліковано),
+     * відео (з бібліотеки Bunny галочками або вставкою посилань) і учні (кому відкрито,
+     * хто скільки подивився). Без курсу в адресі — список курсів і «Новий відеокурс».
+     */
     public static function lessons(): never
     {
         Auth::requireCap('content.manage');
-        $courses = DB::all("SELECT id, name, slug FROM products WHERE type = 'course' ORDER BY name");
-        $cid = (int)($_GET['course'] ?? $_POST['course'] ?? ($courses[0]['id'] ?? 0));
-        $self = '/admin/lessons?course=' . $cid;
+        $cid = (int)($_GET['course'] ?? $_POST['course'] ?? 0);
+        $course = $cid ? DB::row("SELECT * FROM products WHERE id = ? AND type = 'course'", [$cid]) : null;
+        if ($cid && !$course) { flash('error', 'Курс не знайдено.'); self::back('/admin/lessons'); }
+        $self = '/admin/lessons' . ($cid ? '?course=' . $cid : '');
 
         if (is_post()) {
-            $a = $_POST['_action'] ?? '';
+            $a = (string)($_POST['_action'] ?? '');
             if ($a === 'bunny') {
                 Settings::set('bunny_library_id', trim((string)($_POST['library'] ?? '')));
-                if (trim((string)($_POST['token_key'] ?? '')) !== '') Settings::set('bunny_token_key', trim((string)$_POST['token_key']));
+                foreach (['token_key' => 'bunny_token_key', 'api_key' => 'bunny_api_key'] as $f => $k) {
+                    if (trim((string)($_POST[$f] ?? '')) !== '') Settings::set($k, trim((string)$_POST[$f]));
+                }
                 flash('success', 'Налаштування Bunny збережено.');
-            } elseif ($a === 'add' && $cid) {
-                // Один рядок — один урок: «guid | назва». Так вставляється весь список із Bunny за раз
-                $n = (int)DB::val('SELECT COALESCE(MAX(sort),0) FROM course_lessons WHERE product_id = ?', [$cid]);
-                $added = 0;
-                foreach (preg_split('~\R+~', (string)($_POST['lines'] ?? '')) as $line) {
-                    $parts = array_map('trim', explode('|', $line, 2));
-                    if (!preg_match('~^[0-9a-f-]{32,36}$~i', $parts[0] ?? '')) continue;
-                    if (DB::row('SELECT id FROM course_lessons WHERE product_id = ? AND guid = ?', [$cid, $parts[0]])) continue;
-                    DB::insert('course_lessons', ['product_id' => $cid, 'guid' => $parts[0],
-                        'title' => $parts[1] ?? ('Відео ' . ($n + 1)), 'sort' => ++$n, 'free_preview' => 0]);
-                    $added++;
-                }
-                flash($added ? 'success' : 'error', $added ? "Додано відео: $added" : 'Не знайдено жодного guid відео. Формат рядка: guid | Назва');
-            } elseif ($a === 'save') {
-                foreach ((array)($_POST['l'] ?? []) as $id => $d) {
-                    DB::update('course_lessons', [
-                        'title' => trim((string)($d['title'] ?? '')) ?: 'Відео',
-                        'sort' => (int)($d['sort'] ?? 0),
-                        'free_preview' => !empty($d['free']) ? 1 : 0,
-                        'description' => trim((string)($d['description'] ?? '')) ?: null,
-                    ], 'id = ? AND product_id = ?', [(int)$id, $cid]);
-                }
-                flash('success', 'Збережено.');
-            } elseif ($a === 'delete') {
-                $id = (int)($_POST['id'] ?? 0);
-                DB::delete('lesson_progress', 'lesson_id = ?', [$id]);
-                DB::delete('lesson_notes', 'lesson_id = ?', [$id]);
-                DB::delete('course_lessons', 'id = ? AND product_id = ?', [$id, $cid]);
-                flash('success', 'Відео видалено разом із прогресом і нотатками.');
-            } elseif ($a === 'price') {
-                $price = trim((string)($_POST['price'] ?? ''));
-                $days = trim((string)($_POST['access_days'] ?? ''));
-                DB::update('products', ['base_price' => $price === '' ? null : (float)$price,
-                    'access_days' => $days === '' ? null : (int)$days, 'updated_at' => now()], 'id = ?', [$cid]);
-                flash('success', 'Ціну й строк доступу збережено.');
+                self::back('/admin/lessons');
+            }
+            if ($a === 'feature') {
+                // Розділ на сайті: меню «Відеокурси», сторінки курсів, «Мої відеокурси». Персонал бачить завжди.
+                Settings::set('feature_courses', !empty($_POST['on']) ? '1' : '0');
+                flash('success', !empty($_POST['on']) ? 'Відеокурси тепер видно покупцям.' : 'Відеокурси сховано з сайту (вам їх видно й далі).');
+                self::back('/admin/lessons');
+            }
+            if ($a === 'create') {
+                $name = trim((string)($_POST['name'] ?? ''));
+                if ($name === '') { flash('error', 'Вкажіть назву курсу.'); self::back('/admin/lessons'); }
+                $cat = (int)(DB::val("SELECT id FROM categories WHERE type = 'course' ORDER BY active DESC, id LIMIT 1") ?: 0);
+                if (!$cat) $cat = (int)DB::insert('categories', ['name' => 'Відеокурси', 'slug' => self::slug('categories', 'videokursy'),
+                    'type' => 'course', 'active' => 1, 'sort' => 99]);
+                // Курс живе за кореневою адресою (/slug/), тож slug не має збігатись і зі сторінками
+                $slug = self::slug('products', $name);
+                while (DB::row('SELECT id FROM pages WHERE slug = ?', [$slug])) $slug .= '-kurs';
+                $id = (int)DB::insert('products', ['name' => $name, 'slug' => $slug, 'type' => 'course', 'category_id' => $cat,
+                    'active' => 0, 'made_to_order' => 0, 'created_at' => now(), 'updated_at' => now()]);
+                flash('success', 'Курс створено як чернетку. Додайте відео й ціну, потім позначте «Опубліковано».');
+                self::back('/admin/lessons?course=' . $id);
+            }
+            if (!$course) self::back('/admin/lessons');
+
+            switch ($a) {
+                case 'basic':
+                    $name = trim((string)($_POST['name'] ?? '')) ?: $course['name'];
+                    $price = trim((string)($_POST['price'] ?? ''));
+                    $days = trim((string)($_POST['access_days'] ?? ''));
+                    DB::update('products', ['name' => $name, 'base_price' => $price === '' ? null : max(0, (float)$price),
+                        'access_days' => $days === '' ? null : max(1, (int)$days), 'active' => isset($_POST['active']) ? 1 : 0,
+                        'updated_at' => now()], 'id = ?', [$cid]);
+                    flash('success', 'Збережено.');
+                    break;
+
+                case 'add_lines':
+                case 'add_pick':
+                    if ($a === 'add_pick') {
+                        $items = [];
+                        foreach ((array)($_POST['pick'] ?? []) as $guid) {
+                            $guid = strtolower((string)$guid);
+                            if (!preg_match('~^[0-9a-f-]{36}$~', $guid)) continue;
+                            $items[] = ['guid' => $guid, 'title' => trim((string)($_POST['ptitle'][$guid] ?? '')),
+                                        'length' => (int)($_POST['plen'][$guid] ?? 0)];
+                        }
+                    } else {
+                        $items = Lessons::parseVideoLines((string)($_POST['lines'] ?? ''));
+                    }
+                    $n = (int)DB::val('SELECT COALESCE(MAX(sort),0) FROM course_lessons WHERE product_id = ?', [$cid]);
+                    $added = 0; $dupes = 0;
+                    foreach ($items as $it) {
+                        if (DB::row('SELECT id FROM course_lessons WHERE product_id = ? AND guid = ?', [$cid, $it['guid']])) { $dupes++; continue; }
+                        $len = $it['length'] ?? 0;
+                        if ($it['title'] === '' || !$len) {   // назву й тривалість підтягуємо з Bunny, якщо є ключ API
+                            $info = Lessons::videoInfo($it['guid']);
+                            if ($info) { $it['title'] = $it['title'] !== '' ? $it['title'] : $info['title']; $len = $len ?: $info['length']; }
+                        }
+                        DB::insert('course_lessons', ['product_id' => $cid, 'guid' => $it['guid'],
+                            'title' => $it['title'] !== '' ? $it['title'] : 'Відео ' . ($n + 1),
+                            'sort' => ++$n, 'free_preview' => 0, 'duration' => $len ?: null]);
+                        $added++;
+                    }
+                    flash($added ? 'success' : 'error', $added
+                        ? 'Додано відео: ' . $added . ($dupes ? " (ще $dupes вже були в курсі)" : '')
+                        : ($dupes ? 'Ці відео вже є в курсі.' : 'Не знайшла жодного відео. Вставте посилання з Bunny чи guid — по одному в рядку.'));
+                    break;
+
+                case 'save':
+                    foreach ((array)($_POST['l'] ?? []) as $id => $d) {
+                        DB::update('course_lessons', ['title' => trim((string)($d['title'] ?? '')) ?: 'Відео',
+                            'free_preview' => !empty($d['free']) ? 1 : 0], 'id = ? AND product_id = ?', [(int)$id, $cid]);
+                    }
+                    flash('success', 'Збережено.');
+                    break;
+
+                case 'move':
+                    // Переставити на одну позицію: спершу нумеруємо 1..N, потім міняємо з сусідом
+                    $ids = array_map(fn($l) => (int)$l['id'], Lessons::forCourse($cid));
+                    $i = array_search((int)($_POST['id'] ?? 0), $ids, true);
+                    $j = $i === false ? false : $i + (($_POST['dir'] ?? '') === 'up' ? -1 : 1);
+                    if ($i !== false && isset($ids[$j])) { [$ids[$i], $ids[$j]] = [$ids[$j], $ids[$i]]; }
+                    foreach ($ids as $k => $lid) DB::update('course_lessons', ['sort' => $k + 1], 'id = ?', [$lid]);
+                    self::back($self . '#videos');
+
+                case 'delete':
+                    $id = (int)($_POST['id'] ?? 0);
+                    if (DB::row('SELECT id FROM course_lessons WHERE id = ? AND product_id = ?', [$id, $cid])) {
+                        DB::delete('lesson_progress', 'lesson_id = ?', [$id]);
+                        DB::delete('lesson_notes', 'lesson_id = ?', [$id]);
+                        DB::delete('course_lessons', 'id = ?', [$id]);
+                        flash('success', 'Відео прибрано з курсу разом із прогресом і нотатками до нього.');
+                    }
+                    self::back($self . '#videos');
+
+                case 'grant':
+                    $days = trim((string)($_POST['days'] ?? ''));
+                    $days = $days === '' ? ($course['access_days'] ?? null) : max(1, (int)$days);
+                    $ok = []; $bad = [];
+                    foreach (preg_split('~[\s,;]+~u', mb_strtolower((string)($_POST['emails'] ?? ''))) as $email) {
+                        if ($email === '') continue;
+                        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { $bad[] = $email; continue; }
+                        $u = DB::row('SELECT id FROM users WHERE email = ?', [$email]);
+                        // Акаунт заводимо наперед: людина ще могла не заходити, а доступ має чекати на неї
+                        $uid = $u ? (int)$u['id'] : (int)DB::insert('users', ['email' => $email, 'name' => strstr($email, '@', true),
+                            'role' => 'customer', 'active' => 1, 'created_at' => now()]);
+                        Courses::grant($uid, $cid, null, $days);
+                        $ok[] = $email;
+                    }
+                    if ($ok) flash('success', 'Доступ відкрито: ' . count($ok) . '. Людина входить на сайт цією поштою (код приходить на неї) і бачить курс у «Мої відеокурси».');
+                    if ($bad) flash('error', 'Не схоже на пошту: ' . implode(', ', array_slice($bad, 0, 5)));
+                    if (!$ok && !$bad) flash('error', 'Вкажіть хоча б одну пошту.');
+                    self::back($self . '#students');
+
+                case 'forever':
+                    DB::update('course_access', ['expires_at' => null], 'id = ? AND product_id = ?', [(int)($_POST['id'] ?? 0), $cid]);
+                    flash('success', 'Доступ тепер безстроковий.');
+                    self::back($self . '#students');
+
+                case 'revoke':
+                    DB::delete('course_access', 'id = ? AND product_id = ?', [(int)($_POST['id'] ?? 0), $cid]);
+                    flash('success', 'Доступ закрито. Прогрес і нотатки людини лишились — відкриєте знову, і вона продовжить з того ж місця.');
+                    self::back($self . '#students');
             }
             self::back($self);
         }
+
+        if (!$course) {
+            View::show('admin/studio/courses', [
+                'courses' => DB::all("SELECT p.*, (SELECT COUNT(*) FROM course_lessons l WHERE l.product_id = p.id) AS videos,
+                                             (SELECT COALESCE(SUM(l.duration),0) FROM course_lessons l WHERE l.product_id = p.id) AS secs,
+                                             (SELECT COUNT(*) FROM course_access a WHERE a.product_id = p.id) AS students
+                                      FROM products p WHERE p.type = 'course' ORDER BY p.active DESC, p.name"),
+                'bunny' => ['library' => Lessons::libraryId(), 'has_key' => Lessons::configured(), 'has_api' => Lessons::apiKey() !== ''],
+                'page_title' => 'Відеокурси — Адмінпанель',
+            ], 'layouts/admin');
+        }
+
+        $lessons = Lessons::forCourse($cid);
+        $progress = [];
+        foreach (DB::all('SELECT lp.user_id, SUM(lp.watched) AS watched, MAX(lp.updated_at) AS last FROM lesson_progress lp
+                          JOIN course_lessons cl ON cl.id = lp.lesson_id WHERE cl.product_id = ? GROUP BY lp.user_id', [$cid]) as $r) {
+            $progress[(int)$r['user_id']] = $r;
+        }
+        // Бібліотека Bunny — лише коли її відкрили (запит до Bunny не безкоштовний за часом)
+        $library = isset($_GET['pick']) ? Lessons::libraryVideos() : null;
         View::show('admin/studio/lessons', [
-            'courses' => $courses, 'cid' => $cid,
-            'course' => $cid ? DB::row('SELECT * FROM products WHERE id = ?', [$cid]) : null,
-            'lessons' => $cid ? Lessons::forCourse($cid) : [],
-            'bunny' => ['library' => Lessons::libraryId(), 'has_key' => Lessons::configured()],
-            'page_title' => 'Відеокурси — Адмінпанель',
+            'course' => $course, 'cid' => $cid, 'lessons' => $lessons, 'progress' => $progress,
+            'students' => DB::all('SELECT a.*, u.email, u.name AS uname, o.number AS order_number FROM course_access a
+                                   JOIN users u ON u.id = a.user_id LEFT JOIN orders o ON o.id = a.order_id
+                                   WHERE a.product_id = ? ORDER BY a.granted_at DESC', [$cid]),
+            'library' => $library, 'has_api' => Lessons::apiKey() !== '',
+            'added' => array_flip(array_map(fn($l) => strtolower($l['guid']), $lessons)),
+            'page_title' => $course['name'] . ' — Відеокурси — Адмінпанель',
         ], 'layouts/admin');
     }
 
     // ---------- Доступ до курсів ----------
+    /** Окремої сторінки більше немає: учні кожного курсу — на сторінці самого курсу */
     public static function access(): never
     {
-        Auth::requireCap('users.manage');
-        if (is_post()) {
-            $a = $_POST['_action'] ?? '';
-            if ($a === 'grant') {
-                $email = mb_strtolower(trim((string)($_POST['email'] ?? '')));
-                $course = (int)($_POST['course'] ?? 0);
-                $days = trim((string)($_POST['days'] ?? ''));
-                if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !$course) { flash('error', 'Вкажіть пошту й курс.'); self::back('/admin/access'); }
-                $u = DB::row('SELECT id FROM users WHERE email = ?', [$email]);
-                // Акаунт заводимо наперед: людина ще могла не заходити, а доступ має чекати на неї
-                $uid = $u ? (int)$u['id'] : DB::insert('users', ['email' => $email, 'name' => strstr($email, '@', true), 'role' => 'customer', 'active' => 1, 'created_at' => now()]);
-                Courses::grant($uid, $course, null, $days === '' ? null : (int)$days);
-                flash('success', "Доступ відкрито для $email.");
-            } elseif ($a === 'revoke') {
-                DB::delete('course_access', 'id = ?', [(int)($_POST['id'] ?? 0)]);
-                flash('success', 'Доступ закрито. Прогрес і нотатки людини лишились.');
-            }
-            self::back('/admin/access');
-        }
-        View::show('admin/studio/access', [
-            'courses' => DB::all("SELECT id, name FROM products WHERE type = 'course' ORDER BY name"),
-            'rows' => DB::all("SELECT a.*, u.email, u.name AS uname, p.name AS course FROM course_access a
-                               JOIN users u ON u.id = a.user_id JOIN products p ON p.id = a.product_id
-                               ORDER BY a.granted_at DESC LIMIT 300"),
-            'page_title' => 'Доступ до відеокурсів — Адмінпанель',
-        ], 'layouts/admin');
+        Auth::requireCap('content.manage');
+        self::back('/admin/lessons');
     }
 
     // ---------- Апітерапевти ----------

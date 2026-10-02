@@ -142,3 +142,39 @@ body.is-admin.help-on [data-help]:hover{background:rgba(233,140,0,.05);border-ra
 .is-admin .rte.is-code .rte-area{display:none}
 .is-admin .rte.is-code .rte-src{display:block!important;min-height:260px;border:0;border-radius:0;font:13px/1.55 ui-monospace,Consolas,monospace;box-shadow:none}
 .is-admin .rte.is-code .rte-bar .rte-group{opacity:.35;pointer-events:none}
+
+/* ---------- Відеокурси (admin/studio/courses, lessons) ---------- */
+.is-admin .crs-steps{margin:0;padding-left:20px;display:grid;gap:8px;color:var(--muted);line-height:1.55}
+.is-admin .crs-steps b{color:var(--text)}
+.is-admin .crs-feature{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.is-admin .crs-new{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.is-admin .crs-list a b{color:var(--text)} .is-admin .crs-list a:hover b{color:var(--gold-text)}
+.is-admin .crs-bunny summary{cursor:pointer;list-style:none} .is-admin .crs-bunny summary::-webkit-details-marker{display:none}
+.is-admin .crs-bunny small{display:block;margin-top:5px;font-size:12px;line-height:1.4}
+.is-admin .admin-head .status-pill{margin-top:8px;margin-right:6px}
+.is-admin .crs-tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;margin:0 0 18px;padding:8px;background:rgba(251,248,243,.95);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:999px;width:max-content;max-width:100%}
+.is-admin .crs-tabs a{padding:8px 16px;border-radius:999px;color:var(--text);font:600 14px var(--serif)}
+.is-admin .crs-tabs a:hover{background:#fdecd0;color:var(--gold-text)}
+.is-admin .crs-tabs span{color:var(--dim);font-weight:500;margin-left:3px}
+.is-admin #basic,.is-admin #videos,.is-admin #students{scroll-margin-top:80px}
+.is-admin .crs-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.is-admin .crs-h h2{margin:0}
+.is-admin .crs-move{white-space:nowrap} .is-admin .crs-move .btn{min-width:34px;height:32px;padding:0 8px;font-size:16px;line-height:1}
+.is-admin .crs-move .btn:disabled{opacity:.3}
+.is-admin .crs-videos td{vertical-align:middle}
+.is-admin .crs-paste{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.is-admin .crs-paste summary{cursor:pointer;font:600 14px var(--serif);color:var(--gold-text)}
+.is-admin .crs-paste form{margin-top:10px}
+.is-admin .crs-pick{margin:0 0 20px;padding:16px;border:1px solid #f3c98a;border-radius:12px;background:#fffaf2}
+.is-admin .crs-pick-bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.is-admin .crs-pick-bar input{max-width:300px}
+.is-admin .crs-pick-list{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.is-admin .crs-pick-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;font:500 14.5px var(--sans);letter-spacing:0;color:var(--text);margin:0}
+.is-admin .crs-pick-row:last-child{border-bottom:0}
+.is-admin .crs-pick-row:hover{background:#fffaf2}
+.is-admin .crs-pick-row .t{flex:1}
+.is-admin .crs-pick-row.is-in{opacity:.55;cursor:default}
+.is-admin .crs-grant{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.is-admin .crs-grant textarea{min-height:46px}
+.is-admin .crs-bar{width:140px;height:6px;border-radius:6px;background:#f1ebe2;overflow:hidden;margin-bottom:4px}
+.is-admin .crs-bar i{display:block;height:100%;background:var(--gold);border-radius:6px}

@@ -1161,6 +1161,12 @@ class Orders
                     $paid ? 'Оплату отримано (' . mb_strtolower(\Invoice::kindLabel($kind)) . ').'
                           : 'Позначку про оплату знято.', Auth::id());
             }
+            // Оплату за курс підтверджено вручну (переказ, готівка) — доступ відкривається так
+            // само, як після онлайн-оплати. Гість отримає його, щойно ввійде поштою замовлення
+            // (Courses::claimAfterLogin).
+            if ($paid && !$was) {
+                \Courses::grantFor((int)$parent['id'], $parent['user_id'] ? (int)$parent['user_id'] : null);
+            }
             flash('success', $paid ? 'Замовлення позначено оплаченим.' : 'Дані оплати збережено.');
             redirect($back);
         }
