@@ -359,3 +359,7 @@ h1 b,h2 b{font-weight:700;color:var(--orange)}
   .mz-foot-nav a{font-size:14.5px}
   .mz-foot-copy{flex-direction:column;align-items:flex-start;gap:8px;padding-bottom:30px}
 }
+
+/* Послуги — окремою групою в меню «Крамниця» та в списку категорій */
+.mega .nav-drop-sep{grid-column:1/-1;margin-top:8px;padding-top:12px;border-top:1px solid var(--line);font:600 11.5px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.shop-side .shop-side-sub{margin-top:22px}

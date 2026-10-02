@@ -36,7 +36,11 @@ $svg = fn($k) => '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" st
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg>
         </button>
         <div class="nav-drop-menu mega" id="navShopMenu" data-nav-drop-menu hidden>
-          <?php foreach ($navCats as $c): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endforeach; ?>
+          <?php foreach ($navCats as $c) if (($c['type'] ?? 'product') === 'product'): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endif; ?>
+          <?php $navSvc = array_filter($navCats, fn($c) => ($c['type'] ?? '') === 'service'); if ($navSvc): ?>
+            <span class="nav-drop-sep">Послуги</span>
+            <?php foreach ($navSvc as $c): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endforeach; ?>
+          <?php endif; ?>
           <a class="nav-drop-all" href="<?= e(url('/shop/')) ?>">Усі товари →</a>
         </div>
         <?php endif; ?>

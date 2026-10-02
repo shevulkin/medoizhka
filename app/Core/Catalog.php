@@ -662,7 +662,8 @@ class Catalog
      */
     public static function rootCategories(): array
     {
-        return array_values(array_filter(self::shopCategories(), fn($c) => !($c['depth'] ?? 0)));
+        // плитки на головній — товарні розділи; послуги мають власний блок і меню «Послуги»
+        return array_values(array_filter(self::shopCategories(), fn($c) => !($c['depth'] ?? 0) && ($c['type'] ?? 'product') === 'product'));
     }
 
     /**
@@ -771,6 +772,8 @@ class Catalog
          */
         $where = ['p.active = 1', 'p.type <> ' . DB::pdo()->quote(Courses::TYPE)];
         $params = [];
+        // Послуги — у своїх розділах: «Усі товари» без категорії й пошуку показує лише товари
+        if (empty($f['category_id']) && empty($f['q'])) $where[] = 'p.service = 0';
         if (!empty($f['category_id'])) {
             // разом із підрозділами: обраний «Мед» показує і липовий, і гречаний
             [$cond, $args] = self::branchSql((int)$f['category_id']);

@@ -8,7 +8,8 @@ $title = $cur['name'] ?? ($brand['name'] ?? ($filters['q'] !== '' ? 'Пошук:
 $qs = fn(array $over) => ($p = array_filter(array_merge(['q' => $filters['q'], 'sort' => $filters['sort']], $over), fn($v) => $v !== '' && $v !== null)) ? '?' . http_build_query($p) : '';
 $base = $cur ? shop_path($cur['slug']) : '/shop/';
 $counts = [];
-foreach (DB::all("SELECT category_id, COUNT(*) n FROM products WHERE active = 1 AND type <> 'course' GROUP BY category_id") as $r) $counts[(int)$r['category_id']] = (int)$r['n'];
+foreach (DB::all("SELECT category_id, COUNT(*) n, MAX(service) svc FROM products WHERE active = 1 AND type <> 'course' GROUP BY category_id") as $r) $counts[(int)$r['category_id']] = (int)$r['n'];
+$goodsTotal = (int)DB::val("SELECT COUNT(*) FROM products WHERE active = 1 AND type <> 'course' AND service = 0");
 ?>
 <section class="shop-hero">
   <div class="wrap">
@@ -23,13 +24,19 @@ foreach (DB::all("SELECT category_id, COUNT(*) n FROM products WHERE active = 1 
   <aside class="shop-side">
     <nav aria-label="Категорії">
       <h2>Категорії</h2>
-      <a href="<?= e(url('/shop/')) ?>"<?= !$cur ? ' class="on"' : '' ?>><span>Усі товари</span><small><?= array_sum($counts) ?></small></a>
-      <?php foreach ($cat_tree as $c): if (empty($counts[(int)$c['id']]) && empty($c['children'])) continue; ?>
+      <a href="<?= e(url('/shop/')) ?>"<?= !$cur ? ' class="on"' : '' ?>><span>Усі товари</span><small><?= $goodsTotal ?></small></a>
+      <?php foreach ($cat_tree as $c): if (($c['type'] ?? 'product') !== 'product') continue; if (empty($counts[(int)$c['id']]) && empty($c['children'])) continue; ?>
         <a href="<?= e(url(shop_path($c['slug']))) ?>"<?= ($cur['id'] ?? 0) == $c['id'] ? ' class="on"' : '' ?>><span><?= e($c['name']) ?></span><small><?= $counts[(int)$c['id']] ?? 0 ?></small></a>
         <?php foreach ($c['children'] ?? [] as $k): ?>
           <a class="sub<?= ($cur['id'] ?? 0) == $k['id'] ? ' on' : '' ?>" href="<?= e(url(shop_path($k['slug']))) ?>"><span><?= e($k['name']) ?></span></a>
         <?php endforeach; ?>
       <?php endforeach; ?>
+      <?php $svcTree = array_filter($cat_tree, fn($c) => ($c['type'] ?? '') === 'service' && !empty($counts[(int)$c['id']])); if ($svcTree): ?>
+        <h2 class="shop-side-sub">Послуги</h2>
+        <?php foreach ($svcTree as $c): ?>
+          <a href="<?= e(url(shop_path($c['slug']))) ?>"<?= ($cur['id'] ?? 0) == $c['id'] ? ' class="on"' : '' ?>><span><?= e($c['name']) ?></span><small><?= $counts[(int)$c['id']] ?? 0 ?></small></a>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </nav>
     <div class="shop-help">
       <b>Потрібна порада?</b>
