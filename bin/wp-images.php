@@ -63,29 +63,39 @@ function toWebp(string $src, string $name): ?array
     return ["uploads/$target.webp", $nw, $nh, (int)filesize("$dir/$target.webp")];
 }
 
-$found = 0; $none = [];
-$rows = DB::all("SELECT p.* FROM products p WHERE p.wp_id IS NOT NULL AND (p.image IS NULL OR p.image = '')
-                 AND NOT EXISTS (SELECT 1 FROM product_images i WHERE i.product_id = p.id) ORDER BY p.id");
+$found = 0; $added = 0; $none = [];
+$rows = DB::all("SELECT p.* FROM products p WHERE p.wp_id IS NOT NULL ORDER BY p.id");
 foreach ($rows as $p) {
-    $wid = (int)$p['wp_id'];
+    $pid = (int)$p['id']; $wid = (int)$p['wp_id'];
     $ids = [];
     if (($t = (int)$meta($wid, '_thumbnail_id')) > 0) $ids[] = $t;
     foreach (explode(',', $meta($wid, '_product_image_gallery')) as $g) if ((int)$g > 0 && !in_array((int)$g, $ids, true)) $ids[] = (int)$g;
+    // фото фасовок теж: у WooCommerce вони окремі вкладення
+    foreach ($q("SELECT ID FROM {$prefix}posts WHERE post_parent = ? AND post_type = 'product_variation'", [$wid]) as $v) {
+        if (($t = (int)$meta((int)$v['ID'], '_thumbnail_id')) > 0 && !in_array($t, $ids, true)) $ids[] = $t;
+    }
     $files = array_values(array_filter(array_map($fileOf, $ids)));
-    if (!$files) { $none[] = $p['name']; continue; }
-    $found++;
-    echo '  ', $p['name'], ': ', count($files), ' фото', ($apply ? '' : ' (' . basename($files[0]) . ($files[1] ?? false ? ', …' : '') . ')'), "\n";
+    if (!$files) { if (!$p['image'] && !DB::val('SELECT 1 FROM product_images WHERE product_id = ? LIMIT 1', [$pid])) $none[] = $p['name']; continue; }
+    // Що вже є — за назвою файлу без суфіксів і розширення (так їх називав tidy-media)
+    $have = [];
+    foreach (DB::all('SELECT path FROM product_images WHERE product_id = ?', [$pid]) as $r) $have[preg_replace('~-\d+$~', '', pathinfo($r['path'], PATHINFO_FILENAME))] = true;
+    if ($p['image']) $have[preg_replace('~-\d+$~', '', pathinfo($p['image'], PATHINFO_FILENAME))] = true;
+    $new = array_values(array_filter($files, fn($f) => !isset($have[cleanBase(pathinfo($f, PATHINFO_FILENAME))])));
+    if (!$new) continue;
+    $found++; $added += count($new);
+    echo '  ', $p['name'], ': +', count($new), ' (вже є ', count($have), ')', "\n";
     if (!$apply) continue;
-    $sort = 0; $main = null;
-    foreach ($files as $f) {
+    $sort = (int)DB::val('SELECT COALESCE(MAX(sort), -1) + 1 FROM product_images WHERE product_id = ?', [$pid]);
+    $main = $p['image'] ?: null;
+    foreach ($new as $f) {
         $res = toWebp($f, ($p['type'] === 'course' ? 'kurs-' : '') . cleanBase(pathinfo($f, PATHINFO_FILENAME)));
         if (!$res) continue;
         $main ??= $res[0];
-        DB::insert('product_images', ['product_id' => (int)$p['id'], 'path' => $res[0], 'width' => $res[1],
+        DB::insert('product_images', ['product_id' => $pid, 'path' => $res[0], 'width' => $res[1],
             'height' => $res[2], 'bytes' => $res[3], 'sort' => $sort++]);
     }
-    if ($main) DB::update('products', ['image' => $main, 'updated_at' => now()], 'id = ?', [(int)$p['id']]);
+    if ($main && !$p['image']) DB::update('products', ['image' => $main, 'updated_at' => now()], 'id = ?', [$pid]);
 }
-echo "\nЗнайдено фото для: $found з " . count($rows) . " без фото\n";
+echo "\nТоварів, де бракує фото: $found, нових фото: $added\n";
 if ($none) echo 'У старій базі фото теж немає (лишиться нейтральна заглушка — додайте фото в адмінпанелі): ' . implode(', ', $none) . "\n";
 echo $apply ? "Записано.\n" : "\nЦе перегляд — нічого не записано. Щоб записати, додайте --apply\n";
