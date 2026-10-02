@@ -117,6 +117,26 @@ switch ($cmd) {
         if (!$courses) { echo "Курсу «{$slug}» немає.\n"; exit(1); }
         foreach ($courses as $c) { Courses::grant($uid, (int)$c['id'], null, $days); echo "Відкрито: {$c['name']}\n"; }
         exit(0);
+    case 'reactivate':
+        /*
+         * Повернути на сайт вимкнені товари зі старого сайту:
+         *   php bin/cli.php reactivate          — показати, які саме (нічого не змінює)
+         *   php bin/cli.php reactivate --apply  — увімкнути
+         *
+         * Ховати товар вимиканням не треба: його адреса з пошуку перестає відкривати
+         * сторінку, і Google її з часом викидає. Відсутній товар і так збирається внизу
+         * каталогу в «Зараз немає в наявності» (Catalog::AVAIL_SQL), а на головній його немає.
+         */
+        $rows = DB::all("SELECT id, name FROM products WHERE active = 0 AND wp_id IS NOT NULL AND type <> 'course' ORDER BY id");
+        if (!$rows) { echo "Вимкнених товарів зі старого сайту немає.\n"; exit(0); }
+        foreach ($rows as $r) echo '  - ', $r['name'], "\n";
+        if (!in_array('--apply', $argv, true)) {
+            echo "Вимкнено: " . count($rows) . ". Щоб увімкнути: php bin/cli.php reactivate --apply\n";
+            exit(0);
+        }
+        DB::query("UPDATE products SET active = 1, updated_at = ? WHERE active = 0 AND wp_id IS NOT NULL AND type <> 'course'", [now()]);
+        echo "Увімкнено: " . count($rows) . ".\n";
+        exit(0);
     case 'demo':
         // Приклади карток для каталогів: щоб побачити сайт наповненим. Усі — вигадані й
         // позначені в назві; перед запуском на бойовий сервер видаліть їх в адмінці.
@@ -406,6 +426,6 @@ switch ($cmd) {
             . ($code === 0 ? "ВСІ НАБОРИ ПРОЙДЕНО ($files)" : "Є ПРОВАЛЕНІ НАБОРИ — дивіться вище") . "\n";
         exit($code);
     default:
-        echo "Використання: php bin/cli.php [migrate|seed|fresh|test|prod-check|wipe|grant-admin"
+        echo "Використання: php bin/cli.php [migrate|seed|fresh|test|prod-check|wipe|grant-admin|grant-course|reactivate"
            . "|np:track|pay:sync|offers:remind|yt:refresh|vchasno:retry|vchasno:z]\n";
 }

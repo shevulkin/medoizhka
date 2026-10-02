@@ -161,8 +161,18 @@ class Shop
 
     public static function product(string $slug): never
     {
-        $p = DB::row('SELECT * FROM products WHERE slug = ? AND active = 1', [$slug]);
+        $p = DB::row('SELECT * FROM products WHERE slug = ?', [$slug]);
         if (!$p) { http_response_code(404); View::show('errors/404'); }
+        /*
+         * Вимкнений товар — не 404. Його адреса вже в пошуку й у чужих посиланнях, і 404
+         * Google з часом викидає разом з усією вагою сторінки. Ведемо в його категорію
+         * тимчасовим 302: товар можуть увімкнути знову, і тоді адреса має запрацювати
+         * одразу, без закешованого браузером «назавжди». Персонал бачить саму сторінку.
+         */
+        if (!(int)$p['active'] && !Auth::isStaff()) {
+            $catSlug = DB::val('SELECT slug FROM categories WHERE id = ? AND active = 1', [$p['category_id']]);
+            redirect(shop_path($catSlug ? (string)$catSlug : null));
+        }
         $cat = DB::row('SELECT * FROM categories WHERE id = ?', [$p['category_id']]);
         $catParent = Catalog::parentCategory($cat);   // «Мед» над «Липовим» — для крихт
         $variants = Catalog::variants((int)$p['id']);
