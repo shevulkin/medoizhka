@@ -875,7 +875,7 @@ class Catalog
         }
         if (!empty($product['image'])) return $product['image'];
         $img = DB::row('SELECT path FROM product_images WHERE product_id = ? ORDER BY sort, id LIMIT 1', [$product['id']]);
-        return $img['path'] ?? 'img/honey-jar.webp';
+        return $img['path'] ?? 'img/no-photo.webp';
     }
 
     /**
@@ -925,7 +925,7 @@ class Catalog
         // показує головне фото товару: воно принаймні про цей товар, а заглушка
         // ні про що.
         if (!$out && $rows) $out[] = $rows[0];
-        if (!$out) $out[] = ['id' => 0, 'path' => 'img/honey-jar.webp', 'variant_id' => null, 'width' => 0, 'height' => 0, 'bytes' => 0];
+        if (!$out) $out[] = ['id' => 0, 'path' => 'img/no-photo.webp', 'variant_id' => null, 'width' => 0, 'height' => 0, 'bytes' => 0];
         return $out;
     }
 

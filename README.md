@@ -118,6 +118,9 @@ php -S localhost:8090 router.php     # сайт: http://localhost:8090
    Стару установку скрипт шукає сам (`~/public_html/*/wp-config.php`, `~/*/wp-config.php` — береться та, де є товари).
    Можна вказати шлях до старого `wp-config.php` аргументом, а якщо теки старого сайту вже немає —
    задати базу змінними: `WP_DB_NAME=… WP_DB_USER=… WP_DB_PASSWORD=… php bin/wp-stock.php`.
+8. Фото товарів і обкладинки курсів, яких бракує, — зі старої теки WordPress (лише читає):
+   `php bin/wp-images.php ~/public_html/medoizhka-old/wp-config.php` (перегляд) → те саме з `--apply`.
+   Де фото немає й там — показується нейтральна заглушка з логотипом (`assets/img/no-photo.webp`).
 
 ## Наявність на вітрині
 
