@@ -187,3 +187,9 @@ body.is-admin.help-on [data-help]:hover{background:rgba(233,140,0,.05);border-ra
 .is-admin:not(.pf-adv-on) [data-adv]{display:none!important}
 .is-admin .pf-adv-toggle{display:block;margin:18px 0 4px;padding:0;border:0;background:none;color:var(--gold-text);font:600 13.5px var(--serif);cursor:pointer;text-align:left}
 .is-admin .pf-adv-toggle:hover{text-decoration:underline}
+
+.is-admin .slug-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:-4px 0 18px;padding:10px 14px;background:#fffaf2;border:1px solid var(--line);border-radius:12px;font-size:14px}
+.is-admin .slug-cur{color:var(--gold-text);word-break:break-all}
+.is-admin .slug-edit{flex-basis:100%}
+.is-admin .slug-edit input{max-width:420px}
+.is-admin .slug-edit p{margin:6px 0 0;font-size:12.5px}

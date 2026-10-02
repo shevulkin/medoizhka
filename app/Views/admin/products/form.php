@@ -39,6 +39,28 @@ $roEdit = $canEdit ? '' : 'disabled';
   <button type="submit" class="submit-default" tabindex="-1" aria-hidden="true"></button>
   <div class="admin-card">
     <h2 class="h-serif">Основне</h2>
+    <?php if (!$isNew && $canEdit):
+        $isCourseP = ($p['type'] ?? '') === 'course';
+        $pagePath = $isCourseP ? course_path($p['slug']) : product_path($p['slug']); ?>
+    <div class="slug-row" data-slug-row>
+      <span class="dim">Адреса сторінки:</span>
+      <a href="<?= e(url($pagePath)) ?>" target="_blank" rel="noopener" class="slug-cur"><?= e(rawurldecode($pagePath)) ?></a>
+      <button type="button" class="btn btn-line btn-xs" data-slug-edit>Змінити посилання</button>
+      <div class="slug-edit" hidden>
+        <input type="text" name="slug" value="<?= e($p['slug']) ?>" disabled placeholder="наприклад: med-lypovyi" autocomplete="off" spellcheck="false">
+        <p class="dim">Лише латиниця, цифри й дефіси. Стара адреса сама перенаправлятиме на нову (301), тож посилання в Google й соцмережах не зламаються. Міняйте лише коли справді потрібно.</p>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var row = document.querySelector('[data-slug-row]'); if (!row) return;
+      row.querySelector('[data-slug-edit]').addEventListener('click', function () {
+        var box = row.querySelector('.slug-edit'), inp = box.querySelector('input');
+        box.hidden = false; inp.disabled = false; inp.focus(); inp.select(); this.hidden = true;
+      });
+    })();
+    </script>
+    <?php endif; ?>
     <div class="form-grid">
       <div class="field" data-help-title="Назва товару"
            data-help="Те, що покупець бачить у каталозі, на сторінці товару, у кошику й у листі про замовлення. Єдине обовʼязкове поле.

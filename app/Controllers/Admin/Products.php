@@ -658,7 +658,23 @@ class Products
         if ($canCard) {
             $typeErr = self::categoryTypeError($_POST['type'] ?? $p['type'], (int)($_POST['category_id'] ?? $p['category_id']));
             if ($typeErr !== '') { flash('error', $typeErr); redirect('/admin/products/' . $id); }
+            // Адреса міняється лише коли її явно ввели («Змінити посилання»); стара — 301 на нову
+            $slug = $p['slug'];
+            $wantSlug = trim((string)($_POST['slug'] ?? ''));
+            if ($wantSlug !== '' && $wantSlug !== $p['slug']) {
+                $cand = slugify($wantSlug);
+                $isCourse = ($p['type'] ?? '') === 'course';
+                $busy = DB::row('SELECT id FROM products WHERE slug = ? AND id <> ?', [$cand, $id])
+                    || ($isCourse && DB::row('SELECT id FROM pages WHERE slug = ?', [$cand]));
+                if ($busy) { flash('error', 'Адреса «' . $cand . '» вже зайнята іншою сторінкою — оберіть іншу.'); redirect('/admin/products/' . $id); }
+                $old = $isCourse ? course_path($p['slug']) : product_path($p['slug']);
+                $new = $isCourse ? course_path($cand) : product_path($cand);
+                \Redirects::add($old, $new);
+                $slug = $cand;
+                flash('success', 'Адресу змінено на ' . rawurldecode($new) . ' — стара переадресовує сюди.');
+            }
             DB::update('products', [
+                'slug' => $slug,
                 'name' => trim($_POST['name'] ?? $p['name']),
                 'category_id' => (int)($_POST['category_id'] ?? $p['category_id']),
                 'sku' => trim($_POST['sku'] ?? '') ?: null,
