@@ -5,7 +5,7 @@
  */
 $first = $variants[0] ?? null;
 $pr = $price !== null && (float)$price > 0 ? (float)$price : null;
-$fmt = fn($v) => number_format((float)$v, 0, ',', ' ') . ' ₴';
+$fmt = fn($v) => price_fmt($v);   // копійки — лише коли вони є (1,5 ₴, а не «2 ₴»)
 $photos = $images ?: [['path' => Catalog::photo($p)]];
 $phone = Content::title('contact_phone');
 $brands = Catalog::brandsOf($p);

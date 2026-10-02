@@ -43,7 +43,7 @@ if (count($vars) > 1) {
     <?php if (count($vars) > 1): ?><span class="pc-vars"><?= e(implode(' · ', array_map(fn($v) => $v['name'], array_slice($vars, 0, 4)))) ?></span><?php endif; ?>
     <?php if ($avail === Catalog::AVAIL_ORDER): ?><span class="pc-note"><?= e(Catalog::madeToOrderShort($prod)) ?></span><?php endif; ?>
     <div class="pc-foot">
-      <span class="pc-price"><?php if ($pr === null): ?><small>Ціну уточнюйте</small><?php else: ?><?= count($vars) > 1 ? '<small>від</small> ' : '' ?><?= e(number_format((float)$pr, 0, ',', ' ')) ?> ₴<?php if ($old !== null && !$isOut): ?> <s><?= e(number_format((float)$old, 0, ',', ' ')) ?></s><?php endif; ?><?php endif; ?></span>
+      <span class="pc-price"><?php if ($pr === null): ?><small>Ціну уточнюйте</small><?php else: ?><?= count($vars) > 1 ? '<small>від</small> ' : '' ?><?= e(price_num($pr)) ?> ₴<?php if ($old !== null && !$isOut): ?> <s><?= e(price_num($old)) ?></s><?php endif; ?><?php endif; ?></span>
       <?php if ($isOut): ?>
         <a class="pc-btn pc-btn-quiet" href="<?= e($href) ?>#watch" aria-label="Повідомити, коли <?= Catalog::isService($prod) ? 'відновимо' : 'зʼявиться' ?>: <?= e($prod['name']) ?>">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>

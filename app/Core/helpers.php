@@ -183,6 +183,12 @@ function flash(string $key, ?string $msg = null): ?string {
     return $val;
 }
 
+/** Число ціни без знака: копійки лише коли вони є — «1,5», «90», «1 250,75» */
+function price_num($amount): string {
+    $n = (float)$amount;
+    return number_format($n, ((int)round($n * 100) % 100) ? 2 : 0, ',', ' ');
+}
+
 function price_fmt($amount): string {
     if ($amount === null || $amount === '' ) return 'За запитом';
     $n = (float)$amount;
