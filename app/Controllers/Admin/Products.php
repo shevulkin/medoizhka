@@ -453,6 +453,8 @@ class Products
                 'active' => isset($_POST['active']) ? 1 : 0,
                 'featured' => isset($_POST['featured']) ? 1 : 0,
                 'made_to_order' => isset($_POST['made_to_order']) ? 1 : 0,
+                'service' => isset($_POST['service']) ? 1 : 0,
+                'paused' => isset($_POST['paused']) ? 1 : 0,
                 'low_stock_threshold' => ($_POST['low_stock_threshold'] ?? '') === '' ? null : (int)$_POST['low_stock_threshold'],
                 // Строк доступу до курсу; порожньо — назавжди (див. Courses::grant)
                 'access_days' => ($_POST['access_days'] ?? '') === '' ? null : max(1, (int)$_POST['access_days']),
@@ -669,6 +671,8 @@ class Products
                 'active' => isset($_POST['active']) ? 1 : 0,
                 'featured' => isset($_POST['featured']) ? 1 : 0,
                 'made_to_order' => isset($_POST['made_to_order']) ? 1 : 0,
+                'service' => isset($_POST['service']) ? 1 : 0,
+                'paused' => isset($_POST['paused']) ? 1 : 0,
                 'low_stock_threshold' => ($_POST['low_stock_threshold'] ?? '') === '' ? null : (int)$_POST['low_stock_threshold'],
                 // Строк доступу до курсу; порожньо — назавжди (див. Courses::grant)
                 'access_days' => ($_POST['access_days'] ?? '') === '' ? null : max(1, (int)$_POST['access_days']),
@@ -693,6 +697,9 @@ class Products
                 'bargain' => isset($_POST['bargain']) ? 1 : 0,
                 'updated_at' => now(),
             ], 'id = ?', [$id]);
+            // Зняли з паузи — тим, хто натискав «Повідомити», час дізнатись. Склад при цьому
+            // міг і не змінитись (послуга), тож самого збереження залишків тут замало.
+            if (!empty($p['paused']) && !isset($_POST['paused'])) StockWatch::fulfil($id, null);
             self::syncBrands($id, (array)($_POST['brand_ids'] ?? []));
             foreach (QtyDiscounts::save($id, null, (array)($_POST['tier'] ?? [])) as $err) {
                 flash('error', $err);

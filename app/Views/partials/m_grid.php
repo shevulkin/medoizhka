@@ -12,9 +12,15 @@ $cols = $cols ?? '';
   <div class="pgrid <?= e($cols) ?>"><?php foreach ($buy as $prod) echo View::partial('partials/m_card', ['prod' => $prod]); ?></div>
 <?php endif; ?>
 <?php if ($out): ?>
-  <div class="mz-out-head">
-    <h2>Зараз немає в наявності</h2>
-    <p>Готуємо нову партію. Відкрийте товар і натисніть «Повідомити» — напишемо, щойно зʼявиться.</p>
+  <?php $onlyServices = !array_filter($out, fn($p) => !Catalog::isService($p)); ?>
+  <div class="mz-out-head<?= $buy ? '' : ' is-first' ?>">
+    <?php if ($onlyServices): ?>
+      <h2>Тимчасово недоступно</h2>
+      <p>Відкрийте послугу й натисніть «Повідомити» — напишемо, щойно відновимо.</p>
+    <?php else: ?>
+      <h2>Зараз немає в наявності</h2>
+      <p>Готуємо нову партію. Відкрийте товар і натисніть «Повідомити» — напишемо, щойно зʼявиться.</p>
+    <?php endif; ?>
   </div>
   <div class="pgrid <?= e($cols) ?> pgrid-out"><?php foreach ($out as $prod) echo View::partial('partials/m_card', ['prod' => $prod]); ?></div>
 <?php endif; ?>

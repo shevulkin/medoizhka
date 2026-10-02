@@ -42,27 +42,28 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
     <?php if (count($variants) > 1 && isset($variant_data[$checkedIdx]['price'])) $pr = (float)$variant_data[$checkedIdx]['price'] ?: $pr; ?>
     <div class="pd-price<?= $isOut ? ' is-out' : '' ?>"><span id="pdPrice"><?= $pr !== null ? e($fmt($pr)) : 'Ціну уточнюйте' ?></span><?php if ($old_price !== null && $pr !== null && !$isOut): ?> <s><?= e($fmt($old_price)) ?></s><?php endif; ?></div>
 
-    <?php if ($avail === Catalog::AVAIL_IN && !Courses::isCourse($p)): ?>
+    <?php $svc = Catalog::isService($p); ?>
+    <?php if ($avail === Catalog::AVAIL_IN && !Courses::isCourse($p) && !$svc): ?>
       <div class="pd-stock is-in"><i></i>В наявності</div>
     <?php elseif ($avail === Catalog::AVAIL_ORDER): ?>
       <div class="pd-stock is-order"><i></i><?= e($made_to_order_note) ?></div>
     <?php elseif ($isOut): ?>
-      <div class="pd-stock is-out"><i></i>Немає в наявності</div>
+      <div class="pd-stock is-out"><i></i><?= e(Catalog::outLabel($p)) ?></div>
     <?php endif; ?>
 
     <?php if ($isOut): ?>
     <div class="pd-watch" id="watch">
-      <p>Готуємо нову партію. Залиште запит — напишемо, щойно товар зʼявиться.</p>
+      <p><?= $svc ? 'Зараз ця послуга недоступна. Залиште запит — напишемо, щойно відновимо.' : 'Готуємо нову партію. Залиште запит — напишемо, щойно товар зʼявиться.' ?></p>
       <?php if (!empty($watching)): ?>
-        <p class="pd-watch-ok">Ви вже в черзі — повідомимо, щойно зʼявиться.</p>
+        <p class="pd-watch-ok">Ви вже в черзі — повідомимо, щойно <?= $svc ? 'відновимо' : 'зʼявиться' ?>.</p>
       <?php elseif (Auth::check()): ?>
         <form method="post" action="<?= e(url('/stock/watch')) ?>"><?= Csrf::field() ?>
           <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
           <input type="hidden" name="back" value="<?= e(product_path($p['slug'])) ?>">
-          <button class="btn btn-gold" type="submit">Повідомити, коли зʼявиться</button>
+          <button class="btn btn-gold" type="submit"><?= $svc ? 'Повідомити, коли відновимо' : 'Повідомити, коли зʼявиться' ?></button>
         </form>
       <?php else: ?>
-        <button class="btn btn-gold" type="button" data-auth-open>Повідомити, коли зʼявиться</button>
+        <button class="btn btn-gold" type="button" data-auth-open><?= $svc ? 'Повідомити, коли відновимо' : 'Повідомити, коли зʼявиться' ?></button>
       <?php endif; ?>
       <?php if ($phone !== ''): ?><a class="btn btn-line" href="tel:<?= e(preg_replace('~[^\d+]~', '', $phone)) ?>">Запитати за телефоном</a><?php endif; ?>
       <?php if (empty($watching) && !Auth::check()): ?><small>Попросимо увійти — щоб було куди написати.</small><?php endif; ?>

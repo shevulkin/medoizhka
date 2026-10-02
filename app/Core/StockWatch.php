@@ -74,16 +74,16 @@ class StockWatch
      */
     public static function fulfil(int $productId, ?int $variantId): int
     {
-        if (Catalog::stock($productId, $variantId) <= 0) return 0;
+        $p = DB::row('SELECT * FROM products WHERE id = ?', [$productId]);
+        if (!$p || !empty($p['paused'])) return 0;
+        // Послуга «зʼявляється», коли її знімають з паузи, а не коли щось кладуть на склад
+        if (!Catalog::isService($p) && Catalog::stock($productId, $variantId) <= 0) return 0;
 
         [$cond, $args] = self::variantCond($variantId);
         $rows = DB::all(
             "SELECT * FROM stock_requests WHERE product_id = ? AND notified_at IS NULL AND $cond",
             array_merge([$productId], $args));
         if (!$rows) return 0;
-
-        $p = DB::row('SELECT * FROM products WHERE id = ?', [$productId]);
-        if (!$p) return 0;
 
         $vars = [
             'product' => self::title($p, $variantId),

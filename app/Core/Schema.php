@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 class Schema
 {
-    public const VERSION = 57;
+    public const VERSION = 58;
 
     /** Оновлення існуючої бази до поточної версії без втрати даних */
     public static function upgrade(): void
@@ -837,6 +837,14 @@ class Schema
         if ($ver < 57) {
             self::seedRules();   // правила для події booking_new
         }
+        if ($ver < 58) {
+            // Послуги без складу й пауза «тимчасово недоступно». Перенесені зі старого
+            // сайту послуги — це розділи «Послуги» й «Приймаємо пасічний віск».
+            self::addColumn('products', 'service', 'bool default 0');
+            self::addColumn('products', 'paused', 'bool default 0');
+            DB::query("UPDATE products SET service = 1 WHERE category_id IN
+                       (SELECT id FROM categories WHERE slug IN ('services', 'wax-exchange'))");
+        }
         Settings::set('schema_version', (string)self::VERSION);
     }
 
@@ -1140,6 +1148,11 @@ class Schema
                 'unit' => 'str null',
                 'active' => 'bool default 1', 'featured' => 'bool default 0',
                 'made_to_order' => 'bool default 1', // виробник: можна замовити без наявності
+                // Послуга складу не має: доступна, доки її не поставили на паузу.
+                // paused — «тимчасово недоступно» для будь-якої позиції: сторінка
+                // лишається (адреса в пошуку), купити не можна (Catalog::AVAIL_SQL).
+                'service' => 'bool default 0',
+                'paused' => 'bool default 0',
                 'low_stock_threshold' => 'int null', // ≤ цього — показуємо "закінчується" замість числа
                 // Вага однієї штуки, кг — щоб форма накладної не питала те, що
                 // ми вже знаємо. Порожньо — береться типова з налаштувань.

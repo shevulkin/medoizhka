@@ -91,8 +91,12 @@ class Cart
      */
     public static function limit(int $productId, ?int $variantId): ?int
     {
-        $p = DB::row('SELECT made_to_order, type FROM products WHERE id = ? AND active = 1', [$productId]);
+        $p = DB::row('SELECT made_to_order, type, service, paused FROM products WHERE id = ? AND active = 1', [$productId]);
         if (!$p) return 0;
+        // «Тимчасово недоступно» — не продаємо, хоч би що лежало на складі
+        if (!empty($p['paused'])) return 0;
+        // Послуга складу не має: її кількість нічим не обмежена
+        if (Catalog::isService($p)) return null;
         // Курсу не буває «мало»: доступ до відео продається скільки завгодно
         // разів. Це властивість самого курсу, а не галка в картці, — інакше
         // забута галка «під замовлення» робила б курс «немає в наявності».

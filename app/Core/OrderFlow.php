@@ -214,10 +214,17 @@ class OrderFlow
             // Курс не буває «закінчитись»: складу в нього немає, і рахувати
             // залишок нема по чому. Це та сама умова, що й у Cart::limit, —
             // без неї кошик курс приймав, а оформлення його відхиляло.
-            if (Courses::isCourse($r['product'] ?? null)) continue;
-            if (!empty($r['product']['made_to_order'])) continue;
             $pid = (int)$r['product']['id'];
             $vid = isset($r['variant']['id']) ? (int)$r['variant']['id'] : null;
+            // Поставлене на паузу між кошиком і оформленням — не продаємо зовсім
+            if (!empty($r['product']['paused'])) {
+                $title = (string)$r['product']['name'] . (isset($r['variant']['name']) ? ', ' . $r['variant']['name'] : '');
+                $out[] = ['title' => $title, 'want' => (int)$r['qty'], 'have' => 0];
+                continue;
+            }
+            if (Courses::isCourse($r['product'] ?? null)) continue;
+            if (Catalog::isService($r['product'] ?? null)) continue;   // у послуги складу немає
+            if (!empty($r['product']['made_to_order'])) continue;
             // товар із варіантами, але без обраного — рахувати нема по чому
             if ($vid === null && Catalog::hasVariants($pid)) continue;
             $want = (int)$r['qty'];

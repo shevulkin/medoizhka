@@ -97,6 +97,7 @@
       <td><?= e(price_fmt($p['base_price'])) ?></td>
       <td>
         <?php $byStore = $stocks[$pid] ?? []; $total = array_sum($byStore); ?>
+        <?php if (!empty($p['service'])): ?><span class="muted">послуга — без складу</span><?php else: ?>
         <b><?= $total ?></b> шт
         <div class="dim">
           <?php $bits = [];
@@ -104,9 +105,12 @@
             echo implode(' · ', $bits);
             if (!empty($variant_count[$pid])) echo '<br>з варіантів: ' . (int)$variant_count[$pid]; ?>
         </div>
+        <?php endif; ?>
       </td>
       <td><?= $p['active'] ? '<span class="status-pill st-processing">Активний</span>' : '<span class="status-pill st-canceled">Прихований</span>' ?>
-          <?= $p['featured'] ? ' <span class="status-pill st-new">Хіт</span>' : '' ?></td>
+          <?= $p['featured'] ? ' <span class="status-pill st-new">Хіт</span>' : '' ?>
+          <?= !empty($p['paused']) ? ' <span class="status-pill st-canceled">Тимчасово недоступно</span>' : '' ?>
+          <?= !empty($p['service']) ? ' <span class="status-pill">Послуга</span>' : '' ?></td>
       <td><a class="btn btn-line btn-xs" href="<?= e(url('/admin/products/' . $p['id'])) ?>">Редагувати</a></td>
     </tr>
   <?php endforeach; ?>

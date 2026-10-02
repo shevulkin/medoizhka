@@ -33,7 +33,7 @@ if (count($vars) > 1) {
 <article class="pc<?= $isOut ? ' pc-out' : '' ?>">
   <a class="pc-ph" href="<?= e($href) ?>">
     <img src="<?= e(asset(Images::displayThumb($ph))) ?>" alt="<?= e($prod['name']) ?>" loading="lazy">
-    <?php if ($isOut): ?><span class="pc-flag pc-flag-out">Немає в наявності</span>
+    <?php if ($isOut): ?><span class="pc-flag pc-flag-out"><?= e(Catalog::outLabel($prod)) ?></span>
     <?php elseif ($old !== null): ?><span class="pc-flag">Знижка</span>
     <?php elseif (!empty($prod['featured'])): ?><span class="pc-flag">Хіт</span><?php endif; ?>
   </a>
@@ -45,7 +45,7 @@ if (count($vars) > 1) {
     <div class="pc-foot">
       <span class="pc-price"><?php if ($pr === null): ?><small>Ціну уточнюйте</small><?php else: ?><?= count($vars) > 1 ? '<small>від</small> ' : '' ?><?= e(number_format((float)$pr, 0, ',', ' ')) ?> ₴<?php if ($old !== null && !$isOut): ?> <s><?= e(number_format((float)$old, 0, ',', ' ')) ?></s><?php endif; ?><?php endif; ?></span>
       <?php if ($isOut): ?>
-        <a class="pc-btn pc-btn-quiet" href="<?= e($href) ?>#watch" aria-label="Повідомити, коли зʼявиться: <?= e($prod['name']) ?>">
+        <a class="pc-btn pc-btn-quiet" href="<?= e($href) ?>#watch" aria-label="Повідомити, коли <?= Catalog::isService($prod) ? 'відновимо' : 'зʼявиться' ?>: <?= e($prod['name']) ?>">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
           <span>Повідомити</span>
         </a>

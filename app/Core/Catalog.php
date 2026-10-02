@@ -526,8 +526,11 @@ class Catalog
      * серйозного бренду не пропонує те, чого не продасть.
      *
      * Склад рахується лише в активних точках — як і на оформленні (OrderFlow).
+     * Пауза («тимчасово недоступно») сильніша за все; послуга складу не має —
+     * доступна, доки не на паузі.
      */
-    public const AVAIL_SQL = "(CASE WHEN p.type = 'course' THEN 0
+    public const AVAIL_SQL = "(CASE WHEN p.paused = 1 THEN 2
+        WHEN p.type = 'course' OR p.service = 1 THEN 0
         WHEN EXISTS (SELECT 1 FROM store_stock ss
                      JOIN stores st ON st.id = ss.store_id AND st.active = 1
                      LEFT JOIN product_variants pv ON pv.id = ss.variant_id
@@ -545,6 +548,18 @@ class Catalog
     {
         if (isset($p['_avail'])) return (int)$p['_avail'];
         return (int)DB::val('SELECT ' . self::AVAIL_SQL . ' FROM products p WHERE p.id = ?', [(int)$p['id']]);
+    }
+
+    /** Послуга — без складу; «немає» в неї звучить як «тимчасово недоступна» */
+    public static function isService(?array $p): bool
+    {
+        return !empty($p['service']);
+    }
+
+    /** Підпис стану «немає» для людини: товару «немає в наявності», послуга «тимчасово недоступна» */
+    public static function outLabel(array $p): string
+    {
+        return self::isService($p) ? 'Тимчасово недоступна' : 'Немає в наявності';
     }
 
     /** Ділить список на «можна купити» і «немає» — для вітрин, що показують другі окремим блоком */

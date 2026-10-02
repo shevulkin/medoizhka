@@ -75,7 +75,7 @@ $stat = ['in' => [], 'order' => [], 'out' => [], 'prices' => 0, 'variants' => 0,
 foreach (DB::all("SELECT p.*, c.slug AS cat_slug FROM products p LEFT JOIN categories c ON c.id = p.category_id
                   WHERE p.wp_id IS NOT NULL AND p.type <> 'course' ORDER BY p.id") as $p) {
     $pid = (int)$p['id']; $wid = (int)$p['wp_id'];
-    if (in_array($p['cat_slug'], SERVICE_CATS, true)) { $stat['services'][] = $p['name']; continue; }
+    if (!empty($p['service']) || in_array($p['cat_slug'], SERVICE_CATS, true)) { $stat['services'][] = $p['name']; continue; }
     if (!$v("SELECT ID FROM {$T('posts')} WHERE ID = ? AND post_type = 'product'", [$wid])) { $stat['missing'][] = $p['name']; continue; }
     $m = $meta($wid);
     $stock = [];            // [variant_id|0 => qty]

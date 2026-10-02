@@ -274,3 +274,4 @@ footer.ink-block::before{display:none}
 .pd-watch .pd-watch-ok{color:#2f7d32;font-weight:600}
 .pd-vars label.is-out span{opacity:.5;text-decoration:line-through;text-decoration-color:var(--dim);cursor:not-allowed}
 .pd-vars label.is-out small{text-decoration:none;font-size:11px;margin-left:4px}
+.mz-out-head.is-first{margin-top:8px;padding-top:0;border-top:0}
