@@ -164,14 +164,16 @@ class Shop
         $p = DB::row('SELECT * FROM products WHERE slug = ?', [$slug]);
         if (!$p) { http_response_code(404); View::show('errors/404'); }
         /*
-         * Вимкнений товар — не 404. Його адреса вже в пошуку й у чужих посиланнях, і 404
-         * Google з часом викидає разом з усією вагою сторінки. Ведемо в його категорію
-         * тимчасовим 302: товар можуть увімкнути знову, і тоді адреса має запрацювати
-         * одразу, без закешованого браузером «назавжди». Персонал бачить саму сторінку.
+         * Два різні «немає»:
+         *  - тимчасово немає (залишок 0) — сторінка лишається: 200, «Немає в наявності»,
+         *    schema.org OutOfStock, «Повідомити»; на головній і в порадах її не видно;
+         *  - знято з продажу назавжди (товар вимкнено) — 301 у його категорію: вага сторінки
+         *    переходить туди, а не згорає на 404, яку Google викидає з пошуку.
+         * Персонал бачить і вимкнену сторінку — щоб було що редагувати.
          */
         if (!(int)$p['active'] && !Auth::isStaff()) {
             $catSlug = DB::val('SELECT slug FROM categories WHERE id = ? AND active = 1', [$p['category_id']]);
-            redirect(shop_path($catSlug ? (string)$catSlug : null));
+            Site::permanent(shop_path($catSlug ? (string)$catSlug : null));
         }
         $cat = DB::row('SELECT * FROM categories WHERE id = ?', [$p['category_id']]);
         $catParent = Catalog::parentCategory($cat);   // «Мед» над «Липовим» — для крихт
