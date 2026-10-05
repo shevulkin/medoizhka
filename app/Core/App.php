@@ -221,6 +221,7 @@ class App
         // --- статичні/системні ---
         if ($path === '/robots.txt') { Controllers\Seo::robots(); }
         if ($path === '/sitemap.xml') { Controllers\Seo::sitemap(); }
+        if ($path === '/feeds/merchant.xml') { Controllers\Seo::merchantFeed(); }
         // Адреси сайтмапів старого сайту (Yoast), які лишились у Search Console: індекс — валідний і
         // веде на єдиний новий сайтмап; його «частини» — 301 на нього (інакше 404 і помилки сканування)
         if ($path === '/sitemap_index.xml') { Controllers\Seo::sitemapIndex(); }

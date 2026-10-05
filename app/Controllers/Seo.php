@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Controllers;
 
-use DB, WebPush, Settings, Hub as Dir;
+use DB, WebPush, Settings, Catalog, Hub as Dir;
 
 class Seo
 {
@@ -84,6 +84,53 @@ class Seo
             echo "</url>\n";
         }
         echo '</urlset>';
+        exit;
+    }
+
+    /**
+     * Фід товарів для Google Merchant Center (RSS 2.0, простір імен g:).
+     * Лише активні товари з ціною; послуги й курси не потрапляють — їх не купують у кошику.
+     * «Немає» і «тимчасово недоступно» віддаються як out_of_stock, під замовлення — як backorder.
+     */
+    public static function merchantFeed(): never
+    {
+        header('Content-Type: application/xml; charset=utf-8');
+        $x = fn($v) => htmlspecialchars(trim(preg_replace('~\s+~u', ' ', strip_tags((string)$v))), ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        $rows = Settings::bool('seo_noindex') ? [] : DB::all(
+            "SELECT p.*, " . Catalog::AVAIL_SQL . " AS avail_state FROM products p
+             WHERE p.active = 1 AND p.type <> 'course' AND p.service = 0 ORDER BY p.id");
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+           . '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0"><channel>'
+           . '<title>' . $x(cfg('app_name')) . '</title><link>' . $x(abs_url('/')) . '</link>'
+           . '<description>Товари Медоїжки</description>' . "\n";
+        foreach ($rows as $p) {
+            [$price, $old] = Catalog::price($p);
+            if ($price === null || $price <= 0) continue;
+            $state = (int)$p['avail_state'];
+            $avail = $state === Catalog::AVAIL_OUT ? 'out_of_stock' : ($state === 1 ? 'backorder' : 'in_stock');
+            $desc = $p['short_desc'] ?: ($p['description'] ?? '');
+            $desc = mb_substr(trim(preg_replace('~\s+~u', ' ', strip_tags((string)$desc))), 0, 4900);
+            if ($desc === '') $desc = $p['name'];
+            $photo = Catalog::photo($p);
+            echo '<item>'
+               . '<g:id>' . (int)$p['id'] . '</g:id>'
+               . '<title>' . $x(mb_substr($p['name'], 0, 150)) . '</title>'
+               . '<description>' . $x($desc) . '</description>'
+               . '<link>' . $x(abs_url(product_path($p['slug']))) . '</link>'
+               . ($photo !== '' ? '<g:image_link>' . $x(asset_abs($photo)) . '</g:image_link>' : '')
+               . '<g:availability>' . $avail . '</g:availability>'
+               . '<g:condition>new</g:condition>';
+            if ($old !== null) echo '<g:price>' . number_format($old, 2, '.', '') . ' UAH</g:price><g:sale_price>' . number_format($price, 2, '.', '') . ' UAH</g:sale_price>';
+            else echo '<g:price>' . number_format($price, 2, '.', '') . ' UAH</g:price>';
+            $brands = Catalog::brandNames($p);
+            echo '<g:brand>' . $x($brands[0] ?? cfg('app_name')) . '</g:brand>';
+            $barcode = (string)($p['barcode'] ?? '');
+            if (strlen($barcode) === 13 && ctype_digit($barcode)) echo '<g:gtin>' . $barcode . '</g:gtin>';
+            else echo '<g:identifier_exists>no</g:identifier_exists>';
+            if (!empty($p['sku'])) echo '<g:mpn>' . $x($p['sku']) . '</g:mpn>';
+            echo "</item>\n";
+        }
+        echo '</channel></rss>';
         exit;
     }
 
