@@ -158,8 +158,8 @@ h1 b,h2 b{font-weight:700;color:var(--orange)}
 /* ---------- історія: фото в ромбі з логотипа ---------- */
 .mz-story{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(32px,5vw,80px);align-items:center}
 .rhomb{position:relative;aspect-ratio:1;max-width:520px;width:100%;justify-self:center}
-.rhomb::before{content:"";position:absolute;inset:0;background:var(--orange-l);clip-path:polygon(50% 0,93.3% 25%,93.3% 75%,50% 100%,6.7% 75%,6.7% 25%);transform:translate(4%,3%)}
-.rhomb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;clip-path:polygon(50% 0,93.3% 25%,93.3% 75%,50% 100%,6.7% 75%,6.7% 25%)}
+.rhomb::before{content:"";position:absolute;inset:0;background:var(--orange-l);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);transform:translate(4%,3%)}
+.rhomb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 .mz-story p{color:var(--muted);margin:14px 0}
 .mz-checks{list-style:none;padding:0;margin:10px 0 28px;display:grid;gap:10px}
 .mz-checks li{display:flex;gap:12px;align-items:flex-start}
