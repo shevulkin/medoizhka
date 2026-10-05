@@ -52,17 +52,21 @@ class Site
                              . ' ORDER BY _avail, p.featured DESC, p.id LIMIT ' . (4 - count($palette)));
             foreach ($more as $p) { $palette[] = ['p' => $p, 'color' => '', 'note' => '']; $shownIds[] = (int)$p['id']; }
         }
-        // «Обладнання та послуги» — окремий блок нижче
+        // «Обладнання» і «Послуги» — окремі блоки нижче; послуги не залежать від складу, тож їх беремо за прапорцем service
         $beeCats = "'equipment','services','wax-exchange'";
         $forBeekeepers = DB::all("SELECT p.*, $av AS _avail FROM products p JOIN categories c ON c.id = p.category_id
-                                  WHERE p.active = 1 AND c.slug IN ($beeCats) AND $buyable
+                                  WHERE p.active = 1 AND p.service = 0 AND c.slug IN ($beeCats) AND $buyable
                                   ORDER BY _avail, c.sort, p.id LIMIT 4");
+        $services = DB::all("SELECT p.*, $av AS _avail FROM products p
+                              WHERE p.active = 1 AND p.service = 1 AND $buyable
+                              ORDER BY p.featured DESC, p.id LIMIT 4");
+        $blockIds = array_map(fn($r) => (int)$r['id'], array_merge($forBeekeepers, $services));
         // «Популярні» не повторюють того, що вже стоїть на головній вище й нижче:
         // ні меду з «Нашого меду», ні обладнання з окремого блоку для бджолярів.
         // Хіти першими; далі мед і апіпродукти — саме по них приходять на головну.
         $products = DB::all("SELECT p.*, $av AS _avail FROM products p JOIN categories c ON c.id = p.category_id
-                             WHERE p.active = 1 AND p.type <> 'course' AND $buyable AND c.slug NOT IN ($beeCats)"
-                             . ($shownIds ? ' AND p.id NOT IN (' . implode(',', $shownIds) . ')' : '') . "
+                             WHERE p.active = 1 AND p.type <> 'course' AND $buyable AND p.service = 0 AND (c.slug NOT IN ($beeCats) OR p.featured = 1)"
+                             . (($ex = array_merge($shownIds, $blockIds)) ? ' AND p.id NOT IN (' . implode(',', $ex) . ')' : '') . "
                              ORDER BY _avail, p.featured DESC, (c.slug = 'honey-and-kompozytsiyi') DESC,
                                       (c.slug IN ('pollen','perga','propolis')) DESC,
                                       (p.image IS NULL), (p.base_price IS NULL), p.id DESC LIMIT 8");
@@ -74,6 +78,7 @@ class Site
             'tags' => DB::all('SELECT name, slug FROM tags ORDER BY name'),
             'palette' => $palette,
             'for_beekeepers' => $forBeekeepers,
+            'services' => $services,
             'courses' => Courses::all(),
             'practitioners' => Dir::practitioners(['limit' => 3]),
             'places' => Dir::places(['limit' => 3]),

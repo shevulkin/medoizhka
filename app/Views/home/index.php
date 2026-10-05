@@ -132,8 +132,17 @@ $honey = array_map(fn($h) => $h['p'], $palette);
 <?php if ($for_beekeepers): ?>
 <section class="sec" style="padding-top:0">
   <div class="wrap">
-    <div class="sec-head"><div><div class="kicker">Для бджолярів</div><h2>Обладнання та послуги</h2></div><a class="link-arrow" href="<?= e(url('/product-category/equipment/')) ?>">Усе обладнання →</a></div>
+    <div class="sec-head"><div><div class="kicker">Для бджолярів</div><h2>Обладнання</h2></div><a class="link-arrow" href="<?= e(url('/product-category/equipment/')) ?>">Усе обладнання →</a></div>
     <div class="pgrid"><?php foreach ($for_beekeepers as $prod) echo View::partial('partials/m_card', ['prod' => $prod]); ?></div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if (!empty($services)): ?>
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head"><div><div class="kicker">Для бджолярів</div><h2>Послуги</h2></div><a class="link-arrow" href="<?= e(url(shop_path('services'))) ?>">Усі послуги →</a></div>
+    <div class="pgrid"><?php foreach ($services as $prod) echo View::partial('partials/m_card', ['prod' => $prod]); ?></div>
   </div>
 </section>
 <?php endif; ?>
