@@ -439,7 +439,6 @@ h1 b,h2 b,h3 b{color:#c47400}
   .nav-side{gap:4px}
 }
 
-/* Не квадратне фото товару показуємо цілком, а не обрізаним і збільшеним */
-.pd-main{grid-template:minmax(0,1fr) / minmax(0,1fr)}
-.pd-main img{min-height:0;min-width:0}
-.pd-main img.is-fit{object-fit:contain}
+/* Не квадратне фото товару: оригінальні пропорції, рамка підлаштовується під фото, висота обмежена */
+.pd-main.is-fit{aspect-ratio:auto;display:block;background:none;border:0;overflow:visible;text-align:center}
+.pd-main.is-fit img{width:auto;height:auto;max-width:100%;max-height:min(82vh,820px);object-fit:contain;padding:0;border-radius:var(--r);display:inline-block;vertical-align:top}

@@ -27,8 +27,8 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
 <section class="wrap pd">
   <div class="pd-gal">
     <?php
-    /* Не квадратне фото (вертикальне з телефона, широке 16:9) у квадратній рамці обрізається по центру й збільшується — виходить
-       зернисто й без половини кадру. Такі фото показуємо цілком (contain), квадратні — на всю рамку (cover). */
+    /* Не квадратне фото (вертикальне з телефона, широке 16:9) у квадратній рамці обрізалось і збільшувалось. Такі фото показуємо
+       в оригінальних пропорціях (рамка підлаштовується під фото, висота обмежена), квадратні — як і раніше, на всю рамку. */
     $fitOf = function (array $im): bool {
         $w = (int)($im['width'] ?? 0); $h = (int)($im['height'] ?? 0);
         if (!$w || !$h) { $s = @getimagesize(BOFU_ROOT . '/assets/' . $im['path']); $w = (int)($s[0] ?? 0); $h = (int)($s[1] ?? 0); }
@@ -37,7 +37,7 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
         return $r < 0.85 || $r > 1.18;
     };
     ?>
-    <div class="pd-main"><img id="pdMain"<?= $fitOf($photos[0]) ? ' class="is-fit"' : '' ?> src="<?= e(asset($photos[0]['path'])) ?>" alt="<?= e($p['name']) ?>" fetchpriority="high"></div>
+    <div class="pd-main<?= $fitOf($photos[0]) ? ' is-fit' : '' ?>"><img id="pdMain" src="<?= e(asset($photos[0]['path'])) ?>" alt="<?= e($p['name']) ?>" fetchpriority="high"></div>
     <?php if (count($photos) > 1): ?>
       <div class="pd-thumbs">
         <?php foreach ($photos as $i => $im): ?>
@@ -157,7 +157,7 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
   document.querySelectorAll('.pd-thumbs button').forEach(function (b) {
     b.addEventListener('click', function () {
       main.src = b.dataset.src;
-      main.classList.toggle('is-fit', b.dataset.fit === '1');
+      main.parentNode.classList.toggle('is-fit', b.dataset.fit === '1');
       document.querySelectorAll('.pd-thumbs button').forEach(function (x) { x.classList.toggle('on', x === b); });
     });
   });
