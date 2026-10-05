@@ -74,21 +74,25 @@ $svg = fn($k) => '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" st
       <input type="search" id="navSearchMobile" name="q" placeholder="Пошук товарів" value="<?= e($_GET['q'] ?? '') ?>" autocomplete="off">
       <button type="submit" aria-label="Знайти"><?= $svg('search') ?></button>
     </form>
-    <?php /* Крамниця з усіма категоріями й послугами — розкривається стрілкою (app.js, data-nav-drop-btn) */ ?>
-    <div class="m-drop" data-nav-drop>
-      <a href="<?= e(url('/shop/')) ?>">Крамниця</a>
-      <?php if ($navCats): ?>
-      <button type="button" class="nav-drop-btn" data-nav-drop-btn aria-controls="mNavShop" aria-expanded="false" aria-label="Категорії"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg></button>
-      <?php endif; ?>
+    <?php /* Дві вкладки: «Товари» і «Послуги», кожна розкриває свої категорії з підкатегоріями (app.js, data-nav-drop-btn) */
+    $mTabs = [
+        ['mNavGoods', 'Товари', 'product', '/shop/', 'Усі товари →'],
+        ['mNavSvc', 'Послуги', 'service', null, null],
+    ];
+    foreach ($mTabs as [$mid, $mlabel, $mtype, $mall, $mallLabel]):
+        $mcats = array_values(array_filter($navCats, fn($c) => ($c['type'] ?? 'product') === $mtype));
+        if (!$mcats) continue; ?>
+    <div class="m-drop m-tab" data-nav-drop>
+      <button type="button" class="m-tab-btn" data-nav-drop-btn aria-controls="<?= e($mid) ?>" aria-expanded="false"><span><?= e($mlabel) ?></span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg></button>
     </div>
-    <?php if ($navCats): ?>
-    <div class="m-drop-menu" id="mNavShop" data-nav-drop-menu hidden>
-      <?php foreach ($navCats as $c) if (($c['type'] ?? 'product') === 'product'): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endif; ?>
-      <?php if (!empty($navSvc)): ?><span class="nav-drop-sep">Послуги</span>
-        <?php foreach ($navSvc as $c): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endforeach; ?><?php endif; ?>
-      <a class="nav-drop-all" href="<?= e(url('/shop/')) ?>">Усі товари →</a>
+    <div class="m-drop-menu" id="<?= e($mid) ?>" data-nav-drop-menu hidden>
+      <?php foreach ($mcats as $c): ?>
+        <a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a>
+        <?php foreach ($c['children'] ?? [] as $k): ?><a class="nav-drop-sub" href="<?= e(url('/product-category/' . $k['slug'] . '/')) ?>"><?= e($k['name']) ?></a><?php endforeach; ?>
+      <?php endforeach; ?>
+      <?php if ($mall): ?><a class="nav-drop-all" href="<?= e(url($mall)) ?>"><?= e($mallLabel) ?></a><?php endif; ?>
     </div>
-    <?php endif; ?>
+    <?php endforeach; ?>
     <?php foreach ($nav as [$href, $label]): ?><a href="<?= e(url($href)) ?>"><?= e($label) ?></a><?php endforeach; ?>
     <?php if ($myCourses > 0): ?><a href="<?= e(url('/my-account/my-course/')) ?>">Мої відеокурси</a><?php endif; ?>
     <?php if ($auth_user): ?>
