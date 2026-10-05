@@ -345,7 +345,7 @@ class Studio
         }
         $rows = DB::all('SELECT * FROM bookings ORDER BY (status = \'new\') DESC, id DESC LIMIT 300');
         foreach ($rows as &$r) {
-            $t = $r['kind'] === 'place' ? 'places' : 'practitioners';
+            $t = $r['kind'] === 'place' ? 'places' : ($r['kind'] === 'service' ? 'products' : 'practitioners');
             $r['subject'] = (string)DB::val("SELECT name FROM $t WHERE id = ?", [$r['ref_id']]);
         }
         View::show('admin/studio/bookings', ['rows' => $rows, 'page_title' => 'Бронювання — Адмінпанель'], 'layouts/admin');

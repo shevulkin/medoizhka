@@ -1,6 +1,7 @@
-<?php /** @var string $action, $title; @var bool $sent; @var bool $withGuests */ ?>
+<?php /** @var string $action, $title; @var bool $sent; @var bool $withGuests; @var array $hidden (необовʼязково: приховані поля) */ ?>
 <form class="form-card" id="zapys" method="post" action="<?= e($action) ?>">
   <?= Csrf::field() ?>
+  <?php foreach (($hidden ?? []) as $hk => $hv): ?><input type="hidden" name="<?= e($hk) ?>" value="<?= e((string)$hv) ?>"><?php endforeach; ?>
   <h3 style="font-size:22px"><?= e($title) ?></h3>
   <?php if ($sent): ?><div class="ok-box">Дякуємо! Заявку отримано, з вами зв’яжуться найближчим часом.</div><?php endif; ?>
   <label>Ваше імʼя<input name="name" required maxlength="120" autocomplete="name"></label>

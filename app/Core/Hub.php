@@ -81,7 +81,8 @@ class Hub
             'message' => $msg ?: null, 'status' => 'new', 'created_at' => now(),
         ]);
         Notify::fire('booking_new', [
-            'what' => $kind === 'place' ? 'Заявка на візит (' . mb_strtolower(self::kindLabel($subject['kind'])) . ')' : 'Заявка до апітерапевта',
+            'what' => $kind === 'service' ? 'Заявка на послугу'
+                : ($kind === 'place' ? 'Заявка на візит (' . mb_strtolower(self::kindLabel($subject['kind'])) . ')' : 'Заявка до апітерапевта'),
             'title' => $subject['name'], 'date' => $date ?: 'не вказано', 'guests' => $guests ?: '—',
             'name' => $name, 'phone' => $phone, 'note' => $msg,
         ]);

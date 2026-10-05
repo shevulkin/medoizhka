@@ -6,7 +6,7 @@ $st = ['new' => 'Нова', 'confirmed' => 'Підтверджена', 'done' =>
   <tr><th>Коли надійшла</th><th>Що</th><th>Хто</th><th>Дата / гостей</th><th>Повідомлення</th><th>Статус</th></tr>
   <?php foreach ($rows as $r): ?><tr>
     <td><?= e(date('d.m.Y H:i', strtotime((string)$r['created_at']))) ?></td>
-    <td><?= $r['kind'] === 'place' ? 'Візит' : 'Консультація' ?><br><b><?= e($r['subject']) ?></b></td>
+    <td><?= $r['kind'] === 'place' ? 'Візит' : ($r['kind'] === 'service' ? 'Послуга' : 'Консультація') ?><br><b><?= e($r['subject']) ?></b></td>
     <td><?= e($r['name']) ?><br><a href="tel:<?= e(preg_replace('~[^\d+]~', '', $r['phone'])) ?>"><?= e($r['phone']) ?></a><?= $r['email'] ? '<br>' . e($r['email']) : '' ?></td>
     <td><?= e((string)($r['on_date'] ?? '—')) ?> / <?= (int)$r['guests'] ?: '—' ?></td>
     <td style="max-width:280px"><?= e((string)$r['message']) ?></td>

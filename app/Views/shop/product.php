@@ -100,8 +100,13 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
       </div>
     </form>
     <?php else: ?>
-      <?php if ($svc): ?><p class="pd-svc-note">Послугу замовляють за телефоном або повідомленням — обговоримо деталі, обсяг і зручний час.</p><?php endif; ?>
-      <div class="pd-row"><?php if ($phone !== ''): ?><a class="btn btn-gold" href="tel:<?= e(preg_replace('~[^\d+]~', '', $phone)) ?>">Замовити за телефоном</a><?php endif; ?><a class="btn btn-line" href="<?= e(url('/contacts/')) ?>">Написати нам</a></div>
+      <?php if ($svc): ?><p class="pd-svc-note">Залиште заявку нижче або зателефонуйте — обговоримо деталі, обсяг і зручний час. Оплата наперед не потрібна.</p><?php endif; ?>
+      <div class="pd-row">
+        <?php if ($svc): ?><a class="btn btn-gold" href="#zapys">Оформити заявку</a><?php endif; ?>
+        <?php if ($phone !== ''): ?><a class="btn <?= $svc ? 'btn-line' : 'btn-gold' ?>" href="tel:<?= e(preg_replace('~[^\d+]~', '', $phone)) ?>"><?= $svc ? 'Зателефонувати' : 'Замовити за телефоном' ?></a><?php endif; ?>
+        <?php if (!$svc): ?><a class="btn btn-line" href="<?= e(url('/contacts/')) ?>">Написати нам</a><?php endif; ?>
+      </div>
+      <?php if ($svc): ?><div class="pd-svc-form"><?= View::partial('directory/_book_form', ['action' => url('/service-request'), 'title' => 'Оформити заявку: ' . $p['name'], 'sent' => !empty($_GET['sent']), 'withGuests' => false, 'hidden' => ['product_id' => (int)$p['id']]]) ?></div><?php endif; ?>
     <?php endif; ?>
 
     <ul class="pd-perks">

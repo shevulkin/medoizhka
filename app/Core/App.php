@@ -325,6 +325,7 @@ class App
         // --- кошик і замовлення ---
         if ($path === '/cart') { Controllers\CartController::index(); }
         if ($path === '/cart/add' && $method === 'POST') { Controllers\CartController::add(); }
+        if ($path === '/service-request' && $method === 'POST') { Controllers\Shop::serviceRequest(); }
         // Набір кладеться однією дією: розкладати його на три кліки означало б
         // питати покупця про те, що вже вирішено складом набору
         if ($path === '/cart/add-bundle' && $method === 'POST') { Controllers\CartController::addBundle(); }

@@ -165,6 +165,23 @@ class Shop
         return false;
     }
 
+    /** POST /service-request — заявка на послугу (замість кошика): зберігається як бронювання kind=service й сповіщає власника */
+    public static function serviceRequest(): never
+    {
+        \Csrf::verify();
+        \RateLimit::guard('booking', 10, 3600);
+        $p = DB::row('SELECT * FROM products WHERE id = ? AND active = 1', [(int)($_POST['product_id'] ?? 0)]);
+        if (!$p || !Catalog::isService($p)) { http_response_code(404); View::show('errors/404'); }
+        $back = product_path($p['slug']);
+        // Поле-пастка для ботів: людина його не бачить і не заповнює
+        if (trim((string)($_POST['website'] ?? '')) !== '') redirect($back . '?sent=1');
+        if (!\Hub::saveBooking('service', $p, $_POST)) {
+            flash('error', 'Вкажіть імʼя та телефон, щоб ми могли відповісти.');
+            redirect($back . '#zapys');
+        }
+        redirect($back . '?sent=1#zapys');
+    }
+
     public static function product(string $slug): never
     {
         $p = DB::row('SELECT * FROM products WHERE slug = ?', [$slug]);
