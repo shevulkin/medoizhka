@@ -158,6 +158,19 @@ class App
             if ((int)Settings::get('schema_version', '1') < Schema::VERSION) Schema::upgrade();
             return true;
         } catch (Throwable $e) {
+            // Справжню причину пишемо в журнал: нижче покупцеві й власнику показується загальний текст,
+            // і без цього рядка «база недоступна» неможливо відрізнити від збою міграції чи ліміту хостингу
+            @file_put_contents(BOFU_ROOT . '/storage/logs/app-error.log',
+                '[' . date('Y-m-d H:i:s') . '] dbReady: ' . get_class($e) . ': ' . $e->getMessage()
+                . ' @ ' . basename($e->getFile()) . ':' . $e->getLine() . "
+", FILE_APPEND);
+            // Короткий збій зʼєднання (ліміти хостингу, перезапуск MySQL) зазвичай минає за мить — одна повторна спроба
+            usleep(400000);
+            try {
+                DB::val('SELECT COUNT(*) FROM settings');
+                if ((int)Settings::get('schema_version', '1') < Schema::VERSION) Schema::upgrade();
+                return true;
+            } catch (Throwable $e) { /* далі — як і раніше, вже з останньою помилкою */ }
             if (cfg('env') === 'production') {
                 self::dbDown(new RuntimeException(
                     'База порожня або недоступна. Якщо це новий сервер — виконайте '
