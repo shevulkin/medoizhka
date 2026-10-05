@@ -43,7 +43,11 @@ class Shop
         // відкритись саме на тій гілці, де людина зараз стоїть
         $parentCat = Catalog::parentCategory($current);
 
+        // Вкладка каталогу: «Товари» (за замовчуванням) або «Послуги». Усередині категорії вид задає сама категорія.
+        $kind = $current ? ((($current['type'] ?? 'product') === 'service') ? 'service' : 'product')
+                          : (($_GET['kind'] ?? '') === 'service' ? 'service' : 'product');
         $filters = [
+            'kind' => $kind,
             'category_id' => $current['id'] ?? null,
             'q' => trim($_GET['q'] ?? ''),
             'min' => $_GET['min'] ?? '',
@@ -108,7 +112,8 @@ class Shop
             'current_cat' => $current,
             'parent_cat' => $parentCat,
             'products' => $products,
-            'noindex' => !$products && ($current !== null || $filters['q'] === ''),   // порожній розділ — не для індексу
+            'kind' => $kind,
+            'noindex' => (!$products && ($current !== null || $filters['q'] === '')) || ($current === null && $kind === 'service'),   // порожній розділ і ?kind=service — не для індексу
             'other_products' => $other,
             'filters' => $filters,
             'brand' => $brand,

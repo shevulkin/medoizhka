@@ -773,7 +773,9 @@ class Catalog
         $where = ['p.active = 1', 'p.type <> ' . DB::pdo()->quote(Courses::TYPE)];
         $params = [];
         // Послуги — у своїх розділах: «Усі товари» без категорії й пошуку показує лише товари
-        if (empty($f['category_id']) && empty($f['q'])) $where[] = 'p.service = 0';
+        // ?kind=service — вкладка «Послуги» каталогу: лише послуги, без категорії теж
+        if (($f['kind'] ?? '') === 'service' && empty($f['category_id'])) $where[] = 'p.service = 1';
+        elseif (empty($f['category_id']) && empty($f['q'])) $where[] = 'p.service = 0';
         if (!empty($f['category_id'])) {
             // разом із підрозділами: обраний «Мед» показує і липовий, і гречаний
             [$cond, $args] = self::branchSql((int)$f['category_id']);

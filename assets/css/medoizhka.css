@@ -56,7 +56,12 @@ h1 b,h2 b{font-weight:700;color:var(--orange)}
 .nav-links a:hover::after,.nav-links a.active::after{right:0}
 .nav-drop-btn{color:var(--text)}
 .nav-drop-menu{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-h);padding:14px 10px}
-.mega{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:2px 16px;min-width:520px}
+.mega{display:grid;grid-template-columns:minmax(300px,1.6fr) minmax(210px,1fr);gap:2px 24px;min-width:600px;align-items:start}
+.mega .mega-list{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
+.mega .mega-col{display:flex;flex-direction:column}
+.mega .mega-svc{padding:4px 6px 8px;background:var(--orange-xl);border-radius:12px}
+.mega .mega-svc .nav-drop-sep{color:var(--orange-d)}
+.mega .mega-all{color:var(--orange-d)!important;font-weight:600!important}
 .nav-drop-menu a{font:500 14.5px/1.3 var(--sans)!important;color:var(--text)!important;padding:9px 12px!important;border-radius:8px}
 .nav-drop-menu a::after{display:none}
 .nav-drop-menu a:hover{background:var(--orange-xl);color:var(--orange-d)!important}
@@ -361,7 +366,7 @@ h1 b,h2 b{font-weight:700;color:var(--orange)}
 }
 
 /* Послуги — окремою групою в меню «Крамниця» та в списку категорій */
-.mega .nav-drop-sep{grid-column:1/-1;margin-top:8px;padding-top:12px;border-top:1px solid var(--line);font:600 11.5px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.mega .nav-drop-sep{display:block;padding:6px 12px 8px;font:600 11.5px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 .shop-side .shop-side-sub{margin-top:22px}
 
 /* Мобільний: вхід/кабінет лишається в шапці (site.css ховав усе, крім кошика) і є кнопка в меню */
@@ -395,20 +400,20 @@ h1 b,h2 b,h3 b{color:#c47400}
 .pc-price small,.pd-price small,.pc-note,.mz-foot-contacts a[href^="mailto:"],.mh-hero-x .kicker{color:#9a5a00}
 .mz-foot-contacts span,.mz-foot-copy,.pc-cat,.crumbs{color:#6b645c}
 
-/* Каталог: «Товари» і «Послуги» — два окремі блоки, щоб з першого погляду було видно різницю */
+/* Каталог: вкладки «Товари | Послуги» над сіткою, категорії бічної колонки — один стиль для обох видів */
 .shop-side{gap:20px}
-.shop-side .shop-nav-svc{padding:16px 18px 6px;background:var(--orange-xl);border:1px solid #f3dcb4;border-radius:var(--r)}
-.shop-side .shop-nav-svc h2{display:flex;align-items:center;gap:8px;color:var(--orange-d);margin-bottom:6px}
-.shop-side .shop-nav-svc h2::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--orange)}
-.shop-side .shop-nav-svc a{border-bottom-color:#f3dcb4}
-.shop-side .shop-nav-svc a:last-child{border-bottom:0}
+.shop-tabs-wrap{padding-top:28px}
+.shop-tabs{display:flex;gap:8px;margin:0;overflow-x:auto;scrollbar-width:none}
+.shop-tabs::-webkit-scrollbar{display:none}
+.shop-tabs a{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid var(--line2,var(--line));border-radius:999px;background:#fff;color:var(--text);font:600 15px var(--display);text-decoration:none}
+.shop-tabs a small{font:600 12px var(--sans);color:var(--dim)}
+.shop-tabs a:hover{border-color:var(--orange);color:var(--orange-d)}
+.shop-tabs a.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.shop-tabs a.on small{color:rgba(255,255,255,.85)}
+.pc-flag-svc{background:#fff;color:var(--orange-d);border:1px solid var(--orange)}
 @media (max-width:900px){
   .shop-side{gap:12px}
   .shop-side nav{align-items:center;padding-bottom:4px}
   .shop-side nav h2{margin:0 4px 0 0;white-space:nowrap}
-  .shop-side .shop-nav-svc{padding:10px 12px;border-radius:12px}
-  .shop-side .shop-nav-svc h2{margin:0 6px 0 0}
-  .shop-side .shop-nav-svc a{background:#fff;border:1px solid var(--orange)!important;color:var(--orange-d);border-radius:999px}
-  .shop-side .shop-nav-svc a.on{background:var(--orange);color:#fff}
-  .shop-side .shop-nav-svc a.on span::before{background:#fff}
 }
+

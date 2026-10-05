@@ -36,10 +36,18 @@ $svg = fn($k) => '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" st
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg>
         </button>
         <div class="nav-drop-menu mega" id="navShopMenu" data-nav-drop-menu hidden>
-          <?php foreach ($navCats as $c) if (($c['type'] ?? 'product') === 'product'): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endif; ?>
-          <?php $navSvc = array_filter($navCats, fn($c) => ($c['type'] ?? '') === 'service'); if ($navSvc): ?>
+          <?php $navGoods = array_filter($navCats, fn($c) => ($c['type'] ?? 'product') === 'product');
+                $navSvc = array_filter($navCats, fn($c) => ($c['type'] ?? '') === 'service'); ?>
+          <div class="mega-col mega-goods">
+            <span class="nav-drop-sep">Товари</span>
+            <div class="mega-list"><?php foreach ($navGoods as $c): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endforeach; ?></div>
+          </div>
+          <?php if ($navSvc): ?>
+          <div class="mega-col mega-svc">
             <span class="nav-drop-sep">Послуги</span>
             <?php foreach ($navSvc as $c): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endforeach; ?>
+            <a class="mega-all" href="<?= e(url('/shop/?kind=service')) ?>">Усі послуги →</a>
+          </div>
           <?php endif; ?>
           <a class="nav-drop-all" href="<?= e(url('/shop/')) ?>">Усі товари →</a>
         </div>
@@ -74,10 +82,11 @@ $svg = fn($k) => '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" st
       <input type="search" id="navSearchMobile" name="q" placeholder="Пошук товарів" value="<?= e($_GET['q'] ?? '') ?>" autocomplete="off">
       <button type="submit" aria-label="Знайти"><?= $svg('search') ?></button>
     </form>
+    <a href="<?= e(url('/shop/')) ?>">Крамниця</a>
     <?php /* Дві вкладки: «Товари» і «Послуги», кожна розкриває свої категорії з підкатегоріями (app.js, data-nav-drop-btn) */
     $mTabs = [
         ['mNavGoods', 'Товари', 'product', '/shop/', 'Усі товари →'],
-        ['mNavSvc', 'Послуги', 'service', null, null],
+        ['mNavSvc', 'Послуги', 'service', '/shop/?kind=service', 'Усі послуги →'],
     ];
     foreach ($mTabs as [$mid, $mlabel, $mtype, $mall, $mallLabel]):
         $mcats = array_values(array_filter($navCats, fn($c) => ($c['type'] ?? 'product') === $mtype));

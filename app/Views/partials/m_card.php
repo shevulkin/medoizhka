@@ -35,7 +35,8 @@ if (count($vars) > 1) {
     <?php $ss = Images::cardSrcset($ph); ?><img src="<?= e(asset(Images::displayThumb($ph))) ?>"<?= $ss !== '' ? ' srcset="' . e($ss) . '" sizes="(max-width:700px) 50vw, (max-width:1100px) 33vw, 360px"' : '' ?> alt="<?= e($prod['name']) ?>" loading="lazy">
     <?php if ($isOut): ?><span class="pc-flag pc-flag-out"><?= e(Catalog::outLabel($prod)) ?></span>
     <?php elseif ($old !== null): ?><span class="pc-flag">Знижка</span>
-    <?php elseif (!empty($prod['featured'])): ?><span class="pc-flag">Хіт</span><?php endif; ?>
+    <?php elseif (!empty($prod['featured'])): ?><span class="pc-flag">Хіт</span>
+    <?php elseif (Catalog::isService($prod)): ?><span class="pc-flag pc-flag-svc">Послуга</span><?php endif; ?>
   </a>
   <div class="pc-bd">
     <span class="pc-cat"><?= e((string)$cat) ?></span>
@@ -50,7 +51,7 @@ if (count($vars) > 1) {
           <span>Повідомити</span>
         </a>
       <?php elseif (count($vars) > 1 || $pr === null || Catalog::isService($prod)): ?>
-        <a class="pc-btn" href="<?= e($href) ?>" aria-label="Обрати: <?= e($prod['name']) ?>"><?= $pr === null || Catalog::isService($prod) ? 'Детальніше' : 'Обрати' ?></a>
+        <a class="pc-btn" href="<?= e($href) ?>" aria-label="Обрати: <?= e($prod['name']) ?>"><?= Catalog::isService($prod) ? 'Замовити' : ($pr === null ? 'Детальніше' : 'Обрати') ?></a>
       <?php else: ?>
         <form method="post" action="<?= e(url('/cart/add')) ?>" class="add-cart-form" data-product-name="<?= e($prod['name']) ?>"><?= Csrf::field() ?>
           <input type="hidden" name="product_id" value="<?= (int)$prod['id'] ?>">
