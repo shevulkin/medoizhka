@@ -173,6 +173,7 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
 <script>
 window.BOFU = { base: '<?= e(url('/')) ?>', vapid: '<?= e(Settings::get('vapid_public', '')) ?>', csrf: '<?= e(Csrf::token()) ?>' };
 </script>
+<script src="<?= e(asset_v('js/drop.js')) ?>" defer></script>
 <script src="<?= e(asset_v('js/admin.js')) ?>" defer></script>
 <script src="<?= e(asset_v('js/rich-editor.js')) ?>" defer></script>
 <?php /* На самій касі смужка зайва — чек там і так перед очима */ ?>
