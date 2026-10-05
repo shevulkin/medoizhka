@@ -783,9 +783,14 @@ class Catalog
             foreach ($args as $a) $params[] = $a;
         }
         if (!empty($f['q'])) {
-            $where[] = '(p.name LIKE ? OR p.short_desc LIKE ? OR p.description LIKE ? OR p.sku LIKE ?)';
-            $like = '%' . $f['q'] . '%';
-            array_push($params, $like, $like, $like, $like);
+            // Кожне слово запиту шукаємо окремо (і, а не «точна фраза»): «фасування меду» має знайти
+            // «Фасування та стикування меду в прозорі стіки», де слова стоять не підряд
+            $words = preg_split('~\s+~u', trim((string)$f['q']), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+            foreach (array_slice($words, 0, 8) as $w) {
+                $where[] = '(p.name LIKE ? OR p.short_desc LIKE ? OR p.description LIKE ? OR p.sku LIKE ?)';
+                $like = '%' . $w . '%';
+                array_push($params, $like, $like, $like, $like);
+            }
         }
         if (isset($f['min']) && $f['min'] !== '') { $where[] = 'p.base_price >= ?'; $params[] = (float)$f['min']; }
         if (isset($f['max']) && $f['max'] !== '') { $where[] = 'p.base_price <= ?'; $params[] = (float)$f['max']; }
