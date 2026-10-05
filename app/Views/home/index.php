@@ -5,6 +5,14 @@
  * товари, історія пасіки, банер відвідування, контакти.
  * @var array $products, $cats, $palette, $for_beekeepers, $tags
  */
+/** Фото блоку, завантажене в режимі редагування (Content); null — лишається типове з дизайну */
+$custom = function (string $key): ?array {
+    $p = Content::image($key);
+    if ($p === '' || !Content::isSafeImagePath($p) || !is_file(BOFU_ROOT . '/assets/' . $p)) return null;
+    $w = (int)(@getimagesize(BOFU_ROOT . '/assets/' . $p)[0] ?? 0);
+    $mid = Images::midPath($p);
+    return ['src' => asset($p), 'srcset' => ($mid && $w > 800) ? asset($mid) . ' 800w, ' . asset($p) . ' ' . $w . 'w' : ''];
+};
 $img = fn(string $f) => asset('img/home/' . pathinfo($f, PATHINFO_FILENAME) . '.webp');
 $ico = [
     'hive' => '<path d="M12 3l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V7z"/><path d="M9 12l2 2 4-4"/>',
@@ -33,7 +41,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
         <a class="btn btn-line" href="<?= e(url('/beekeeping-products/')) ?>">Види продуктів</a>
       </div>
     </div>
-    <div class="pic"><img src="<?= e($img('flower-honey.webp')) ?>" srcset="<?= e($img('flower-honey-480.webp')) ?> 480w, <?= e($img('flower-honey.webp')) ?> 800w" sizes="(max-width:1100px) 100vw, 50vw" alt="Квітковий мед Медоїжка" width="800" height="800" fetchpriority="high" decoding="async"></div>
+    <div class="pic"><?php if ($c = $custom('home_hero')): ?><img src="<?= e($c['src']) ?>"<?= $c['srcset'] !== '' ? ' srcset="' . e($c['srcset']) . '" sizes="(max-width:1100px) 100vw, 50vw"' : '' ?> alt="Квітковий мед Медоїжка" fetchpriority="high" decoding="async"<?= EditMode::mark('home_hero') ?>><?php else: ?><img src="<?= e($img('flower-honey.webp')) ?>" srcset="<?= e($img('flower-honey-480.webp')) ?> 480w, <?= e($img('flower-honey.webp')) ?> 800w" sizes="(max-width:1100px) 100vw, 50vw" alt="Квітковий мед Медоїжка" width="800" height="800" fetchpriority="high" decoding="async"<?= EditMode::mark('home_hero') ?>><?php endif; ?></div>
   </div>
 </section>
 
@@ -76,7 +84,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
 
 <section class="sec bg-cream">
   <div class="wrap mz-story">
-    <div class="rhomb"><img src="<?= e($img('fmily.png')) ?>" srcset="<?= e($img('fmily-540.png')) ?> 540w, <?= e($img('fmily.png')) ?> 900w" sizes="(max-width:760px) 92vw, 540px" alt="Пасіка Медоїжки" width="900" height="900" loading="lazy" decoding="async"></div>
+    <div class="rhomb"><?php if ($c = $custom('home_story')): ?><img src="<?= e($c['src']) ?>"<?= $c['srcset'] !== '' ? ' srcset="' . e($c['srcset']) . '" sizes="(max-width:760px) 92vw, 540px"' : '' ?> alt="Пасіка Медоїжки" loading="lazy" decoding="async"<?= EditMode::mark('home_story') ?>><?php else: ?><img src="<?= e($img('fmily.png')) ?>" srcset="<?= e($img('fmily-540.png')) ?> 540w, <?= e($img('fmily.png')) ?> 900w" sizes="(max-width:760px) 92vw, 540px" alt="Пасіка Медоїжки" width="900" height="900" loading="lazy" decoding="async"<?= EditMode::mark('home_story') ?>><?php endif; ?></div>
     <div>
       <div class="kicker">Про нас</div>
       <h2>Від бджоли <b>до баночки</b></h2>
@@ -118,7 +126,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
   <div class="wrap">
     <?php $hasPlaces = Hub::hasPlaces(); /* поки місць для запису немає — ведемо на сторінку нашої пасіки */ ?>
     <a class="mz-visit" href="<?= e(url($hasPlaces ? '/pasiky/' : '/pasika-medoizhka/')) ?>">
-      <img src="<?= e($img('beestory.png')) ?>" srcset="<?= e($img('beestory-640.png')) ?> 640w, <?= e($img('beestory.png')) ?> 1000w" sizes="(max-width:760px) 92vw, 1200px" alt="" width="1000" height="1000" loading="lazy" decoding="async">
+      <?php if ($c = $custom('home_visit')): ?><img src="<?= e($c['src']) ?>"<?= $c['srcset'] !== '' ? ' srcset="' . e($c['srcset']) . '" sizes="(max-width:760px) 92vw, 1200px"' : '' ?> alt="" loading="lazy" decoding="async"<?= EditMode::mark('home_visit') ?>><?php else: ?><img src="<?= e($img('beestory.png')) ?>" srcset="<?= e($img('beestory-640.png')) ?> 640w, <?= e($img('beestory.png')) ?> 1000w" sizes="(max-width:760px) 92vw, 1200px" alt="" width="1000" height="1000" loading="lazy" decoding="async"<?= EditMode::mark('home_visit') ?>><?php endif; ?>
       <div class="mz-visit-in">
         <div class="kicker">Завітайте до нас</div>
         <h2><?= $hasPlaces ? 'Пасіки й апібудиночки' : 'Пасіка Медоїжка' ?></h2>
