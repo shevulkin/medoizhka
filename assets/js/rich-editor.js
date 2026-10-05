@@ -96,6 +96,7 @@
     ul: '<path d="M10 6h10M10 12h10M10 18h10"/><circle cx="5" cy="6" r="1.2"/><circle cx="5" cy="12" r="1.2"/><circle cx="5" cy="18" r="1.2"/>',
     ol: '<path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 5h1.5v4M4 9h3M4 15.5c.5-1 2.8-1 2.8.4 0 1.1-2.8 2-2.8 3.1h3"/>',
     link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+    image: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-5 4 4 3-3 4 4"/>',
     clear: '<path d="M6 5h12M12 5l-3 14M4 20 20 4"/>',
     undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
     redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/>'
@@ -125,6 +126,7 @@
         '<button type="button" data-cmd="insertUnorderedList" title="Список з крапками">' + svg('ul') + '</button>' +
         '<button type="button" data-cmd="insertOrderedList" title="Нумерований список">' + svg('ol') + '</button>' +
         '<button type="button" data-act="link" title="Посилання: виділіть слова й натисніть">' + svg('link') + '</button>' +
+        '<button type="button" data-act="image" title="Вставити фото з медіатеки або з компʼютера">' + svg('image') + '</button>' +
         '<button type="button" data-act="clear" title="Прибрати оформлення з виділеного">' + svg('clear') + '</button>' +
       '</span><span class="rte-group">' +
         '<button type="button" data-cmd="undo" title="Скасувати (Ctrl+Z)">' + svg('undo') + '</button>' +
@@ -185,6 +187,25 @@
       if (b.hasAttribute('data-cmd')) return exec(b.getAttribute('data-cmd'));
       var act = b.getAttribute('data-act');
       if (act === 'clear') { exec('removeFormat'); exec('unlink'); return exec('formatBlock', '<p>'); }
+      if (act === 'image') {
+        // Вікно вибору фото — те саме, що й у картці товару: обрати з медіатеки або завантажити з компʼютера
+        if (!window.MediaPicker || !MediaPicker.open) { alert('Вибір фото тут недоступний.'); return; }
+        var saved = null;   // позиція курсора, бо вікно вибору забирає фокус
+        var selNow = window.getSelection();
+        if (selNow.rangeCount && area.contains(selNow.anchorNode)) saved = selNow.getRangeAt(0).cloneRange();
+        MediaPicker.open(function (path) {
+          var base = assets || ((window.BOFU && BOFU.base ? BOFU.base : '/').replace(/\/$/, '') + '/assets/');
+          if (base.slice(-1) !== '/') base += '/';
+          var nameInput = document.querySelector('input[name="name"]');
+          var alt = prompt('Короткий опис фото (для пошуку й для незрячих; можна лишити порожнім):', nameInput ? nameInput.value : '');
+          if (alt === null) return;
+          area.focus();
+          if (saved) { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(saved); }
+          var esc = function (t) { return t.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+          exec('insertHTML', '<img src="' + esc(base + path) + '" alt="' + esc(alt) + '">');
+        });
+        return;
+      }
       if (act === 'link') {
         var sel = window.getSelection();
         var inLink = sel.anchorNode && (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentNode).closest('a');
