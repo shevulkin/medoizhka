@@ -29,10 +29,10 @@ Options -Indexes
   ExpiresByType text/css "access plus 1 year"
   ExpiresByType application/javascript "access plus 1 year"
   ExpiresByType font/woff2 "access plus 1 year"
-  ExpiresByType image/webp "access plus 7 days"
-  ExpiresByType image/png "access plus 7 days"
-  ExpiresByType image/jpeg "access plus 7 days"
-  ExpiresByType image/svg+xml "access plus 7 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
 </IfModule>
 
 # Те саме через mod_headers — на випадок, коли mod_expires вимкнений, а він
@@ -46,7 +46,7 @@ Options -Indexes
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
   <FilesMatch "\.(webp|png|jpe?g|svg|ico)$">
-    Header set Cache-Control "public, max-age=604800"
+    Header set Cache-Control "public, max-age=2592000"
   </FilesMatch>
 </IfModule>
 
