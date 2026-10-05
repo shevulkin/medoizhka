@@ -44,7 +44,8 @@ class Media
         // завантажені фото
         foreach (glob($dir . '/*') ?: [] as $f) {
             $name = basename($f);
-            if (str_contains($name, '-thumb.')) continue;
+            // -thumb і -md — службові зменшені копії, а не окремі фото: у бібліотеці їх не показуємо
+            if (str_contains($name, '-thumb.') || str_contains($name, '-md.')) continue;
             $size = @getimagesize($f);
             $path = 'uploads/' . $name;
             $items[] = [
