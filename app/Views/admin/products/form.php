@@ -608,7 +608,10 @@ $roEdit = $canEdit ? '' : 'disabled';
   <?php endif; ?>
 
   <div class="admin-save">
-    <button class="btn btn-gold" type="submit">💾 Зберегти</button>
+    <button class="btn btn-gold" type="submit">💾 <?= $isNew ? 'Створити' : 'Зберегти' ?></button>
+    <?php /* Одразу побачити результат на сайті очима покупця */ ?>
+    <button class="btn btn-line" type="submit" name="_action" value="<?= $isNew ? 'create_view' : 'save_view' ?>">👁 <?= $isNew ? 'Створити й переглянути' : 'Зберегти й переглянути' ?></button>
+    <?php if (!$isNew): ?><a class="btn btn-line" href="<?= e(product_url($p['slug'])) ?>" target="_blank" rel="noopener">Відкрити на сайті ↗</a><?php endif; ?>
     <span class="admin-save-note"></span>
     <?php if (!$isNew && Auth::can('products.manage')): ?>
       <button class="btn btn-danger" type="submit" name="_action" value="delete" style="margin-left:auto"

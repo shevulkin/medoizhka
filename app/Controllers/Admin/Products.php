@@ -473,6 +473,11 @@ class Products
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             self::syncBrands($id, (array)($_POST['brand_ids'] ?? []));
+            // «Створити й переглянути» — одразу на сторінку товару на сайті
+            if (($_POST['_action'] ?? '') === 'create_view') {
+                flash('success', 'Товар створено. Нижче лишилося додати фото, характеристики та ціни — кнопка «✎ Редагувати» поруч.');
+                redirect(product_path((string)DB::val('SELECT slug FROM products WHERE id = ?', [$id])));
+            }
             flash('success', 'Товар створено — додайте фото, атрибути та ціни');
             redirect('/admin/products/' . $id);
         }
@@ -536,7 +541,7 @@ class Products
         // звичайне збереження, і в ньому далі приймаються самі ціни та залишки.
         // Нова дія, додана сюди пізніше, за замовчуванням буде закрита — саме так
         // і треба: помилка має відмовляти, а не відкривати доступ.
-        if (!$canCard && $action !== 'save') {
+        if (!$canCard && !in_array($action, ['save', 'save_view'], true)) {
             flash('error', 'Змінювати картку товару може лише адміністратор.');
             redirect('/admin/products/' . $id);
         }
@@ -786,6 +791,8 @@ class Products
         } else {
             flash('success', 'Збережено');
         }
+        // «Зберегти й переглянути» — на сторінку товару на сайті (slug беремо з бази: його могли змінити окремою дією)
+        if ($action === 'save_view') redirect(product_path((string)DB::val('SELECT slug FROM products WHERE id = ?', [$id])));
         redirect('/admin/products/' . $id);
     }
 

@@ -157,3 +157,9 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
 /* GA4: перегляд товару */
 mzTrack('view_item', { value: <?= json_js($pr !== null ? (float)$pr : 0) ?>, items: [{ item_id: <?= json_js((string)$p['id']) ?>, item_name: <?= json_js($p['name']) ?>, item_category: <?= json_js($cat['name'] ?? '') ?>, price: <?= json_js($pr !== null ? (float)$pr : 0) ?> }] });
 </script>
+<?php /* Лише персоналу з правом на товари: швидкий перехід до картки. Покупцеві розмітка не віддається взагалі. */ ?>
+<?php if (Auth::can('products.manage')): ?>
+<a class="admin-edit-fab" href="<?= e(url('/admin/products/' . (int)$p['id'])) ?>">
+  <span aria-hidden="true">✎</span> Редагувати<?php if (!(int)$p['active']): ?> <small>вимкнено</small><?php elseif (!empty($p['paused'])): ?> <small>призупинено</small><?php endif; ?>
+</a>
+<?php endif; ?>
