@@ -6,7 +6,6 @@ class Images
 {
     public const MAX_SIDE = 1600;      // повний розмір
     public const THUMB_SIDE = 480;     // превʼю
-    public const MID_SIDE = 800;       // середній розмір для карток на екранах високої щільності
 
     /** Зберігає завантажене фото; повертає [шлях, ширина, висота, байти] або null */
     public static function saveUpload(array $file, string $prefix = 'img'): ?array
@@ -49,8 +48,6 @@ class Images
         imagecopyresampled($thumb, $dst, 0, 0, 0, 0, $tw, $th, $nw, $nh);
         $useWebp ? imagewebp($thumb, "$dir/$name-thumb.$ext", 82) : imagejpeg($thumb, "$dir/$name-thumb.$ext", 82);
 
-        self::makeMid($full);
-
         imagedestroy($src); imagedestroy($dst); imagedestroy($thumb);
         $bytes = filesize($full) ?: 0;
         return ["uploads/$name.$ext", $nw, $nh, $bytes];
@@ -62,45 +59,6 @@ class Images
     }
 
     /** Шлях до маленького превью для сіток (каталог, галерея); якщо превью немає — повертає оригінал */
-    /** Шлях середнього розміру (-md) або null, якщо файлу немає */
-    public static function midPath(string $path): ?string
-    {
-        $mid = preg_replace('/\.(webp|jpg|png)$/', '-md.$1', $path);
-        return ($mid && $mid !== $path && is_file(BOFU_ROOT . '/assets/' . $mid)) ? $mid : null;
-    }
-
-    /** Створює «-md» (до 800 px, якість 88) із повного файлу; повертає true, якщо створено */
-    public static function makeMid(string $fullAbs): bool
-    {
-        $mid = preg_replace('/\.(webp|jpg|png)$/', '-md.$1', $fullAbs);
-        if (!$mid || $mid === $fullAbs || !function_exists('imagecreatefromwebp')) return false;
-        $src = match (strtolower(pathinfo($fullAbs, PATHINFO_EXTENSION))) {
-            'webp' => @imagecreatefromwebp($fullAbs), 'jpg' => @imagecreatefromjpeg($fullAbs), 'png' => @imagecreatefrompng($fullAbs), default => false,
-        };
-        if (!$src) return false;
-        $w = imagesx($src); $h = imagesy($src);
-        $sc = min(1, self::MID_SIDE / max($w, $h));
-        $nw = (int)round($w * $sc); $nh = (int)round($h * $sc);
-        $dst = imagecreatetruecolor($nw, $nh);
-        imagealphablending($dst, false); imagesavealpha($dst, true);
-        imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
-        $ok = str_ends_with($mid, '.webp') ? imagewebp($dst, $mid, 88) : (str_ends_with($mid, '.png') ? imagepng($dst, $mid) : imagejpeg($dst, $mid, 88));
-        imagedestroy($src); imagedestroy($dst);
-        return (bool)$ok;
-    }
-
-    /** srcset для картки: 480 w і 800 w (якщо є середній розмір) */
-    public static function cardSrcset(string $path): string
-    {
-        $thumb = self::displayThumb($path);
-        $mid = self::midPath($path);
-        if ($thumb === $path || !$mid) return '';
-        $tw = (int)(@getimagesize(BOFU_ROOT . '/assets/' . $thumb)[0] ?? 0);
-        $mw = (int)(@getimagesize(BOFU_ROOT . '/assets/' . $mid)[0] ?? 0);
-        if ($tw <= 0 || $mw <= $tw) return '';
-        return asset($thumb) . " {$tw}w, " . asset($mid) . " {$mw}w";
-    }
-
     public static function displayThumb(string $path): string
     {
         $thumb = self::thumbPath($path);
@@ -112,6 +70,5 @@ class Images
         $abs = BOFU_ROOT . '/assets/' . $path;
         @unlink($abs);
         @unlink(BOFU_ROOT . '/assets/' . self::thumbPath($path));
-        if ($m = self::midPath($path)) @unlink(BOFU_ROOT . '/assets/' . $m);
     }
 }
