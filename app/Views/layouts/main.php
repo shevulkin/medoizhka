@@ -27,7 +27,10 @@
 <?php /* шрифти основного тексту й заголовків — завантажуємо одразу, а не після розбору CSS */ ?>
 <link rel="preload" href="<?= e(asset('fonts/Manrope-400-cyr.woff2')) ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= e(asset('fonts/Montserrat-cyr.woff2')) ?>" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?= e(asset('css/fonts.css')) ?>">
+<?php /* Оголошення шрифтів вбудовано в сторінку (1 КБ): інакше браузер спершу чекає fonts.css, і лише тоді починає тягти самі шрифти */
+    $fontsCss = @file_get_contents(BOFU_ROOT . '/assets/css/fonts.css'); ?>
+<?php if ($fontsCss): ?><style><?= str_replace('../fonts/', asset('fonts/'), $fontsCss) ?></style>
+<?php else: ?><link rel="stylesheet" href="<?= e(asset('css/fonts.css')) ?>"><?php endif; ?>
 <?php /* app + site + v3 + shop + medoizhka одним мініфікованим файлом (bin/build-css.php) — один запит замість пʼяти.
          Правите CSS — запустіть php bin/build-css.php і закомітьте site.min.css. */ ?>
 <link rel="stylesheet" href="<?= e(asset_v('css/site.min.css')) ?>">
@@ -74,17 +77,23 @@ foreach (($jsonld ?? []) as $block) echo JsonLd::tag($block);
 /* Жива сторінка: блоки плавно з'являються при прокрутці, шапка отримує тінь */
 (function () {
   var bar = document.querySelector('.topbar');
-  var onScroll = function () { if (bar) bar.classList.toggle('scrolled', window.scrollY > 8); };
+  var tick = false;
+  var onScroll = function () {
+    if (tick) return; tick = true;
+    requestAnimationFrame(function () { tick = false; if (bar) bar.classList.toggle('scrolled', window.scrollY > 8); });
+  };
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
   if (!('IntersectionObserver' in window)) return;
   var els = document.querySelectorAll('.sec-head,.cat,.hn,.pc,.story-ph,.story-tx,.tile,.perk,.cr,.pp-card,.cta-in');
   var io = new IntersectionObserver(function (list) {
     list.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
   }, { rootMargin: '0px 0px -8% 0px' });
-  els.forEach(function (el, i) {
-    var r = el.getBoundingClientRect();
-    if (r.top < window.innerHeight) return;            // уже на екрані — не ховаємо
-    el.classList.add('rv'); el.style.transitionDelay = (i % 4) * 70 + 'ms'; io.observe(el);
+  // Спершу всі виміри, потім усі зміни: змішування читання й запису змушує браузер рахувати
+  // розкладку заново для кожного елемента («примусова компоновка»)
+  requestAnimationFrame(function () {
+    var vh = window.innerHeight, below = [];
+    for (var k = 0; k < els.length; k++) if (els[k].getBoundingClientRect().top >= vh) below.push(els[k]);   // на екрані — не ховаємо
+    below.forEach(function (el, i) { el.classList.add('rv'); el.style.transitionDelay = (i % 4) * 70 + 'ms'; io.observe(el); });
   });
 })();
 </script>
