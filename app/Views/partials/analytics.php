@@ -20,13 +20,26 @@ function gtag(){dataLayer.push(arguments);}
 gtag('consent', 'default', {"ad_personalization":"denied","ad_storage":"denied","ad_user_data":"denied","analytics_storage":"denied","functionality_storage":"denied","security_storage":"denied","personalization_storage":"denied","region":["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LI","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK"],"wait_for_update":500});
 window.mzTrack = function (name, data) { gtag('event', name, Object.assign({ currency: 'UAH' }, data || {})); };
 </script>
+<?php /* Скрипти Google важать ~250 КБ і блокують потік на телефоні. Вантажимо їх після показу сторінки:
+          через 2 с після load або раніше — на першу взаємодію. Події (mzTrack) не губляться: вони
+          лягають у dataLayer, а скрипт їх підхопить. */ ?>
+<script>
+(function () {
+  var done = false;
+  function loadGoogle() {
+    if (done) return; done = true;
 <?php if ($tag !== ''): ?>
-<script async src="https://www.googletagmanager.com/gtag/js?id=<?= e(rawurlencode($tag)) ?>"></script>
-<script>gtag('js', new Date()); gtag('config', <?= json_js($tag) ?>);</script>
+    var g = document.createElement('script'); g.async = true; g.src = 'https://www.googletagmanager.com/gtag/js?id=<?= e(rawurlencode($tag)) ?>'; document.head.appendChild(g);
+    gtag('js', new Date()); gtag('config', <?= json_js($tag) ?>);
 <?php endif; ?>
 <?php if ($gtm !== ''): ?>
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',<?= json_js($gtm) ?>);</script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',<?= json_js($gtm) ?>);
 <?php endif; ?>
+  }
+  ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (e) { addEventListener(e, loadGoogle, { once: true, passive: true }); });
+  addEventListener('load', function () { setTimeout(loadGoogle, 2000); });
+})();
+</script>
 <script>
 /* add_to_cart: будь-яка форма «У кошик» на сайті */
 document.addEventListener('submit', function (e) {

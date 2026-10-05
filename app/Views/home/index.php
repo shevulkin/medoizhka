@@ -33,7 +33,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
         <a class="btn btn-line" href="<?= e(url('/beekeeping-products/')) ?>">Види продуктів</a>
       </div>
     </div>
-    <div class="pic"><img src="<?= e($img('flower-honey.webp')) ?>" alt="Квітковий мед Медоїжка" fetchpriority="high"></div>
+    <div class="pic"><img src="<?= e($img('flower-honey.webp')) ?>" alt="Квітковий мед Медоїжка" width="800" height="800" fetchpriority="high" decoding="async"></div>
   </div>
 </section>
 
@@ -76,7 +76,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
 
 <section class="sec bg-cream">
   <div class="wrap mz-story">
-    <div class="rhomb"><img src="<?= e($img('fmily.png')) ?>" alt="Пасіка Медоїжки" loading="lazy"></div>
+    <div class="rhomb"><img src="<?= e($img('fmily.png')) ?>" alt="Пасіка Медоїжки" width="900" height="900" loading="lazy" decoding="async"></div>
     <div>
       <div class="kicker">Про нас</div>
       <h2>Від бджоли <b>до баночки</b></h2>
@@ -118,7 +118,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
   <div class="wrap">
     <?php $hasPlaces = Hub::hasPlaces(); /* поки місць для запису немає — ведемо на сторінку нашої пасіки */ ?>
     <a class="mz-visit" href="<?= e(url($hasPlaces ? '/pasiky/' : '/pasika-medoizhka/')) ?>">
-      <img src="<?= e($img('beestory.png')) ?>" alt="" loading="lazy">
+      <img src="<?= e($img('beestory.png')) ?>" alt="" width="1000" height="1000" loading="lazy" decoding="async">
       <div class="mz-visit-in">
         <div class="kicker">Завітайте до нас</div>
         <h2><?= $hasPlaces ? 'Пасіки й апібудиночки' : 'Пасіка Медоїжка' ?></h2>

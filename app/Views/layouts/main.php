@@ -24,12 +24,13 @@
          вкладки з неї видно квадратик 16×16, за який покупець платив на кожній
          сторінці більше, ніж за всі скрипти сайту разом. */ ?>
 <link rel="icon" href="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" type="image/webp">
+<?php /* шрифти основного тексту й заголовків — завантажуємо одразу, а не після розбору CSS */ ?>
+<link rel="preload" href="<?= e(asset('fonts/Manrope-400-cyr.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="<?= e(asset('fonts/Montserrat-cyr.woff2')) ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= e(asset('css/fonts.css')) ?>">
-<link rel="stylesheet" href="<?= e(asset_v('css/app.css')) ?>">
-<link rel="stylesheet" href="<?= e(asset_v('css/site.css')) ?>">
-<link rel="stylesheet" href="<?= e(asset_v('css/v3.css')) ?>">
-<link rel="stylesheet" href="<?= e(asset_v('css/shop.css')) ?>">
-<link rel="stylesheet" href="<?= e(asset_v('css/medoizhka.css')) ?>">
+<?php /* app + site + v3 + shop + medoizhka одним мініфікованим файлом (bin/build-css.php) — один запит замість пʼяти.
+         Правите CSS — запустіть php bin/build-css.php і закомітьте site.min.css. */ ?>
+<link rel="stylesheet" href="<?= e(asset_v('css/site.min.css')) ?>">
 <link rel="canonical" href="<?= e($canonical ?? current_url()) ?>">
 <?php /* Перевірка власності в Google Search Console мета-тегом — якщо задано в Налаштуваннях */ ?>
 <?php if (($gsv = (string)Settings::get('google_site_verification', '')) !== ''): ?><meta name="google-site-verification" content="<?= e($gsv) ?>"><?php endif; ?>

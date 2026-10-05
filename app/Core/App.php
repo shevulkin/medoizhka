@@ -12,6 +12,11 @@ class App
         // А кеш, що лишився від WordPress, один раз чистимо цілком: інакше сервер ще
         // віддавав би старі сторінки замість нових. Прапорець — щоб не чистити щоразу.
         header('X-LiteSpeed-Cache-Control: no-cache');
+        // Браузеру: публічні сторінки — перевіряти за кожним відкриттям, але дозволяти bfcache («назад»
+        // без перезавантаження); особисті (кабінет, оформлення, адмінпанель, оплата) — no-store
+        $p0 = request_path();
+        header(preg_match('~^/(admin|checkout|profile|orders|my-account|learn|pay|bargain|cart)(/|$)~', $p0)
+            ? 'Cache-Control: no-store, no-cache, must-revalidate, private' : 'Cache-Control: private, no-cache');
         $purged = BOFU_ROOT . '/storage/cache/.lscache-purged';
         if (!is_file($purged) && is_dir(dirname($purged))) { header('X-LiteSpeed-Purge: *'); @touch($purged); }
         if (!self::dbReady()) return;

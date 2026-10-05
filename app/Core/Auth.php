@@ -21,6 +21,9 @@ class Auth
             $sessDir = BOFU_ROOT . '/storage/sessions';
             if (!is_dir($sessDir)) @mkdir($sessDir, 0775, true);
             if (is_writable($sessDir)) session_save_path($sessDir);
+            // Cache-Control ставить App::run (див. там): PHP за замовчуванням додав би no-store усім
+            // сторінкам, а це вимикає «назад» без перезавантаження (bfcache) і на публічних
+            session_cache_limiter('');
             session_name(cfg('session_name', 'bofu_sid'));
             // не приймати ідентифікатор сесії, якого ми не видавали (фіксація сесії)
             ini_set('session.use_strict_mode', '1');

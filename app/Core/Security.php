@@ -122,7 +122,7 @@ class Security
      */
     private const GOOGLE_AUTH = 'https://accounts.google.com';
     private const GOOGLE_TAGS = 'https://www.googletagmanager.com https://*.googletagmanager.com';
-    private const GOOGLE_ANALYTICS = 'https://*.google-analytics.com https://*.analytics.google.com https://*.g.doubleclick.net https://www.google.com';
+    private const GOOGLE_ANALYTICS = 'https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://*.g.doubleclick.net https://www.google.com';
     private const BUNNY_PLAYER = 'https://iframe.mediadelivery.net';
     // Карта на сторінці «Контакти» (Google Maps embed) — див. Site::pageHtml
     private const GOOGLE_MAPS = 'https://www.google.com';
