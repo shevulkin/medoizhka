@@ -216,6 +216,10 @@ class App
         // --- статичні/системні ---
         if ($path === '/robots.txt') { Controllers\Seo::robots(); }
         if ($path === '/sitemap.xml') { Controllers\Seo::sitemap(); }
+        // Адреси сайтмапів старого сайту (Yoast), які лишились у Search Console: індекс — валідний і
+        // веде на єдиний новий сайтмап; його «частини» — 301 на нього (інакше 404 і помилки сканування)
+        if ($path === '/sitemap_index.xml') { Controllers\Seo::sitemapIndex(); }
+        if (preg_match('~^/(?:wp-sitemap|(?:post|page|product|product_cat|product_tag|category|post_tag|author|brand|product_brand)-sitemap\d*)\.xml$~', $path)) { header('Location: ' . url('/sitemap.xml'), true, 301); exit; }
         if ($path === '/manifest.webmanifest') { Controllers\Seo::manifest(); }
         if ($path === '/sw.js') { Controllers\Seo::serviceWorker(); }
 

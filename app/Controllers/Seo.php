@@ -24,6 +24,19 @@ class Seo
         exit;
     }
 
+    /** Старий адрес sitemap_index.xml: індекс із одним записом — новий /sitemap.xml */
+    public static function sitemapIndex(): never
+    {
+        header('Content-Type: application/xml; charset=utf-8');
+        $host = ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "
+"
+           . '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>'
+           . htmlspecialchars($scheme . '://' . $host . base_url('/sitemap.xml')) . '</loc></sitemap></sitemapindex>';
+        exit;
+    }
+
     public static function sitemap(): never
     {
         header('Content-Type: application/xml; charset=utf-8');
