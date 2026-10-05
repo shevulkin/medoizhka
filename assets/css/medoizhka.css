@@ -56,8 +56,10 @@ h1 b,h2 b{font-weight:700;color:var(--orange)}
 .nav-links a:hover::after,.nav-links a.active::after{right:0}
 .nav-drop-btn{color:var(--text)}
 .nav-drop-menu{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-h);padding:14px 10px}
-.mega{display:grid;grid-template-columns:minmax(300px,1.6fr) minmax(210px,1fr);gap:2px 24px;min-width:600px;align-items:start}
-.mega .mega-list{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
+.mega{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:2px 24px;width:min(820px,92vw);min-width:0;align-items:start}
+.mega .mega-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 8px}
+.mega .mega-col{min-width:0}
+.nav-links .mega a{white-space:normal}
 .mega .mega-col{display:flex;flex-direction:column}
 .mega .mega-svc{padding:4px 6px 8px;background:var(--orange-xl);border-radius:12px}
 .mega .mega-svc .nav-drop-sep{color:var(--orange-d)}
