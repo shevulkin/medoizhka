@@ -19,6 +19,14 @@ class App
             ? 'Cache-Control: no-store, no-cache, must-revalidate, private' : 'Cache-Control: private, no-cache');
         $purged = BOFU_ROOT . '/storage/cache/.lscache-purged';
         if (!is_file($purged) && is_dir(dirname($purged))) { header('X-LiteSpeed-Purge: *'); @touch($purged); }
+        // Файл зі статики, якого немає на диску (Apache віддає існуючі сам і сюди не доходить): 404 одразу,
+        // БЕЗ бази. Інакше сторінка з десятками відсутніх мініатюр відкривала десятки підключень за секунду,
+        // вичерпувала max_user_connections хостингу, і сайт на хвилини ставав «недоступним» для всіх.
+        if (preg_match('~^/(?:assets|wp-content|wp-includes)/~', $p0)) {
+            http_response_code(404);
+            header('Content-Type: text/plain; charset=utf-8');
+            exit("Not found\n");
+        }
         if (!self::dbReady()) return;
         $path = request_path();
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
