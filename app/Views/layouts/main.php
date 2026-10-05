@@ -23,7 +23,12 @@
          137 КБ і потрібна такою лише манифесту й apple-touch-icon; у куті
          вкладки з неї видно квадратик 16×16, за який покупець платив на кожній
          сторінці більше, ніж за всі скрипти сайту разом. */ ?>
-<link rel="icon" href="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" type="image/webp">
+<?php /* Іконка сайту для Google, браузерів і телефонів: PNG кратних 48 px + favicon.ico (емблема без напису) */ ?>
+<link rel="icon" href="<?= e(url('/favicon.ico')) ?>" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="<?= e(asset('img/brand/icon-48.png')) ?>">
+<link rel="icon" type="image/png" sizes="96x96" href="<?= e(asset('img/brand/icon-96.png')) ?>">
+<link rel="icon" type="image/png" sizes="192x192" href="<?= e(asset('img/brand/icon-192.png')) ?>">
+<link rel="apple-touch-icon" href="<?= e(asset('img/brand/apple-touch-icon.png')) ?>">
 <?php /* шрифти основного тексту й заголовків — завантажуємо одразу, а не після розбору CSS */ ?>
 <link rel="preload" href="<?= e(asset('fonts/Manrope-400-cyr.woff2')) ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= e(asset('fonts/Montserrat-cyr.woff2')) ?>" as="font" type="font/woff2" crossorigin>

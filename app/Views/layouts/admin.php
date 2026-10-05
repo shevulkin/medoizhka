@@ -22,9 +22,13 @@ $pos_screen = rtrim($cur, '/') === '/admin/orders/new';
 <title><?= e($page_title ?? 'Адмінпанель') ?></title>
 <meta name="theme-color" content="#ffffff">
 <?php /* Легкий значок вкладки; велика іконка лишається манифесту й apple-touch */ ?>
-<link rel="icon" href="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>" type="image/webp">
+<?php /* Іконка сайту для Google, браузерів і телефонів: PNG кратних 48 px + favicon.ico (емблема без напису) */ ?>
+<link rel="icon" href="<?= e(url('/favicon.ico')) ?>" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="<?= e(asset('img/brand/icon-48.png')) ?>">
+<link rel="icon" type="image/png" sizes="96x96" href="<?= e(asset('img/brand/icon-96.png')) ?>">
+<link rel="icon" type="image/png" sizes="192x192" href="<?= e(asset('img/brand/icon-192.png')) ?>">
+<link rel="apple-touch-icon" href="<?= e(asset('img/brand/apple-touch-icon.png')) ?>">
 <link rel="manifest" href="<?= e(url('/manifest.webmanifest')) ?>">
-<link rel="apple-touch-icon" href="<?= e(asset('img/brand/logo-medoizhka-300.webp')) ?>">
 <link rel="stylesheet" href="<?= e(asset('css/fonts.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_v('css/app.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_v('css/admin-medoizhka.css')) ?>">

@@ -95,6 +95,8 @@ class Seo
             'start_url' => base_url('/admin'), 'scope' => base_url('/'),
             'display' => 'standalone', 'background_color' => '#ffffff', 'theme_color' => '#f7b052',
             'icons' => [
+                ['src' => asset('img/brand/icon-192.png'), 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
+                ['src' => asset('img/brand/icon-512.png'), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'],
                 ['src' => asset('img/brand/logo-medoizhka.webp'), 'sizes' => '1181x1181', 'type' => 'image/webp', 'purpose' => 'any maskable'],
             ],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
