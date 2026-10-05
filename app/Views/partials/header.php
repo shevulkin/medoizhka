@@ -74,13 +74,29 @@ $svg = fn($k) => '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" st
       <input type="search" id="navSearchMobile" name="q" placeholder="Пошук товарів" value="<?= e($_GET['q'] ?? '') ?>" autocomplete="off">
       <button type="submit" aria-label="Знайти"><?= $svg('search') ?></button>
     </form>
-    <a href="<?= e(url('/shop/')) ?>">Крамниця</a>
+    <?php /* Крамниця з усіма категоріями й послугами — розкривається стрілкою (app.js, data-nav-drop-btn) */ ?>
+    <div class="m-drop" data-nav-drop>
+      <a href="<?= e(url('/shop/')) ?>">Крамниця</a>
+      <?php if ($navCats): ?>
+      <button type="button" class="nav-drop-btn" data-nav-drop-btn aria-controls="mNavShop" aria-expanded="false" aria-label="Категорії"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg></button>
+      <?php endif; ?>
+    </div>
+    <?php if ($navCats): ?>
+    <div class="m-drop-menu" id="mNavShop" data-nav-drop-menu hidden>
+      <?php foreach ($navCats as $c) if (($c['type'] ?? 'product') === 'product'): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endif; ?>
+      <?php if (!empty($navSvc)): ?><span class="nav-drop-sep">Послуги</span>
+        <?php foreach ($navSvc as $c): ?><a href="<?= e(url('/product-category/' . $c['slug'] . '/')) ?>"><?= e($c['name']) ?></a><?php endforeach; ?><?php endif; ?>
+      <a class="nav-drop-all" href="<?= e(url('/shop/')) ?>">Усі товари →</a>
+    </div>
+    <?php endif; ?>
     <?php foreach ($nav as [$href, $label]): ?><a href="<?= e(url($href)) ?>"><?= e($label) ?></a><?php endforeach; ?>
     <?php if ($myCourses > 0): ?><a href="<?= e(url('/my-account/my-course/')) ?>">Мої відеокурси</a><?php endif; ?>
     <?php if ($auth_user): ?>
       <?php if (Auth::isStaff()): ?><a href="<?= e(url('/admin')) ?>">Адмінпанель</a><?php endif; ?>
       <a href="<?= e(url('/orders')) ?>">Мої замовлення</a>
       <form method="post" action="<?= e(url('/logout')) ?>"><?= Csrf::field() ?><button class="btn btn-line btn-sm" type="submit" style="margin-top:14px">Вийти</button></form>
+    <?php else: ?>
+      <a href="#" class="m-login" id="loginBtnMobile" data-auth-open>Увійти</a>
     <?php endif; ?>
     <?php if ($phone !== ''): ?><a href="tel:<?= e(preg_replace('~[^\d+]~', '', $phone)) ?>"><?= e($phone) ?></a><?php endif; ?>
   </div>
