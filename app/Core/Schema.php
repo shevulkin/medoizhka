@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 class Schema
 {
-    public const VERSION = 61;
+    public const VERSION = 62;
 
     /** Оновлення існуючої бази до поточної версії без втрати даних */
     public static function upgrade(): void
@@ -836,6 +836,11 @@ class Schema
         }
         if ($ver < 57) {
             self::seedRules();   // правила для події booking_new
+        }
+        if ($ver < 62) {
+            // Заявка на послугу: власник після уточнень вписує узгоджену ціну й нотатку
+            self::addColumn('bookings', 'price', 'num null');
+            self::addColumn('bookings', 'admin_note', 'text null');
         }
         if ($ver < 58) {
             // Послуги без складу й пауза «тимчасово недоступно». Перенесені зі старого
@@ -1797,6 +1802,7 @@ class Schema
                 'id' => 'id', 'kind' => 'str', 'ref_id' => 'int', 'user_id' => 'int null',
                 'name' => 'str', 'phone' => 'str', 'email' => 'str null',
                 'on_date' => 'str null', 'guests' => 'int null', 'message' => 'text null',
+                'price' => 'num null', 'admin_note' => 'text null',
                 'status' => "str default 'new'", 'created_at' => 'ts',
             ],
             // --- Медоїжка: перенесення зі старого сайту ---

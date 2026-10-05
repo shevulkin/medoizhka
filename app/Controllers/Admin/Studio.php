@@ -338,9 +338,16 @@ class Studio
         Auth::requireCap('content.manage');
         if (is_post()) {
             $st = $_POST['status'] ?? '';
-            if (in_array($st, ['new', 'confirmed', 'done', 'cancelled'], true)) {
-                DB::update('bookings', ['status' => $st], 'id = ?', [(int)($_POST['id'] ?? 0)]);
+            $upd = [];
+            if (in_array($st, ['new', 'confirmed', 'done', 'cancelled'], true)) $upd['status'] = $st;
+            // Узгоджена ціна й нотатка — після уточнень із клієнтом (порожня ціна = ще не узгоджено)
+            if (array_key_exists('price', $_POST)) {
+                $pr = str_replace([' ', ','], ['', '.'], trim((string)$_POST['price']));
+                $upd['price'] = ($pr !== '' && is_numeric($pr) && (float)$pr >= 0) ? round((float)$pr, 2) : null;
             }
+            if (array_key_exists('note', $_POST)) $upd['admin_note'] = mb_substr(trim((string)$_POST['note']), 0, 2000) ?: null;
+            if ($upd) DB::update('bookings', $upd, 'id = ?', [(int)($_POST['id'] ?? 0)]);
+            flash('success', 'Збережено');
             self::back('/admin/bookings');
         }
         $rows = DB::all('SELECT * FROM bookings ORDER BY (status = \'new\') DESC, id DESC LIMIT 300');
