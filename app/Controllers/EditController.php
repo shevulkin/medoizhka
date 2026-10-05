@@ -79,7 +79,11 @@ class EditController
                 json_response(['ok' => false, 'error' => 'Змінювати фото може лише той, хто має доступ до медіа-бібліотеки'], 403);
             }
             $path = (string)$values['image'];
-            if ($path !== '' && !ContentSave::image($key, $path)) {
+            if ($path === '') {
+                // Порожнє значення = повернути типове фото з дизайну (старий завантажений файл прибираємо, якщо він ніде не потрібен)
+                $old = Content::get($key, 'image', '');
+                if ($old !== '') { Content::set($key, ['image' => '']); ContentSave::forgetImage($old); }
+            } elseif (!ContentSave::image($key, $path)) {
                 json_response(['ok' => false, 'error' => 'Це не схоже на фото сайту'], 400);
             }
             unset($values['image']);
