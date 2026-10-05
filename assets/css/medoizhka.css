@@ -390,3 +390,21 @@ h1 b,h2 b{font-weight:700;color:var(--orange)}
 h1 b,h2 b,h3 b{color:#c47400}
 .pc-price small,.pd-price small,.pc-note,.mz-foot-contacts a[href^="mailto:"],.mh-hero-x .kicker{color:#9a5a00}
 .mz-foot-contacts span,.mz-foot-copy,.pc-cat,.crumbs{color:#6b645c}
+
+/* Каталог: «Товари» і «Послуги» — два окремі блоки, щоб з першого погляду було видно різницю */
+.shop-side{gap:20px}
+.shop-side .shop-nav-svc{padding:16px 18px 6px;background:var(--orange-xl);border:1px solid #f3dcb4;border-radius:var(--r)}
+.shop-side .shop-nav-svc h2{display:flex;align-items:center;gap:8px;color:var(--orange-d);margin-bottom:6px}
+.shop-side .shop-nav-svc h2::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.shop-side .shop-nav-svc a{border-bottom-color:#f3dcb4}
+.shop-side .shop-nav-svc a:last-child{border-bottom:0}
+@media (max-width:900px){
+  .shop-side{gap:12px}
+  .shop-side nav{align-items:center;padding-bottom:4px}
+  .shop-side nav h2{margin:0 4px 0 0;white-space:nowrap}
+  .shop-side .shop-nav-svc{padding:10px 12px;border-radius:12px}
+  .shop-side .shop-nav-svc h2{margin:0 6px 0 0}
+  .shop-side .shop-nav-svc a{background:#fff;border:1px solid var(--orange)!important;color:var(--orange-d);border-radius:999px}
+  .shop-side .shop-nav-svc a.on{background:var(--orange);color:#fff}
+  .shop-side .shop-nav-svc a.on span::before{background:#fff}
+}

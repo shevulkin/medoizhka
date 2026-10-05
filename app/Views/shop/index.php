@@ -22,8 +22,8 @@ $goodsTotal = (int)DB::val("SELECT COUNT(*) FROM products WHERE active = 1 AND t
 
 <div class="wrap shop">
   <aside class="shop-side">
-    <nav aria-label="Категорії">
-      <h2>Категорії</h2>
+    <nav aria-label="Категорії товарів" class="shop-nav-goods">
+      <h2>Товари</h2>
       <a href="<?= e(url('/shop/')) ?>"<?= !$cur ? ' class="on"' : '' ?>><span>Усі товари</span><small><?= $goodsTotal ?></small></a>
       <?php foreach ($cat_tree as $c): if (($c['type'] ?? 'product') !== 'product') continue; if (empty($counts[(int)$c['id']]) && empty($c['children'])) continue; ?>
         <a href="<?= e(url(shop_path($c['slug']))) ?>"<?= ($cur['id'] ?? 0) == $c['id'] ? ' class="on"' : '' ?>><span><?= e($c['name']) ?></span><small><?= $counts[(int)$c['id']] ?? 0 ?></small></a>
@@ -31,13 +31,15 @@ $goodsTotal = (int)DB::val("SELECT COUNT(*) FROM products WHERE active = 1 AND t
           <a class="sub<?= ($cur['id'] ?? 0) == $k['id'] ? ' on' : '' ?>" href="<?= e(url(shop_path($k['slug']))) ?>"><span><?= e($k['name']) ?></span></a>
         <?php endforeach; ?>
       <?php endforeach; ?>
-      <?php $svcTree = array_filter($cat_tree, fn($c) => ($c['type'] ?? '') === 'service' && !empty($counts[(int)$c['id']])); if ($svcTree): ?>
-        <h2 class="shop-side-sub">Послуги</h2>
-        <?php foreach ($svcTree as $c): ?>
-          <a href="<?= e(url(shop_path($c['slug']))) ?>"<?= ($cur['id'] ?? 0) == $c['id'] ? ' class="on"' : '' ?>><span><?= e($c['name']) ?></span><small><?= $counts[(int)$c['id']] ?? 0 ?></small></a>
-        <?php endforeach; ?>
-      <?php endif; ?>
     </nav>
+    <?php $svcTree = array_filter($cat_tree, fn($c) => ($c['type'] ?? '') === 'service' && !empty($counts[(int)$c['id']])); if ($svcTree): ?>
+    <nav aria-label="Послуги" class="shop-nav-svc">
+      <h2>Послуги</h2>
+      <?php foreach ($svcTree as $c): ?>
+        <a href="<?= e(url(shop_path($c['slug']))) ?>"<?= ($cur['id'] ?? 0) == $c['id'] ? ' class="on"' : '' ?>><span><?= e($c['name']) ?></span><small><?= $counts[(int)$c['id']] ?? 0 ?></small></a>
+      <?php endforeach; ?>
+    </nav>
+    <?php endif; ?>
     <div class="shop-help">
       <b>Потрібна порада?</b>
       <p>Підкажемо сорт і дозування, зберемо замовлення.</p>
