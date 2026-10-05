@@ -55,12 +55,11 @@ function toWebp(string $src, string $name): ?array
     $sc = min(1, Images::MAX_SIDE / max($w, $h)); $nw = (int)round($w * $sc); $nh = (int)round($h * $sc);
     $dst = imagecreatetruecolor($nw, $nh); imagealphablending($dst, false); imagesavealpha($dst, true);
     imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
-    imagewebp($dst, "$dir/$target.webp", Images::QUALITY);
+    imagewebp($dst, "$dir/$target.webp", 82);
     $ts = min(1, Images::THUMB_SIDE / max($nw, $nh)); $tw = (int)round($nw * $ts); $th = (int)round($nh * $ts);
     $t = imagecreatetruecolor($tw, $th); imagealphablending($t, false); imagesavealpha($t, true);
     imagecopyresampled($t, $dst, 0, 0, 0, 0, $tw, $th, $nw, $nh);
-    imagewebp($t, "$dir/$target-thumb.webp", Images::THUMB_QUALITY);
-    Images::makeMid("$dir/$target.webp");
+    imagewebp($t, "$dir/$target-thumb.webp", 80);
     return ["uploads/$target.webp", $nw, $nh, (int)filesize("$dir/$target.webp")];
 }
 
