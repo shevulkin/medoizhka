@@ -19,6 +19,9 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
 ?>
 <div class="wrap pd-crumbs crumbs">
   <a href="<?= e(url('/')) ?>">Головна</a> / <a href="<?= e(url('/shop/')) ?>">Крамниця</a><?php if ($cat): ?> / <a href="<?= e(url(shop_path($cat['slug']))) ?>"><?= e($cat['name']) ?></a><?php endif; ?>
+  <?php if (Auth::can('products.manage')): /* швидкий перехід до картки — і тут, у рядку крихт, де його видно одразу */ ?>
+  <a class="crumbs-edit" href="<?= e(url('/admin/products/' . (int)$p['id'])) ?>">✎ Редагувати товар</a>
+  <?php endif; ?>
 </div>
 
 <section class="wrap pd">

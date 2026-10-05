@@ -419,3 +419,16 @@ h1 b,h2 b,h3 b{color:#c47400}
 .admin-edit-fab:hover{background:var(--orange-d);color:#fff}
 .admin-edit-fab small{font:600 11px var(--sans);background:var(--orange);color:#fff;border-radius:999px;padding:3px 8px}
 @media (max-width:700px){.admin-edit-fab{left:12px;bottom:76px;padding:11px 16px}}
+
+/* Кнопка редагування в рядку крихт (для персоналу) */
+.pd-crumbs::after{content:"";display:block;clear:both}
+.crumbs-edit{float:right;margin-top:-6px;padding:6px 14px;border:1px solid var(--orange);border-radius:999px;color:var(--orange-d)!important;font:600 13px var(--display);text-decoration:none}
+.crumbs-edit:hover{background:var(--orange);color:#fff!important}
+.admin-edit-fab{left:max(18px,env(safe-area-inset-left))}
+/* Верхнє меню: на середніх екранах пункти не мають наїжджати на логотип */
+@media (max-width:1480px) and (min-width:1181px){
+  .nav{gap:16px;padding-left:24px;padding-right:24px}
+  .nav-links{gap:4px 18px;font-size:14.5px;min-width:0}
+  .nav-side .nav-search input{width:88px}
+  .nav-side{gap:4px}
+}
