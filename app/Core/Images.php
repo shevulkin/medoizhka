@@ -18,6 +18,13 @@ class Images
         $info = @getimagesize($file['tmp_name']);
         if (!$info) return null;
         [$w, $h, $type] = $info;
+        // Фото з телефона розпаковується в память як ширина×висота×4 байти (24 МП ≈ 100 МБ) і ще потрібні
+        // зменшені копії. Піднімаємо ліміт ДО читання (якщо хостинг дозволяє) і відмовляємо, а не падаємо,
+        // коли памʼяті все одно не вистачить: краще повідомлення «не вдалося», ніж біла сторінка на весь сайт.
+        @ini_set('memory_limit', '512M');
+        $need = (int)($w * $h * 5.5) + 24 * 1048576;
+        $lim = self::memoryLimit();
+        if ($lim > 0 && $need > $lim - memory_get_usage(true)) return null;
         $src = match ($type) {
             IMAGETYPE_JPEG => @imagecreatefromjpeg($file['tmp_name']),
             IMAGETYPE_PNG  => @imagecreatefrompng($file['tmp_name']),
@@ -37,27 +44,42 @@ class Images
         $dst = imagecreatetruecolor($nw, $nh);
         imagealphablending($dst, false); imagesavealpha($dst, true);
         imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+        imagedestroy($src);   // оригінал більше не потрібен
 
         $useWebp = function_exists('imagewebp');
         $ext = $useWebp ? 'webp' : 'jpg';
         $full = "$dir/$name.$ext";
         $useWebp ? imagewebp($dst, $full, self::QUALITY) : imagejpeg($dst, $full, self::QUALITY);
 
-        // превʼю
-        $tScale = min(1, self::THUMB_SIDE / max($nw, $nh));
-        $tw = (int)round($nw * $tScale); $th = (int)round($nh * $tScale);
-        $thumb = imagecreatetruecolor($tw, $th);
-        imagealphablending($thumb, false); imagesavealpha($thumb, true);
-        imagecopyresampled($thumb, $dst, 0, 0, 0, 0, $tw, $th, $nw, $nh);
-        $useWebp ? imagewebp($thumb, "$dir/$name-thumb.$ext", self::THUMB_QUALITY) : imagejpeg($thumb, "$dir/$name-thumb.$ext", self::THUMB_QUALITY);
+        // превʼю й середній розмір — із вже зменшеного, без повторного читання файлу
+        self::writeScaled($dst, $nw, $nh, self::THUMB_SIDE, "$dir/$name-thumb.$ext", self::THUMB_QUALITY, $useWebp);
+        self::writeScaled($dst, $nw, $nh, self::MID_SIDE, "$dir/$name-md.$ext", self::THUMB_QUALITY + 4, $useWebp);
 
-        self::makeMid($full);
-
-        imagedestroy($src); imagedestroy($dst); imagedestroy($thumb);
+        imagedestroy($dst);
         $bytes = filesize($full) ?: 0;
         return ["uploads/$name.$ext", $nw, $nh, $bytes];
     }
 
+    /** Ліміт памʼяті PHP в байтах (0 — без обмеження) */
+    private static function memoryLimit(): int
+    {
+        $v = trim((string)ini_get('memory_limit'));
+        if ($v === '' || $v === '-1') return 0;
+        $n = (int)$v;
+        return match (strtolower(substr($v, -1))) { 'g' => $n * 1073741824, 'm' => $n * 1048576, 'k' => $n * 1024, default => $n };
+    }
+
+    /** Зменшена копія готового зображення (GD) у файл; не більша за $side по довшій стороні */
+    private static function writeScaled(\GdImage $im, int $w, int $h, int $side, string $to, int $q, bool $webp): void
+    {
+        $sc = min(1, $side / max($w, $h));
+        $tw = max(1, (int)round($w * $sc)); $th = max(1, (int)round($h * $sc));
+        $t = imagecreatetruecolor($tw, $th);
+        imagealphablending($t, false); imagesavealpha($t, true);
+        imagecopyresampled($t, $im, 0, 0, 0, 0, $tw, $th, $w, $h);
+        $webp ? imagewebp($t, $to, $q) : imagejpeg($t, $to, $q);
+        imagedestroy($t);
+    }
     public static function thumbPath(string $path): string
     {
         return preg_replace('/\.(webp|jpg|png)$/', '-thumb.$1', $path) ?? $path;
