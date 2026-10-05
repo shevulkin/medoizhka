@@ -32,7 +32,7 @@ if (count($vars) > 1) {
 ?>
 <article class="pc<?= $isOut ? ' pc-out' : '' ?>">
   <a class="pc-ph" href="<?= e($href) ?>">
-    <img src="<?= e(asset(Images::displayThumb($ph))) ?>" alt="<?= e($prod['name']) ?>" loading="lazy">
+    <?php $ss = Images::cardSrcset($ph); ?><img src="<?= e(asset(Images::displayThumb($ph))) ?>"<?= $ss !== '' ? ' srcset="' . e($ss) . '" sizes="(max-width:700px) 50vw, (max-width:1100px) 33vw, 360px"' : '' ?> alt="<?= e($prod['name']) ?>" loading="lazy">
     <?php if ($isOut): ?><span class="pc-flag pc-flag-out"><?= e(Catalog::outLabel($prod)) ?></span>
     <?php elseif ($old !== null): ?><span class="pc-flag">Знижка</span>
     <?php elseif (!empty($prod['featured'])): ?><span class="pc-flag">Хіт</span>
