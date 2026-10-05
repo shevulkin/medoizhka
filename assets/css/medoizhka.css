@@ -438,8 +438,3 @@ h1 b,h2 b,h3 b{color:#c47400}
   .nav-side .nav-search input{width:88px}
   .nav-side{gap:4px}
 }
-
-/* Не квадратне фото товару показуємо цілком, а не обрізаним і збільшеним */
-.pd-main{grid-template:minmax(0,1fr) / minmax(0,1fr)}
-.pd-main img{min-height:0;min-width:0}
-.pd-main img.is-fit{object-fit:contain}
