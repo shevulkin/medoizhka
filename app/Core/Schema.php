@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 class Schema
 {
-    public const VERSION = 60;
+    public const VERSION = 61;
 
     /** Оновлення існуючої бази до поточної версії без втрати даних */
     public static function upgrade(): void
@@ -844,6 +844,16 @@ class Schema
             self::addColumn('products', 'paused', 'bool default 0');
             DB::query("UPDATE products SET service = 1 WHERE category_id IN
                        (SELECT id FROM categories WHERE slug IN ('services', 'wax-exchange'))");
+        }
+        if ($ver < 61) {
+            // Кириличні адреси товарів, які вже в індексі Google (Yoast їх віддавав), а в базі товар живе
+            // під латинським слагом: стара адреса — 301 на нинішню
+            foreach (['купимо-віск' => 'buy-wax', 'обмін-воску-на-вощину' => 'wax-exchange',
+                      'забрусний-мед-різнотравя-соняшник-1л' => 'dirty-honey-mixed-herbs-sunflower-1l'] as $old => $new) {
+                if (DB::row('SELECT id FROM products WHERE slug = ?', [$new]) && !DB::row('SELECT id FROM products WHERE slug = ?', [$old])) {
+                    Redirects::add('/product/' . $old, '/product/' . $new . '/');
+                }
+            }
         }
         if ($ver < 60) {
             // У кожного виду свої категорії (Catalog::KINDS): розділи послуг — вид «service».

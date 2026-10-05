@@ -72,8 +72,9 @@ class Seo
                           AND EXISTS (SELECT 1 FROM products p WHERE p.category_id = c.id AND p.active = 1)") as $c) {
             $urls[] = [shop_path($c['slug']), '0.7'];
         }
-        foreach (DB::all('SELECT slug FROM tags') as $t) $urls[] = ['/product-tag/' . slug_enc($t['slug']) . '/', '0.5'];
-        foreach (DB::all('SELECT slug FROM brands WHERE active = 1') as $b) $urls[] = ['/brand/' . slug_enc($b['slug']) . '/', '0.5'];
+        // теги й бренди — лише ті, де є видимі товари (порожня сторінка в карті — «ложна 404» у Google)
+        foreach (DB::all('SELECT t.slug FROM tags t WHERE EXISTS (SELECT 1 FROM product_tags pt JOIN products p ON p.id = pt.product_id WHERE pt.tag_id = t.id AND p.active = 1 AND p.type <> \'course\')') as $t) $urls[] = ['/product-tag/' . slug_enc($t['slug']) . '/', '0.5'];
+        foreach (DB::all('SELECT b.slug FROM brands b WHERE b.active = 1 AND EXISTS (SELECT 1 FROM product_brands pb JOIN products p ON p.id = pb.product_id WHERE pb.brand_id = b.id AND p.active = 1 AND p.type <> \'course\')') as $b) $urls[] = ['/brand/' . slug_enc($b['slug']) . '/', '0.5'];
         if (feature('practitioners')) foreach (DB::all('SELECT slug FROM practitioners WHERE active = 1') as $x) $urls[] = ['/apiterapevty/' . slug_enc($x['slug']) . '/', '0.7'];
         foreach (DB::all('SELECT slug FROM places WHERE active = 1') as $x) $urls[] = ['/pasiky/' . slug_enc($x['slug']) . '/', '0.7'];
         echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";

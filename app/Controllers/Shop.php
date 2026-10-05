@@ -108,6 +108,7 @@ class Shop
             'current_cat' => $current,
             'parent_cat' => $parentCat,
             'products' => $products,
+            'noindex' => !$products && ($current !== null || $filters['q'] === ''),   // порожній розділ — не для індексу
             'other_products' => $other,
             'filters' => $filters,
             'brand' => $brand,

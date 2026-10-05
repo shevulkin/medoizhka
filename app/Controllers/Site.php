@@ -125,6 +125,11 @@ class Site
         // /wp-login.php) навмисно НЕ переносимо: нова структура своя, переносяться лише
         // адреси товарів. Усе інше старе віддає звичайну 404.
         $m = [];
+        // Старі форми адрес, які вже в індексі Google: 301 на нинішні, а не 404
+        //  /бренд/x → /brand/x/ ; /…/page/N і /…/feed — на саму сторінку (пагінації й стрічок у нас немає)
+        if (preg_match('~^/бренд/([^/]+)$~u', $path, $m)) self::permanent('/brand/' . slug_enc($m[1]) . '/');
+        if (preg_match('~^(/(?:shop|product-category/[^/]+|brand/[^/]+|product-tag/[^/]+))/page/\d+$~u', $path, $m)) self::permanent($m[1] . '/');
+        if (preg_match('~^(/(?:product|product-category|brand|product-tag)/[^/]+)/feed$~u', $path, $m)) self::permanent($m[1] . '/');
         if ($path === '/shop') { self::slash($method); Shop::index(); }
         if (preg_match('~^/product-category/([^/]+)$~u', $path, $m)) { self::slash($method); Shop::index($m[1]); }
         if (preg_match('~^/product/([^/]+)$~u', $path, $m)) { self::slash($method); Shop::product($m[1]); }
@@ -243,6 +248,8 @@ class Site
     {
         View::show('site/listing', [
             'row' => $row, 'products' => $products, 'kind' => $kind,
+            // порожня сторінка (усі товари сховано) — не для індексу: інакше Google рахує її «ложною 404»
+            'noindex' => !$products,
             'page_title' => $row['seo_title'] ?: seo_title($row['name']),
             'meta_description' => seo_desc($row['seo_desc'], $row['description'] ?? null, $row['name'] . ': продукти бджільництва від Медоїжки з доставкою по Україні.'),
             'canonical' => abs_url($prefix . slug_enc($row['slug']) . '/'),
