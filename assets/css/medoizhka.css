@@ -56,16 +56,12 @@ h1 b,h2 b{font-weight:700;color:var(--orange)}
 .nav-links a:hover::after,.nav-links a.active::after{right:0}
 .nav-drop-btn{color:var(--text)}
 .nav-drop-menu{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-h);padding:14px 10px}
-.mega{display:grid;grid-template-columns:minmax(300px,1.6fr) minmax(210px,1fr);gap:2px 24px;min-width:600px;align-items:start}
+.mega{display:block;min-width:480px}
 .mega .mega-list{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
-.mega .mega-col{display:flex;flex-direction:column}
-.mega .mega-svc{padding:4px 6px 8px;background:var(--orange-xl);border-radius:12px}
-.mega .mega-svc .nav-drop-sep{color:var(--orange-d)}
-.mega .mega-all{color:var(--orange-d)!important;font-weight:600!important}
 .nav-drop-menu a{font:500 14.5px/1.3 var(--sans)!important;color:var(--text)!important;padding:9px 12px!important;border-radius:8px}
 .nav-drop-menu a::after{display:none}
 .nav-drop-menu a:hover{background:var(--orange-xl);color:var(--orange-d)!important}
-.mega .nav-drop-all{grid-column:1/-1;border-top:1px solid var(--line);margin-top:6px!important;color:var(--orange-d)!important;font-weight:600!important}
+.mega .nav-drop-all{display:block;border-top:1px solid var(--line);margin-top:6px!important;color:var(--orange-d)!important;font-weight:600!important}
 .nav-side{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .nav-side .nav-search{display:flex;align-items:center;border:1px solid var(--line2);border-radius:999px;background:#fff;padding:0 6px 0 14px;margin-right:6px}
 .nav-side .nav-search input{border:0;background:transparent;width:120px;padding:9px 0;font:14px var(--sans);color:var(--ink)}
