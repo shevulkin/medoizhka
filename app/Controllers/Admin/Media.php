@@ -7,35 +7,83 @@ use DB, View, Auth, Images;
 
 class Media
 {
-    /** Де використовується фото: товари, банери, галерея */
+    /** @var array<string, list<array{label:string,url:string}>>|null карта «шлях фото → де воно стоїть», збирається один раз за запит */
+    private static ?array $usageMap = null;
+
+    /**
+     * Де використовується фото: товари, бренди, партнери, категорії, сторінки, записи, апітерапевти, пасіки,
+     * банери/фото сайту, галерея, а також картинки, вставлені прямо в тексти (опис товару, сторінки тощо).
+     * Від цього залежить, чи можна фото видаляти: «не використовується» означає саме «ніде», тому
+     * перелік має бути повним. Карту будуємо одним проходом по таблицях, а не запитом на кожне фото.
+     */
     public static function usage(string $path): array
     {
-        $uses = [];
-        // фото товару: будь-яке з галереї або призначене головним
-        foreach (DB::all(
-            'SELECT DISTINCT p.id, p.name FROM products p
-             LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.path = ?
-             WHERE pi.id IS NOT NULL OR p.image = ?',
-            [$path, $path]
-        ) as $p) {
-            $uses[] = ['label' => 'Товар: ' . $p['name'], 'url' => url('/admin/products/' . $p['id'])];
-        }
-        foreach (DB::all('SELECT id, name FROM brands WHERE logo = ?', [$path]) as $b) {
-            $uses[] = ['label' => 'Лого бренду: ' . $b['name'], 'url' => url('/admin/brands')];
-        }
-        foreach (DB::all('SELECT id, name FROM partners WHERE logo = ?', [$path]) as $p) {
-            $uses[] = ['label' => 'Лого партнера: ' . $p['name'], 'url' => url('/admin/partners')];
-        }
-        foreach (DB::all('SELECT `key` FROM content_blocks WHERE image = ?', [$path]) as $c) {
-            $uses[] = ['label' => 'Банер/фото сайту: ' . $c['key'], 'url' => url('/admin/content')];
-        }
-        $gallery = json_decode(\Content::get('gallery', 'body', '[]'), true) ?: [];
-        foreach ($gallery as $g) {
-            if (($g[1] ?? '') === $path) { $uses[] = ['label' => 'Галерея: ' . ($g[0] ?: 'фото'), 'url' => url('/admin/content')]; break; }
-        }
-        return $uses;
+        return (self::$usageMap ??= self::buildUsageMap())[$path] ?? [];
     }
 
+    /** Скинути карту (після змін у тій самій відповіді) */
+    public static function resetUsage(): void { self::$usageMap = null; }
+
+    private static function buildUsageMap(): array
+    {
+        $map = [];
+        $add = function (?string $path, string $label, string $url) use (&$map): void {
+            $path = trim((string)$path);
+            if ($path === '') return;
+            // службові копії (-thumb, -md) рахуємо за оригіналом
+            $path = preg_replace('~-(?:thumb|md)(\.\w+)$~', '$1', $path);
+            foreach ($map[$path] ?? [] as $u) if ($u['label'] === $label) return;   // одне місце — один запис
+            $map[$path][] = ['label' => $label, 'url' => $url];
+        };
+        $rows = function (string $sql): array {
+            try { return DB::all($sql); } catch (\Throwable $e) { return []; }   // таблиці чи колонки може ще не бути
+        };
+        // шляхи фото, вставлені в текст як <img src=".../uploads/x.webp"> чи посилання
+        $scan = function (?string $text, string $label, string $url) use ($add): void {
+            if ($text === null || $text === '' || !str_contains($text, 'uploads/')) return;
+            if (preg_match_all('~uploads/[A-Za-z0-9_\-./%]+?\.(?:webp|jpe?g|png|gif)~i', $text, $m)) {
+                foreach (array_unique($m[0]) as $p) $add(rawurldecode($p), $label, $url);
+            }
+        };
+
+        foreach ($rows('SELECT id, name, image, description, short_desc FROM products') as $p) {
+            $u = url('/admin/products/' . $p['id']); $l = 'Товар: ' . $p['name'];
+            $add($p['image'], $l, $u);
+            $scan($p['description'] . ' ' . $p['short_desc'], $l . ' (в тексті)', $u);
+        }
+        foreach ($rows('SELECT pi.path, p.id, p.name FROM product_images pi JOIN products p ON p.id = pi.product_id') as $r) {
+            $add($r['path'], 'Товар: ' . $r['name'], url('/admin/products/' . $r['id']));
+        }
+        foreach ($rows('SELECT name, logo FROM brands') as $r) $add($r['logo'], 'Лого бренду: ' . $r['name'], url('/admin/brands'));
+        foreach ($rows('SELECT name, logo FROM partners') as $r) $add($r['logo'], 'Лого партнера: ' . $r['name'], url('/admin/partners'));
+        foreach ($rows('SELECT id, name, image, description FROM categories') as $r) {
+            $u = url('/admin/categories'); $add($r['image'], 'Категорія: ' . $r['name'], $u);
+            $scan($r['description'], 'Категорія: ' . $r['name'] . ' (в тексті)', $u);
+        }
+        foreach ($rows('SELECT title, image, body FROM pages') as $r) {
+            $u = url('/admin/content'); $add($r['image'], 'Сторінка: ' . $r['title'], $u);
+            $scan($r['body'], 'Сторінка: ' . $r['title'] . ' (в тексті)', $u);
+        }
+        foreach ($rows('SELECT title, image, body FROM posts') as $r) {
+            $u = url('/admin/content'); $add($r['image'], 'Запис: ' . $r['title'], $u);
+            $scan($r['body'], 'Запис: ' . $r['title'] . ' (в тексті)', $u);
+        }
+        foreach ($rows('SELECT name, photo, bio FROM practitioners') as $r) {
+            $u = url('/admin/practitioners'); $add($r['photo'], 'Апітерапевт: ' . $r['name'], $u);
+            $scan($r['bio'], 'Апітерапевт: ' . $r['name'] . ' (в тексті)', $u);
+        }
+        foreach ($rows('SELECT name, photo, description FROM places') as $r) {
+            $u = url('/admin/places'); $add($r['photo'], 'Пасіка: ' . $r['name'], $u);
+            $scan($r['description'], 'Пасіка: ' . $r['name'] . ' (в тексті)', $u);
+        }
+        // банери й фото сайту; галереї та інші списки лежать у body (JSON чи текст), тож шукаємо шляхи й там
+        foreach ($rows('SELECT `key`, image, body FROM content_blocks') as $r) {
+            $u = url('/admin/content');
+            $add($r['image'], 'Банер/фото сайту: ' . $r['key'], $u);
+            $scan($r['body'], ($r['key'] === 'gallery' ? 'Галерея' : 'Текст сайту: ' . $r['key']), $u);
+        }
+        return $map;
+    }
     /** Список усіх фото сайту (для сторінки і для вікна вибору) */
     public static function listAll(): array
     {
@@ -88,6 +136,21 @@ class Media
                     if (($_POST['format'] ?? '') === 'json') json_response(['ok' => false], 422);
                     flash('error', 'Не вдалося завантажити фото');
                 }
+            }
+            // Масове видалення: лише фото, які ніде не використовуються (повна перевірка в usage), і не свіжіші за добу —
+            // щойно завантажене фото могли ще не встигнути прикріпити до товару.
+            if ($action === 'delete_unused') {
+                self::resetUsage();
+                $n = 0; $fresh = 0;
+                foreach (self::listAll() as $it) {
+                    if (!empty($it['builtin']) || !empty($it['usage'])) continue;
+                    if (time() - (int)$it['mtime'] < 86400) { $fresh++; continue; }
+                    Images::delete($it['path']);
+                    $n++;
+                }
+                self::resetUsage();
+                flash('success', 'Видалено невикористаних фото: ' . $n
+                    . ($fresh ? '. Ще ' . $fresh . ' завантажені за останню добу — їх не чіпали, поки ви не прикріпили їх.' : '.'));
             }
             if ($action === 'delete') {
                 $path = (string)($_POST['path'] ?? '');

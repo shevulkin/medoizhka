@@ -35,9 +35,34 @@
   </form>
 </noscript>
 <p class="dim" style="margin:14px 0 18px">Усі фото сайту. Хрестик видаляє фото звідусіль. Фото, привʼязані до товарів, банерів чи галереї, видалити не можна — спершу приберіть/замініть їх там (посилання під фото). Вбудовані фото дизайну видалити не можна.</p>
+<?php
+// Лічильники для фільтра: використовується / ні, і скільки з невикористаних можна прибрати масово (старші за добу)
+$cntUsed = 0; $cntUnused = 0; $cntDeletable = 0;
+foreach ($items as $it0) {
+    if (!empty($it0['builtin'])) continue;
+    if (!empty($it0['usage'])) { $cntUsed++; continue; }
+    $cntUnused++;
+    if (time() - (int)$it0['mtime'] >= 86400) $cntDeletable++;
+}
+?>
+<div class="media-filter" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px">
+  <button type="button" class="btn btn-sm btn-gold" data-mf="all">Усі <?= count($items) ?></button>
+  <button type="button" class="btn btn-sm btn-line" data-mf="used">Використовуються <?= $cntUsed ?></button>
+  <button type="button" class="btn btn-sm btn-line" data-mf="unused">Не використовуються <?= $cntUnused ?></button>
+  <?php if ($cntDeletable > 0): ?>
+    <form method="post" action="<?= e(url('/admin/media')) ?>" style="margin-left:auto"
+          onsubmit="return confirm('Видалити <?= (int)$cntDeletable ?> невикористаних фото назавжди? Відновити їх буде не можна. Фото, що десь стоять (товари, банери, сторінки, тексти), не чіпаються.')">
+      <?= Csrf::field() ?><input type="hidden" name="_action" value="delete_unused">
+      <button class="btn btn-danger btn-sm" type="submit">Видалити невикористані (<?= (int)$cntDeletable ?>)</button>
+    </form>
+  <?php endif; ?>
+</div>
+<?php if ($cntUnused > $cntDeletable): ?>
+  <p class="dim" style="margin:-6px 0 12px;font-size:13px">Ще <?= $cntUnused - $cntDeletable ?> невикористаних завантажено за останню добу — масово їх не видаляємо, поки ви не встигли прикріпити їх до товарів.</p>
+<?php endif; ?>
 <div class="img-grid media-lib">
   <?php foreach ($items as $it): $uses = $it['usage'] ?? []; ?>
-    <div class="img-cell">
+    <div class="img-cell" data-used="<?= !empty($it['builtin']) || $uses ? '1' : '0' ?>">
       <img src="<?= e(asset($it['thumb'])) ?>" alt="" loading="lazy">
       <?php if (!$it['builtin']): ?>
         <?php if ($uses): ?>
@@ -73,6 +98,23 @@
   <?php endforeach; ?>
 </div>
 
+<script>
+/* Фільтр «Усі / Використовуються / Не використовуються»: лише показує або ховає картки, нічого не змінює */
+(function () {
+  var btns = document.querySelectorAll('[data-mf]');
+  var cells = document.querySelectorAll('.media-lib .img-cell[data-used]');
+  Array.prototype.forEach.call(btns, function (b) {
+    b.addEventListener('click', function () {
+      var mode = b.getAttribute('data-mf');
+      Array.prototype.forEach.call(btns, function (x) { x.classList.toggle('btn-gold', x === b); x.classList.toggle('btn-line', x !== b); });
+      Array.prototype.forEach.call(cells, function (c) {
+        var used = c.getAttribute('data-used') === '1';
+        c.style.display = (mode === 'all' || (mode === 'used' && used) || (mode === 'unused' && !used)) ? '' : 'none';
+      });
+    });
+  });
+})();
+</script>
 <script>
 (function () {
   var zone = document.getElementById('mediaDrop');
