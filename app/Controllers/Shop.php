@@ -275,13 +275,17 @@ class Shop
             'canonical' => abs_url(product_path($p['slug'])),
             'meta_description' => seo_desc($p['seo_desc'] ?? null, $p['short_desc'] ?? null, $p['description'] ?? null,
                 $p['name'] . ' від Медоїжки — натуральний продукт з власної пасіки. Доставка Новою Поштою по всій Україні.'),
-            'jsonld_product' => true,
+            // Послуга — це Service, а не Product (і не og:type=product): див. JsonLd::service
+            'jsonld_product' => !Catalog::isService($p),
+            'og_image' => Catalog::photo($p),
             'jsonld' => [
-                JsonLd::product(
-                    $p, $allImages, $price,
-                    array_map(fn($n) => ['@type' => 'Brand', 'name' => $n], Catalog::brandNames($p)),
-                    $avail < Catalog::AVAIL_OUT
-                ),
+                Catalog::isService($p)
+                    ? JsonLd::service($p, $allImages, $price, $avail < Catalog::AVAIL_OUT)
+                    : JsonLd::product(
+                        $p, $allImages, $price,
+                        array_map(fn($n) => ['@type' => 'Brand', 'name' => $n], Catalog::brandNames($p)),
+                        $avail < Catalog::AVAIL_OUT
+                    ),
                 // Крихти повторюють шлях, яким людина сюди дійшла: головна →
                 // категорія → товар. Google показує їх замість голої адреси.
                 JsonLd::breadcrumbs(array_values(array_filter([

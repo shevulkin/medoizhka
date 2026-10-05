@@ -187,6 +187,36 @@ class JsonLd
     }
 
     /**
+     * Послуга (виїзд, консультація, прийом воску, фасування…). Для Google це Service, а не Product:
+     * послуги не потрапляють у Merchant Center, зате така розмітка прямо каже пошуку, що це за пропозиція,
+     * хто її надає й де. Ціна лишається в Offer; «призупинено» віддаємо як OutOfStock.
+     */
+    public static function service(array $p, array $images, ?float $price, bool $available): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'Service',
+            'name' => $p['name'],
+            'description' => $p['short_desc'] ?? '',
+            'url' => abs_url(product_path($p['slug'])),
+            'image' => array_map(fn($i) => asset_abs($i['path']), $images),
+            'provider' => ['@id' => abs_url('/') . '#org'],
+            'areaServed' => [
+                ['@type' => 'City', 'name' => 'Київ'],
+                ['@type' => 'AdministrativeArea', 'name' => 'Київська область'],
+            ],
+            'offers' => self::clean([
+                '@type' => 'Offer',
+                'url' => abs_url(product_path($p['slug'])),
+                'priceCurrency' => 'UAH',
+                'price' => $price !== null && $price > 0 ? (string)$price : '',
+                'availability' => $available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'seller' => ['@id' => abs_url('/') . '#org'],
+            ]),
+        ];
+    }
+
+    /**
      * Товар.
      *
      * Порівняно з попередньою версією додано те, без чого Google не пускає
