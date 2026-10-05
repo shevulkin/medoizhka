@@ -73,6 +73,16 @@ Options -Indexes
   RewriteCond %{HTTPS} !=on
   RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$ [NC]
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+  # Захист фото від прямих посилань з чужих сайтів. Пропускаємо: порожній Referer (прямий перехід,
+  # месенджери, більшість краулерів), наш домен, пошукові системи й соцмережі (Google Картинки,
+  # прев'ю посилань), а також їхніх ботів за User-Agent (Googlebot, Storebot-Google для Merchant Center,
+  # bingbot, превʼю Facebook/Telegram/WhatsApp). Усім іншим — 403. Індексація фото не страждає.
+  RewriteCond %{REQUEST_URI} /assets/uploads/.+\.(webp|jpe?g|png|gif)$ [NC]
+  RewriteCond %{HTTP_REFERER} !^$
+  RewriteCond %{HTTP_REFERER} !^https?://([^/]+\.)?(medoizhka\.com|localhost|127\.0\.0\.1)(:[0-9]+)?(/|$) [NC]
+  RewriteCond %{HTTP_REFERER} !^https?://([^/]+\.)?(google\.(com\.[a-z]{2}|co\.[a-z]{2}|[a-z]{2,3})|bing\.com|yahoo\.com|duckduckgo\.com|yandex\.[a-z]+|ecosia\.org|baidu\.com|facebook\.com|instagram\.com|t\.me|telegram\.org|whatsapp\.com|pinterest\.(com\.[a-z]{2}|co\.[a-z]{2}|[a-z]{2,3}))(/|$) [NC]
+  RewriteCond %{HTTP_USER_AGENT} !(Googlebot|Google-InspectionTool|GoogleOther|Storebot-Google|AdsBot-Google|APIs-Google|bingbot|BingPreview|Applebot|DuckDuckBot|YandexBot|YandexImages|facebookexternalhit|Twitterbot|TelegramBot|WhatsApp|Slackbot|LinkedInBot|PinterestBot) [NC]
+  RewriteRule ^ - [F]
   # /\.git — на випадок, якщо клон опиниться всередині public_html: там лежить
   # уся історія проєкту, включно з тим, що колись видалили з файлів
   RewriteCond %{REQUEST_URI} /app/|/storage/|/bin/|/migrations?/|config|/\.git
