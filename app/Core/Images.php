@@ -4,7 +4,9 @@ declare(strict_types=1);
 /** Завантаження та адаптація зображень (GD) */
 class Images
 {
-    public const MAX_SIDE = 1600;      // повний розмір
+    public const MAX_SIDE = 2000;      // повний розмір
+    public const QUALITY = 90;         // якість webp/jpg повного розміру
+    public const THUMB_QUALITY = 86;   // якість превʼю й середнього розміру
     public const THUMB_SIDE = 480;     // превʼю
     public const MID_SIDE = 800;       // середній розмір для карток на екранах високої щільності
 
@@ -39,7 +41,7 @@ class Images
         $useWebp = function_exists('imagewebp');
         $ext = $useWebp ? 'webp' : 'jpg';
         $full = "$dir/$name.$ext";
-        $useWebp ? imagewebp($dst, $full, 85) : imagejpeg($dst, $full, 85);
+        $useWebp ? imagewebp($dst, $full, self::QUALITY) : imagejpeg($dst, $full, self::QUALITY);
 
         // превʼю
         $tScale = min(1, self::THUMB_SIDE / max($nw, $nh));
@@ -47,7 +49,7 @@ class Images
         $thumb = imagecreatetruecolor($tw, $th);
         imagealphablending($thumb, false); imagesavealpha($thumb, true);
         imagecopyresampled($thumb, $dst, 0, 0, 0, 0, $tw, $th, $nw, $nh);
-        $useWebp ? imagewebp($thumb, "$dir/$name-thumb.$ext", 82) : imagejpeg($thumb, "$dir/$name-thumb.$ext", 82);
+        $useWebp ? imagewebp($thumb, "$dir/$name-thumb.$ext", self::THUMB_QUALITY) : imagejpeg($thumb, "$dir/$name-thumb.$ext", self::THUMB_QUALITY);
 
         self::makeMid($full);
 
@@ -84,7 +86,7 @@ class Images
         $dst = imagecreatetruecolor($nw, $nh);
         imagealphablending($dst, false); imagesavealpha($dst, true);
         imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
-        $ok = str_ends_with($mid, '.webp') ? imagewebp($dst, $mid, 88) : (str_ends_with($mid, '.png') ? imagepng($dst, $mid) : imagejpeg($dst, $mid, 88));
+        $ok = str_ends_with($mid, '.webp') ? imagewebp($dst, $mid, self::THUMB_QUALITY + 4) : (str_ends_with($mid, '.png') ? imagepng($dst, $mid) : imagejpeg($dst, $mid, self::THUMB_QUALITY + 4));
         imagedestroy($src); imagedestroy($dst);
         return (bool)$ok;
     }
