@@ -26,11 +26,22 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
 
 <section class="wrap pd">
   <div class="pd-gal">
-    <div class="pd-main"><img id="pdMain" src="<?= e(asset($photos[0]['path'])) ?>" alt="<?= e($p['name']) ?>" fetchpriority="high"></div>
+    <?php
+    /* Не квадратне фото (вертикальне з телефона, широке 16:9) у квадратній рамці обрізається по центру й збільшується — виходить
+       зернисто й без половини кадру. Такі фото показуємо цілком (contain), квадратні — на всю рамку (cover). */
+    $fitOf = function (array $im): bool {
+        $w = (int)($im['width'] ?? 0); $h = (int)($im['height'] ?? 0);
+        if (!$w || !$h) { $s = @getimagesize(BOFU_ROOT . '/assets/' . $im['path']); $w = (int)($s[0] ?? 0); $h = (int)($s[1] ?? 0); }
+        if (!$w || !$h) return false;
+        $r = $w / $h;
+        return $r < 0.85 || $r > 1.18;
+    };
+    ?>
+    <div class="pd-main"><img id="pdMain"<?= $fitOf($photos[0]) ? ' class="is-fit"' : '' ?> src="<?= e(asset($photos[0]['path'])) ?>" alt="<?= e($p['name']) ?>" fetchpriority="high"></div>
     <?php if (count($photos) > 1): ?>
       <div class="pd-thumbs">
         <?php foreach ($photos as $i => $im): ?>
-          <button type="button" class="<?= $i ? '' : 'on' ?>" data-src="<?= e(asset($im['path'])) ?>"><img src="<?= e(asset(Images::displayThumb($im['path']))) ?>" alt=""></button>
+          <button type="button" class="<?= $i ? '' : 'on' ?>" data-src="<?= e(asset($im['path'])) ?>"<?= $fitOf($im) ? ' data-fit="1"' : '' ?>><img src="<?= e(asset(Images::displayThumb($im['path']))) ?>" alt=""></button>
         <?php endforeach; ?>
       </div>
     <?php endif; ?>
@@ -146,6 +157,7 @@ foreach ($variant_data as $i => $v) if ($varOk($v)) { $checkedIdx = $i; break; }
   document.querySelectorAll('.pd-thumbs button').forEach(function (b) {
     b.addEventListener('click', function () {
       main.src = b.dataset.src;
+      main.classList.toggle('is-fit', b.dataset.fit === '1');
       document.querySelectorAll('.pd-thumbs button').forEach(function (x) { x.classList.toggle('on', x === b); });
     });
   });
