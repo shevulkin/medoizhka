@@ -133,6 +133,8 @@ class Site
         // Старі форми адрес, які вже в індексі Google: 301 на нинішні, а не 404
         //  /бренд/x → /brand/x/ ; /…/page/N і /…/feed — на саму сторінку (пагінації й стрічок у нас немає)
         if (preg_match('~^/бренд/([^/]+)$~u', $path, $m)) self::permanent('/brand/' . slug_enc($m[1]) . '/');
+        // /бренд/x/feed і /бренд/x/page/N — на сторінку бренду
+        if (preg_match('~^/бренд/([^/]+)/(?:feed|page/\d+)$~u', $path, $m)) self::permanent('/brand/' . slug_enc($m[1]) . '/');
         if (preg_match('~^(/(?:shop|product-category/[^/]+|brand/[^/]+|product-tag/[^/]+))/page/\d+$~u', $path, $m)) self::permanent($m[1] . '/');
         if (preg_match('~^(/(?:product|product-category|brand|product-tag)/[^/]+)/feed$~u', $path, $m)) self::permanent($m[1] . '/');
         if ($path === '/shop') { self::slash($method); Shop::index(); }
