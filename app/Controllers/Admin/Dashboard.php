@@ -23,6 +23,8 @@ class Dashboard
         $recent = DB::all("SELECT * FROM orders WHERE $where ORDER BY id DESC LIMIT 8");
         View::show('admin/dashboard', [
             'stats' => $stats, 'recent' => $recent,
+            // Стан фонових завдань бачить лише той, хто керує налаштуваннями
+            'jobs' => Auth::can('settings.manage') ? \Scheduler::status() : null,
             'page_title' => 'Огляд — Адмінпанель',
         ], 'layouts/admin');
     }

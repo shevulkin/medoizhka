@@ -22,6 +22,36 @@ class Scheduler
 
     private static function stateFile(): string { return BOFU_ROOT . '/storage/cache/scheduler.json'; }
 
+    /** Назви завдань для адмінпанелі: що саме робить кожне */
+    private const LABELS = [
+        'np:track'      => ['Статуси посилок Нової Пошти', 'оновлює стан накладних (відправлено, у відділенні, отримано)'],
+        'pay:sync'      => ['Звірка оплат карткою', 'підтверджує оплати, якщо покупець не повернувся на сайт'],
+        'offers:remind' => ['Нагадування про торг', 'пропозиції ціни: нагадування продавцю й покупцю'],
+        'yt:refresh'    => ['Відео YouTube', 'оновлює список останніх відео для головної'],
+    ];
+
+    /** Cron вважається живим, якщо запускався не пізніше ніж 15 хвилин тому (запис ставлять кожні 5) */
+    private const CRON_ALIVE = 900;
+
+    /**
+     * Стан для адмінпанелі: коли cron запускався останній раз і коли виконувалось кожне завдання.
+     * @return array{cron_last:?int, cron_alive:bool, tasks:list<array{key:string,label:string,about:string,every:int,last:?int,next:?int}>}
+     */
+    public static function status(): array
+    {
+        $state = json_decode((string)@file_get_contents(self::stateFile()), true);
+        if (!is_array($state)) $state = [];
+        $cron = isset($state['_cron']) ? (int)$state['_cron'] : null;
+        $tasks = [];
+        foreach (self::TASKS as $key => $every) {
+            $last = isset($state[$key]) ? (int)$state[$key] : null;
+            [$label, $about] = self::LABELS[$key] ?? [$key, ''];
+            $tasks[] = ['key' => $key, 'label' => $label, 'about' => $about, 'every' => $every,
+                        'last' => $last, 'next' => $last !== null ? $last + $every : null];
+        }
+        return ['cron_last' => $cron, 'cron_alive' => $cron !== null && time() - $cron < self::CRON_ALIVE, 'tasks' => $tasks];
+    }
+
     /** Для cron: виконує завдання, яким настав час. Повертає назви виконаних. */
     public static function runFromCron(): array
     {

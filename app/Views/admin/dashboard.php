@@ -50,3 +50,28 @@
   </table>
   <?php endif; ?>
 </div>
+
+<?php if (!empty($jobs)): $fmt = fn(?int $t) => $t ? date('d.m.Y H:i', $t) : '—'; ?>
+<div class="admin-card" style="margin-top:22px">
+  <h2 class="h-serif" style="display:flex;align-items:center;gap:10px">Фонові завдання
+    <span class="status-pill <?= $jobs['cron_alive'] ? 'st-done' : 'st-canceled' ?>" style="font-size:12px"><?= $jobs['cron_alive'] ? 'cron працює' : 'cron не запускався' ?></span></h2>
+  <p class="dim" style="margin:6px 0 14px">
+    Останній запуск cron: <b><?= e($fmt($jobs['cron_last'])) ?></b>.
+    <?php if (!$jobs['cron_alive']): ?>
+      <span style="color:#b3261e">Cron не запускався понад 15 хвилин: статуси посилок, оплати й відео не оновлюються. Додайте в cPanel → Cron Jobs запис кожні 5 хвилин:
+      <code>/usr/local/bin/php <?= e(BOFU_ROOT) ?>/bin/cli.php schedule:run</code></span>
+    <?php endif; ?>
+  </p>
+  <div style="overflow:auto"><table class="admin-table" style="width:100%">
+    <tr><th>Завдання</th><th>Останній запуск</th><th>Наступний</th><th>Як часто</th></tr>
+    <?php foreach ($jobs['tasks'] as $t): $overdue = $t['next'] !== null && $t['next'] < time() - 600; ?>
+      <tr>
+        <td><b><?= e($t['label']) ?></b><br><span class="dim" style="font-size:12.5px"><?= e($t['about']) ?></span></td>
+        <td><?= e($fmt($t['last'])) ?></td>
+        <td<?= $overdue ? ' style="color:#b3261e"' : '' ?>><?= e($fmt($t['next'])) ?><?= $overdue ? ' (запізнюється)' : '' ?></td>
+        <td class="dim"><?= $t['every'] >= 3600 ? 'раз на ' . (int)($t['every'] / 3600) . ' год' : 'кожні ' . (int)($t['every'] / 60) . ' хв' ?></td>
+      </tr>
+    <?php endforeach; ?>
+  </table></div>
+</div>
+<?php endif; ?>
