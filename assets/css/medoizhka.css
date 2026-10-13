@@ -460,3 +460,8 @@ h1 b,h2 b,h3 b{color:#c47400}
 .mz-video b{font:600 16px/1.35 var(--display)}
 .mz-video small{color:var(--dim);font-size:13px}
 @media (max-width:900px){.mz-videos{grid-template-columns:1fr;gap:18px}}
+
+/* Контакти → «Де нас знайти» */
+.pg-where{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:34px;padding:22px 26px;border:1px solid var(--line);border-radius:var(--r);background:var(--orange-xl)}
+.pg-where b{display:block;font:600 19px var(--display);margin-bottom:4px}
+.pg-where span{color:var(--muted)}
