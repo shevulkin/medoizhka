@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 class Schema
 {
-    public const VERSION = 62;
+    public const VERSION = 63;
 
     /** Оновлення існуючої бази до поточної версії без втрати даних */
     public static function upgrade(): void
@@ -836,6 +836,18 @@ class Schema
         }
         if ($ver < 57) {
             self::seedRules();   // правила для події booking_new
+        }
+        if ($ver < 63) {
+            // Правила сповіщень були задвоєні (сидер запускали двічі): кожен лист ішов двічі. Лишаємо перше правило
+            // для кожної пари «подія + канал», решту видаляємо, і ставимо унікальний індекс, щоб не повторилось.
+            $seen = [];
+            foreach (DB::all('SELECT id, event, channel FROM notification_rules ORDER BY id') as $r) {
+                $k = $r['event'] . '|' . $r['channel'];
+                if (isset($seen[$k])) { DB::delete('notification_rules', 'id = ?', [(int)$r['id']]); continue; }
+                $seen[$k] = true;
+            }
+            try { DB::pdo()->exec('CREATE UNIQUE INDEX uniq_notification_rules ON notification_rules (event, channel)'); }
+            catch (Throwable $e) { /* вже існує */ }
         }
         if ($ver < 62) {
             // Заявка на послугу: власник після уточнень вписує узгоджену ціну й нотатку

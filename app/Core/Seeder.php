@@ -53,6 +53,8 @@ class Seeder
         foreach (Notify::EVENTS as $event => $label) {
             [$to, $on] = Notify::DEFAULT_RULES[$event] ?? ['admins_sellers', false];
             foreach (array_keys(Notify::CHANNELS) as $channel) {
+                // повторний запуск сидера не має задвоювати правила: інакше кожен лист іде двічі
+                if (DB::row('SELECT id FROM notification_rules WHERE event = ? AND channel = ?', [$event, $channel])) continue;
                 DB::insert('notification_rules', [
                     'event' => $event, 'channel' => $channel,
                     'enabled' => $on ? 1 : 0,
