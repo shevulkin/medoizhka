@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Controllers;
 
-use DB, View, Catalog, Content, Settings, Courses, Auth, JsonLd, Hub as Dir;
+use DB, View, Catalog, Content, Settings, Courses, Auth, JsonLd, YouTube, Hub as Dir;
 
 /**
  * Адреси старого сайту (WordPress + WooCommerce) і головна сторінка.
@@ -71,7 +71,10 @@ class Site
                                       (c.slug IN ('pollen','perga','propolis')) DESC,
                                       (p.image IS NULL), (p.base_price IS NULL), p.id DESC LIMIT 8");
         Catalog::preloadBrands($products);
+        // Останні відео каналу YouTube (порожньо, якщо канал не заданий у Налаштуваннях)
+        $videos = YouTube::latest(3);
         View::show('home/index', [
+            'videos' => $videos,
             'products' => $products,
             'cats' => $cats,
             // «Природна допомога»: теги товарів за станом здоров'я, як на нинішньому сайті

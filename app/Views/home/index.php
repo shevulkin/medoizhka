@@ -137,6 +137,24 @@ $honey = array_map(fn($h) => $h['p'], $palette);
   </div>
 </section>
 
+<?php if (!empty($videos)): ?>
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <?php $ytUrl = Content::title('social_youtube', ''); ?>
+    <div class="sec-head"><div><div class="kicker">YouTube</div><h2>Відео з пасіки</h2></div><?php if ($ytUrl !== '' && $ytUrl !== '#'): ?><a class="link-arrow" href="<?= e($ytUrl) ?>" target="_blank" rel="noopener">Усі відео →</a><?php endif; ?></div>
+    <div class="mz-videos">
+      <?php foreach ($videos as $v): ?>
+        <a class="mz-video" href="<?= e($v['url']) ?>" target="_blank" rel="noopener">
+          <span class="mz-video-ph"><img src="<?= e($v['thumb']) ?>" alt="<?= e($v['title']) ?>" loading="lazy" width="480" height="270"><i aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></i></span>
+          <b><?= e($v['title']) ?></b>
+          <small><?= e($v['published']) ?></small>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
 <?php if ($for_beekeepers): ?>
 <section class="sec" style="padding-top:0">
   <div class="wrap">
