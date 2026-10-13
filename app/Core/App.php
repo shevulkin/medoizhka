@@ -28,10 +28,6 @@ class App
             exit("Not found\n");
         }
         if (!self::dbReady()) return;
-        // Фонові завдання (посилки, оплати, торг, YouTube) — без cron, див. Scheduler.
-        // /_sched/{токен} — внутрішній виклик самого сайту: завдання йдуть окремим процесом, не в запиті відвідувача
-        if (preg_match('~^/_sched/([a-f0-9]{32})/?$~', request_path(), $sm)) { Scheduler::handle($sm[1]); }
-        Scheduler::register();
         $path = request_path();
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
