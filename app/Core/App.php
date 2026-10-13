@@ -28,6 +28,8 @@ class App
             exit("Not found\n");
         }
         if (!self::dbReady()) return;
+        // Фонові завдання (посилки, оплати, торг, YouTube) — без cron: після відповіді, див. Scheduler
+        Scheduler::register();
         $path = request_path();
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
