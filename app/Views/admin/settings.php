@@ -1,6 +1,16 @@
 <div class="admin-head"><h1 class="h-serif">Налаштування</h1></div>
 <form method="post" action="<?= e(url('/admin/settings')) ?>">
   <?= Csrf::field() ?>
+  <?php /* Налаштування розбито на розділи: усе це одна форма й один «Зберегти», вкладки лише ховають зайве. */ ?>
+  <nav class="set-tabs" id="setTabs" aria-label="Розділи налаштувань">
+    <button type="button" data-go="notify" class="on">Сповіщення</button>
+    <button type="button" data-go="orders">Замовлення й торг</button>
+    <button type="button" data-go="integr">Інтеграції</button>
+    <button type="button" data-go="np">Нова Пошта</button>
+    <button type="button" data-go="pay">Оплата й каса</button>
+    <button type="button" data-go="login">Вхід у кабінет</button>
+    <button type="button" data-go="site">Пошукові системи</button>
+  </nav>
   <?php
   // Головний вимикач стоїть над іншими не для краси: у Notify::fire() він —
   // жорсткий гейт, і поки він вимкнений, канальні перемикачі ні на що не
@@ -9,7 +19,7 @@
   $masterOn = Settings::bool($master, true);
   $channels = array_diff_key($toggles, [$master => 1]);
   ?>
-  <div class="admin-card">
+  <div class="admin-card" data-tab="notify">
     <h2 class="h-serif">Канали сповіщень</h2>
     <p class="dim" style="margin-bottom:16px">Тексти повідомлень і події — в розділі «Сповіщення».</p>
     <label class="toggle" data-help-title="Головний вимикач сповіщень"
@@ -57,7 +67,7 @@
       </p>
     </div>
   </div>
-  <div class="admin-card">
+  <div class="admin-card" data-tab="orders">
     <h2 class="h-serif" data-help-title="Замовлення"
         data-help="Як система поводиться із замовленнями, коли товару немає на складі.
 
@@ -92,7 +102,7 @@
       <?php endif; ?>
     </p>
   </div>
-  <div class="admin-card">
+  <div class="admin-card" data-tab="orders">
     <h2 class="h-serif" data-help-title="Торг"
         data-help="Дозволяє покупцям пропонувати свою ціну за свою кількість прямо на сторінці товару.
 
@@ -154,7 +164,7 @@
       </div>
     </div>
   </div>
-  <div class="admin-card">
+  <div class="admin-card" data-tab="site">
     <h2 class="h-serif">Видимість для пошукових систем</h2>
     <label class="toggle" data-help-title="Закрити сайт від пошукових систем"
            data-help="Просить Google та інші пошуковики не показувати сайт у результатах пошуку.
@@ -173,7 +183,7 @@
     <p class="dim" style="margin:8px 0 0">Це не захист: сторінки лишаються доступними всім, хто знає адресу.
       Пошуковики просто не додають їх у видачу, а вже проіндексовані зникають протягом кількох днів.</p>
   </div>
-  <div class="admin-card">
+  <div class="admin-card" data-tab="integr">
     <h2 class="h-serif" data-help-title="Інтеграції та SEO"
         data-help="Ключі й адреси, якими сайт зʼєднується із зовнішніми сервісами: месенджери, пошта, Нова Пошта, аналітика.
 
@@ -269,7 +279,7 @@
            замовленні чесно скаже, чого бракує, замість мовчазної відмови НП. */ ?>
   <?php /* id — щоб посилання з картки замовлення («накладну не створити,
            бо немає відправника») вело просто сюди, а не на початок сторінки */ ?>
-  <div class="admin-card" id="np-sender">
+  <div class="admin-card" data-tab="np" id="np-sender">
     <h2 class="h-serif" data-help-title="Відправник Нової Пошти"
         data-help="Дані, з якими створюються експрес-накладні: хто відправник, хто контактна особа, з якого відділення несуть посилки.
 
@@ -370,7 +380,7 @@
       <span class="tr"></span> Післяплата за замовчуванням (сума замовлення)
     </label>
   </div>
-  <div class="admin-card">
+  <div class="admin-card" data-tab="pay">
     <h2 class="h-serif" data-help-title="Оплата карткою на сайті"
         data-help="Інтернет-еквайринг Raiffeisen Bank. Покупець платить карткою одразу при оформленні, а не при отриманні.
 
@@ -542,7 +552,7 @@ SUCCESS_URL / FAILURE_URL — сюди повертається сам поку�
       <span class="tr"></span> Пробивати фіскальний чек одразу після оплати
     </label>
   </div>
-  <div class="admin-card">
+  <div class="admin-card" data-tab="pay">
     <h2 class="h-serif" data-help-title="Вчасно.Каса (ПРРО)"
         data-help="Фіскальні чеки. Продаж на касі пробивається автоматично, будь-яке замовлення — кнопкою в його картці.
 
@@ -658,7 +668,7 @@ SUCCESS_URL / FAILURE_URL — сюди повертається сам поку�
       <span class="tr"></span> Округлювати готівку до 10 копійок
     </label>
   </div>
-  <div class="admin-card">
+  <div class="admin-card" data-tab="login">
     <h2 class="h-serif" data-help-title="Тексти бота при вході"
         data-help="Що саме бот пише людині, яка входить на сайт через Telegram чи Viber.
 
@@ -696,6 +706,28 @@ SUCCESS_URL / FAILURE_URL — сюди повертається сам поку�
     <span class="admin-save-note"></span>
   </div>
 </form>
+
+<script>
+/* Вкладки налаштувань: показуємо лише картки обраного розділу; усе в одній формі, тож «Зберегти» зберігає все.
+   Обраний розділ пам'ятаємо (і #np-sender з посилань відкриває «Нова Пошта»). */
+(function () {
+  var nav = document.getElementById('setTabs');
+  if (!nav) return;
+  var cards = document.querySelectorAll('.admin-card[data-tab]');
+  function open(tab) {
+    if (!nav.querySelector('[data-go="' + tab + '"]')) tab = 'notify';
+    Array.prototype.forEach.call(cards, function (c) { c.style.display = c.getAttribute('data-tab') === tab ? '' : 'none'; });
+    Array.prototype.forEach.call(nav.querySelectorAll('button'), function (b) { b.classList.toggle('on', b.getAttribute('data-go') === tab); });
+    try { sessionStorage.setItem('setTab', tab); } catch (e) {}
+  }
+  nav.addEventListener('click', function (e) { var b = e.target.closest('button[data-go]'); if (b) open(b.getAttribute('data-go')); });
+  var start = 'notify';
+  if (location.hash === '#np-sender') start = 'np';
+  else { try { start = sessionStorage.getItem('setTab') || start; } catch (e) {} }
+  open(start);
+  if (location.hash) { var t = document.querySelector(location.hash); if (t && t.scrollIntoView) setTimeout(function () { t.scrollIntoView({ block: 'start' }); }, 50); }
+})();
+</script>
 
 <?= View::partial('partials/np_autocomplete') ?>
 <script>

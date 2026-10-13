@@ -193,3 +193,9 @@ body.is-admin.help-on [data-help]:hover{background:rgba(233,140,0,.05);border-ra
 .is-admin .slug-edit{flex-basis:100%}
 .is-admin .slug-edit input{max-width:420px}
 .is-admin .slug-edit p{margin:6px 0 0;font-size:12.5px}
+
+/* Налаштування: розділи-вкладки замість однієї довгої сторінки */
+.set-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;position:sticky;top:0;z-index:5;background:var(--cream,#fbf7f1);padding:6px 0}
+.set-tabs button{border:1px solid var(--line2,#e3dac9);background:#fff;border-radius:999px;padding:9px 16px;font:600 14px var(--display,inherit);color:var(--text,#1c1917);cursor:pointer}
+.set-tabs button:hover{border-color:var(--orange,#e98c00);color:var(--orange-d,#c47400)}
+.set-tabs button.on{background:var(--orange,#e98c00);border-color:var(--orange,#e98c00);color:#fff}
