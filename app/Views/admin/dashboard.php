@@ -64,12 +64,16 @@
   </p>
   <div style="overflow:auto"><table class="admin-table" style="width:100%">
     <tr><th>Завдання</th><th>Останній запуск</th><th>Наступний</th><th>Як часто</th></tr>
-    <?php foreach ($jobs['tasks'] as $t): $overdue = $t['next'] !== null && $t['next'] < time() - 600; ?>
+    <?php foreach ($jobs['tasks'] as $t): $on = !empty($t['enabled']); $overdue = $on && $t['next'] !== null && $t['next'] < time() - 600; ?>
       <tr>
         <td><b><?= e($t['label']) ?></b><br><span class="dim" style="font-size:12.5px"><?= e($t['about']) ?></span></td>
-        <td><?= e($fmt($t['last'])) ?></td>
-        <td<?= $overdue ? ' style="color:#b3261e"' : '' ?>><?= e($fmt($t['next'])) ?><?= $overdue ? ' (запізнюється)' : '' ?></td>
-        <td class="dim"><?= $t['every'] >= 3600 ? 'раз на ' . (int)($t['every'] / 3600) . ' год' : 'кожні ' . (int)($t['every'] / 60) . ' хв' ?></td>
+        <?php if (!$on): ?>
+          <td colspan="2" class="dim">вимкнено: не налаштовано в Налаштуваннях (немає ключа, каналу чи еквайрингу)</td>
+        <?php else: ?>
+          <td><?= e($fmt($t['last'])) ?></td>
+          <td<?= $overdue ? ' style="color:#b3261e"' : '' ?>><?= e($fmt($t['next'])) ?><?= $overdue ? ' (запізнюється)' : '' ?></td>
+        <?php endif; ?>
+        <td class="dim"><?= $t['every'] >= 86400 ? 'раз на добу' : ($t['every'] >= 3600 ? 'раз на ' . (int)($t['every'] / 3600) . ' год' : 'кожні ' . (int)($t['every'] / 60) . ' хв') ?></td>
       </tr>
     <?php endforeach; ?>
   </table></div>

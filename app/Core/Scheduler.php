@@ -17,7 +17,7 @@ class Scheduler
         'np:track'      => 3600,   // статуси накладних Нової Пошти
         'pay:sync'      => 300,    // звірка незавершених оплат
         'offers:remind' => 3600,   // нагадування про торг
-        'yt:refresh'    => 3600,   // відео YouTube
+        'yt:refresh'    => 86400,  // відео YouTube — раз на добу
     ];
 
     private static function stateFile(): string { return BOFU_ROOT . '/storage/cache/scheduler.json'; }
@@ -29,6 +29,17 @@ class Scheduler
         'offers:remind' => ['Нагадування про торг', 'пропозиції ціни: нагадування продавцю й покупцю'],
         'yt:refresh'    => ['Відео YouTube', 'оновлює список останніх відео для головної'],
     ];
+
+    /** Чи є що виконувати: завдання без налаштувань (немає ключа НП, еквайрингу, каналу YouTube) не запускається взагалі */
+    public static function enabled(string $name): bool
+    {
+        return match ($name) {
+            'np:track' => NovaPoshta::enabled(),
+            'pay:sync' => !Acquiring::missing(),
+            'yt:refresh' => trim((string)Settings::get('youtube_channel', '')) !== '',
+            default => true,
+        };
+    }
 
     /** Cron вважається живим, якщо запускався не пізніше ніж 15 хвилин тому (запис ставлять кожні 5) */
     private const CRON_ALIVE = 900;
@@ -47,7 +58,7 @@ class Scheduler
             $last = isset($state[$key]) ? (int)$state[$key] : null;
             [$label, $about] = self::LABELS[$key] ?? [$key, ''];
             $tasks[] = ['key' => $key, 'label' => $label, 'about' => $about, 'every' => $every,
-                        'last' => $last, 'next' => $last !== null ? $last + $every : null];
+                        'last' => $last, 'next' => $last !== null ? $last + $every : null, 'enabled' => self::enabled($key)];
         }
         return ['cron_last' => $cron, 'cron_alive' => $cron !== null && time() - $cron < self::CRON_ALIVE, 'tasks' => $tasks];
     }
@@ -69,7 +80,7 @@ class Scheduler
             $state = ['_cron' => $now] + array_intersect_key($state, self::TASKS);   // _cron — відмітка «cron живий»
             $due = [];
             foreach (self::TASKS as $name => $every) {
-                if ($now - (int)($state[$name] ?? 0) >= $every) $due[] = $name;
+                if (self::enabled($name) && $now - (int)($state[$name] ?? 0) >= $every) $due[] = $name;
             }
             // позначаємо до запуску: впало — наступна спроба за інтервалом, а не кожні 5 хвилин
             foreach ($due as $n) $state[$n] = $now;
