@@ -141,7 +141,7 @@ $honey = array_map(fn($h) => $h['p'], $palette);
 <section class="sec" style="padding-top:0">
   <div class="wrap">
     <?php $ytUrl = Content::title('social_youtube', ''); ?>
-    <div class="sec-head"><div><div class="kicker">YouTube</div><h2>Відео з пасіки</h2></div><?php if ($ytUrl !== '' && $ytUrl !== '#'): ?><a class="link-arrow" href="<?= e($ytUrl) ?>" target="_blank" rel="noopener">Усі відео →</a><?php endif; ?></div>
+    <div class="sec-head"><div><div class="kicker">Відео</div><h2>Ми на YouTube</h2></div><?php if ($ytUrl !== '' && $ytUrl !== '#'): ?><a class="link-arrow" href="<?= e($ytUrl) ?>" target="_blank" rel="noopener">Усі відео →</a><?php endif; ?></div>
     <div class="mz-videos">
       <?php foreach ($videos as $v): ?>
         <a class="mz-video" href="<?= e($v['url']) ?>" target="_blank" rel="noopener">
