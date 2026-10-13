@@ -8,7 +8,7 @@
     <?php /* Контакти ведуть до адрес і графіка точок: так вони пов'язані, а в меню лишається один пункт */ ?>
     <div class="pg-where">
       <div><b>Де нас знайти</b><span>Адреси, графік роботи й маршрут до наших точок продажу.</span></div>
-      <a class="btn btn-gold" href="<?= e(url('/stores')) ?>">Усі адреси й графік →</a>
+      <a class="btn btn-gold" href="<?= e(url('/stores')) ?>">Наші адреси →</a>
     </div>
   <?php endif; ?>
 </div></section>
