@@ -60,7 +60,8 @@ class LoginMethods
         $email = Newsletter::normEmail((string)($user['email'] ?? ''));
         return match ($method) {
             'google' => [
-                !empty($user['google_id']) && GoogleAuth::configured(),
+                // buttonEnabled (лише Client ID), а не configured (ще й секрет): кнопка Google Identity Services секрету не потребує
+                !empty($user['google_id']) && GoogleAuth::buttonEnabled(),
                 empty($user['google_id'])
                     ? 'Акаунт не пов’язаний із Google'
                     : 'Вхід через Google не налаштований на сайті',

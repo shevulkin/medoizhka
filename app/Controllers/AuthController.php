@@ -25,7 +25,12 @@ class AuthController
         // Заборона діє на СЕРВЕРІ, а не приховуванням кнопки: адреса /auth/google
         // відома, і відкрити її може будь-хто. Нового акаунта це не стосується —
         // забороняти вхід у те, чого ще немає, нема чого.
-        if ($existing && !LoginMethods::permits($existing, 'google')) {
+        // Акаунт, що існує за поштою, але ще не привʼязаний до Google, цим входом і привʼязується (loginWithGoogle
+        // пише google_id, а пошту підтвердив Google). Тому «готовність» способу рахуємо так, ніби привʼязка вже є:
+        // інакше привʼязатись було б неможливо, бо спосіб стає готовим лише після привʼязки. Спосіб, який власник
+        // свідомо вимкнув (його немає серед обраних), і далі відмовляє.
+        $asLinked = $existing && empty($existing['google_id']) ? array_merge($existing, ['google_id' => $profile['sub']]) : $existing;
+        if ($existing && !LoginMethods::permits($asLinked, 'google')) {
             AuthLog::write((int)$existing['id'], 'login_blocked', 'Google');
             flash('error', LoginMethods::denial('google'));
             redirect('/');
@@ -47,7 +52,12 @@ class AuthController
         $profile = GoogleAuth::verifyIdToken((string)($_POST['credential'] ?? ''));
         if (!$profile) json_response(['ok' => false, 'error' => 'Google не підтвердив вхід. Спробуйте ще раз.'], 401);
         $existing = DB::row('SELECT * FROM users WHERE google_id = ? OR email = ?', [$profile['sub'], $profile['email']]);
-        if ($existing && !LoginMethods::permits($existing, 'google')) {
+        // Акаунт, що існує за поштою, але ще не привʼязаний до Google, цим входом і привʼязується (loginWithGoogle
+        // пише google_id, а пошту підтвердив Google). Тому «готовність» способу рахуємо так, ніби привʼязка вже є:
+        // інакше привʼязатись було б неможливо, бо спосіб стає готовим лише після привʼязки. Спосіб, який власник
+        // свідомо вимкнув (його немає серед обраних), і далі відмовляє.
+        $asLinked = $existing && empty($existing['google_id']) ? array_merge($existing, ['google_id' => $profile['sub']]) : $existing;
+        if ($existing && !LoginMethods::permits($asLinked, 'google')) {
             AuthLog::write((int)$existing['id'], 'login_blocked', 'Google');
             json_response(['ok' => false, 'error' => LoginMethods::denial('google')], 403);
         }
