@@ -14,11 +14,16 @@
     <p class="dim" style="margin:-4px 0 16px">Історія замовлень, збережені адреси й сповіщення
       про наявність. Щоб купити, входити не обовʼязково.<br>
       <b>Окремої реєстрації немає:</b> якщо акаунта ще нема, він створиться сам — паролів ми не питаємо.</p>
-    <div class="stack">
+    <div class="stack" id="loginMethods">
       <?php if (GoogleAuth::buttonEnabled()): ?>
         <?php /* Кнопка Google Identity Services — та сама, що була на старому сайті
                  (Site Kit). Потрібен лише Client ID; ID-токен перевіряє сервер. */ ?>
-        <div id="gsiBtn" style="min-height:44px;display:flex;justify-content:center"></div>
+        <?php /* Вигляд — наша кнопка, як усі інші в цьому вікні. Справжню кнопку Google (iframe, її не можна стилізувати)
+         покладено зверху майже прозорою: клік потрапляє в неї, і вхід іде штатним шляхом Google Identity Services. */ ?>
+        <div class="gsi-wrap" id="gsiWrap">
+          <span class="btn btn-line gsi-face"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg><span>Продовжити з Google</span></span>
+          <div id="gsiBtn" class="gsi-hit"></div>
+        </div>
         <script>
         (function () {
           var csrf = <?= json_js(Csrf::token()) ?>, url = <?= json_js(url('/auth/google/token')) ?>;
@@ -30,8 +35,12 @@
           }
           function init() {
             google.accounts.id.initialize({ client_id: <?= json_js(GoogleAuth::clientId()) ?>, callback: onCredential, ux_mode: 'popup' });
-            google.accounts.id.renderButton(document.getElementById('gsiBtn'),
-              { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: 'uk', width: 300 });
+            var wrap = document.getElementById('gsiWrap'), hit = document.getElementById('gsiBtn');
+            var w = Math.max(200, Math.min(400, wrap.offsetWidth || 300));
+            google.accounts.id.renderButton(hit, { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: 'uk', width: w });
+            // кнопка Google висока 40 px, а наша вища: розтягуємо невидиму по висоті, щоб клік ловився по всій площі
+            var h = wrap.offsetHeight || 44;
+            hit.firstChild && (hit.firstChild.style.cssText += ';transform-origin:0 0;transform:scale(' + ((wrap.offsetWidth || w) / w) + ',' + (h / 40) + ')');
           }
           var s = document.createElement('script');
           s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.onload = init;
@@ -101,7 +110,10 @@
              випадково скопійований на сервер рядок віддавав магазин чужому, і
              ніщо про це не попереджало. Для локальної розробки те саме дає
              `php bin/cli.php grant-admin`, і воно не живе в бойовому коді. */ ?>
-    <div class="stack"><button class="btn btn-line btn-sm" id="authClose" type="button">Скасувати</button></div>
+    <div class="stack">
+      <button class="btn btn-line btn-sm" id="loginBack" type="button" style="display:none">← Інші способи входу</button>
+      <button class="btn btn-line btn-sm" id="authClose" type="button">Скасувати</button>
+    </div>
   </div>
 </div>
 <script>
@@ -147,13 +159,26 @@
   var tg = document.getElementById('tgLoginBtn');
   if (tg) tg.addEventListener('click', function(){ startLogin('/auth/tg/start', '/auth/tg/status', 'У боті натисніть Start, а тоді «Поділитися номером» — сайт увійде автоматично…'); });
 
+  /* Обрали пошту чи телефон — решта способів ховається, лишається форма й «Назад»: менше зайвого, менше плутанини */
+  var methods = document.getElementById('loginMethods');
+  var backBtn = document.getElementById('loginBack');
+  function focusMethod(boxId, inputId){
+    if (methods) methods.style.display = 'none';
+    ['emailLoginBox', 'phoneLoginBox'].forEach(function(id){
+      var b = document.getElementById(id); if (b) b.style.display = id === boxId ? 'block' : 'none';
+    });
+    if (backBtn) backBtn.style.display = 'inline-flex';
+    var inp = document.getElementById(inputId); if (inp) inp.focus();
+  }
+  function showMethods(){
+    if (methods) methods.style.display = '';
+    ['emailLoginBox', 'phoneLoginBox'].forEach(function(id){ var b = document.getElementById(id); if (b) b.style.display = 'none'; });
+    if (backBtn) backBtn.style.display = 'none';
+    if (hint) hint.style.display = 'none';
+  }
+  if (backBtn) backBtn.addEventListener('click', showMethods);
   var eb = document.getElementById('emailLoginBtn');
-  if (eb) eb.addEventListener('click', function(){
-    var box = document.getElementById('emailLoginBox');
-    var pBox = document.getElementById('phoneLoginBox');
-    if (pBox) pBox.style.display = 'none';
-    box.style.display = box.style.display === 'none' ? 'block' : 'none';
-  });
+  if (eb) eb.addEventListener('click', function(){ focusMethod('emailLoginBox', 'emailInput'); });
   /*
    * Відлік на кнопці «Надіслати ще раз».
    *
@@ -213,12 +238,7 @@
   });
 
   var pb = document.getElementById('phoneLoginBtn');
-  if (pb) pb.addEventListener('click', function(){
-    var box = document.getElementById('phoneLoginBox');
-    var eBox = document.getElementById('emailLoginBox');
-    if (eBox) eBox.style.display = 'none';
-    box.style.display = box.style.display === 'none' ? 'block' : 'none';
-  });
+  if (pb) pb.addEventListener('click', function(){ focusMethod('phoneLoginBox', 'phoneInput'); });
   var sendBtn = document.getElementById('phoneSendBtn');
   var phoneResend = document.getElementById('phoneResendBtn');
   function phoneStart(resent){

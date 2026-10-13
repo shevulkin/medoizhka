@@ -443,3 +443,9 @@ h1 b,h2 b,h3 b{color:#c47400}
 /* Не квадратне фото товару: оригінальні пропорції, рамка підлаштовується під фото, висота обмежена */
 .pd-main.is-fit{aspect-ratio:auto;display:block;background:none;border:0;overflow:visible;text-align:center}
 .pd-main.is-fit img{width:auto;height:auto;max-width:100%;max-height:min(82vh,820px);object-fit:contain;padding:0;border-radius:var(--r);display:inline-block;vertical-align:top}
+
+/* Вікно входу: Google-кнопка виглядає як решта (справжня Google-кнопка невидимо лежить зверху), способи — вужчою колонкою */
+.modal .stack .btn{max-width:420px;width:100%;align-self:center}
+.gsi-wrap{position:relative;max-width:420px;width:100%;align-self:center}
+.gsi-face{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;max-width:none}
+.gsi-hit{position:absolute;inset:0;overflow:hidden;opacity:.01;cursor:pointer}
