@@ -436,7 +436,11 @@ class App
         Auth::requireStaff();
         $A = 'Controllers\\Admin\\';
         $post = $method === 'POST';
+        // Сторінка повторного підтвердження: вона сама і є «другою перевіркою», тож перед нею гейта немає
+        if (rtrim($path, '/') === '/admin/confirm') { Controllers\Admin\Confirm::index(); }
         if ($post) Csrf::verify();
+        // Небезпечні розділи: потрібне недавнє підтвердження кодом (див. Auth::requireRecent)
+        if (preg_match('~^/admin/(settings|users|stores|owners)(/|$)~', $path)) Auth::requireRecent();
 
         // Третій елемент — право, потрібне для маршруту. Правило навмисно суворе:
         // маршрут без права доступний лише тим, хто має всі права. Так забутий

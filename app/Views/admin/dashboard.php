@@ -1,4 +1,10 @@
 <div class="admin-head"><h1 class="h-serif">Огляд</h1></div>
+<?php if (!empty($login_on) && count($login_on) > 1): ?>
+<div class="flash" style="padding:0;margin:0 0 16px"><div class="flash-error" style="background:#fff8e6;border-color:#f0d9a6;color:#6b4a00">
+  🔐 У вашому акаунті ввімкнено кілька способів входу: <b><?= e(implode(', ', $login_on)) ?></b>. Кожен — окремий шлях в акаунт.
+  Для персоналу безпечніше лишити один (рекомендовано Google із двоетапною перевіркою). Змінити: <a href="<?= e(url('/profile')) ?>" style="color:inherit;text-decoration:underline">Профіль → Способи входу</a>.
+</div></div>
+<?php endif; ?>
 <div class="stat-grid">
   <div class="stat" data-help-title="Нових замовлень"
        data-help="Скільки замовлень чекають, щоб ними зайнялись, — тих, що ще в статусі «Нове».

@@ -21,7 +21,11 @@ class Dashboard
             'revenue' => (float)(DB::val("SELECT COALESCE(SUM(total),0) FROM orders WHERE status != 'canceled' AND $where") ?? 0),
         ];
         $recent = DB::all("SELECT * FROM orders WHERE $where ORDER BY id DESC LIMIT 8");
+        // Підказка про безпеку входу: кожен ввімкнений спосіб — це ще один шлях в акаунт персоналу
+        $loginOn = [];
+        if ($u = Auth::user()) foreach (\LoginMethods::forUser($u) as $m) if (!empty($m['on'])) $loginOn[] = $m['label'];
         View::show('admin/dashboard', [
+            'login_on' => $loginOn,
             'stats' => $stats, 'recent' => $recent,
             // Стан фонових завдань бачить лише той, хто керує налаштуваннями
             'jobs' => Auth::can('settings.manage') ? \Scheduler::status() : null,

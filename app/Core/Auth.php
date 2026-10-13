@@ -67,6 +67,11 @@ class Auth
      */
     private const IDLE_SECONDS = 8 * 3600;
     private const ABSOLUTE_SECONDS = 30 * 86400;
+    /** Персонал (доступ до адмінпанелі, каси, налаштувань): коротше, бо за таким акаунтом стоять гроші й чужі дані */
+    private const STAFF_IDLE_SECONDS = 3600;          // 1 година без дій
+    private const STAFF_ABSOLUTE_SECONDS = 12 * 3600; // 12 годин від входу
+    /** Скільки діє підтвердження небезпечної дії (зміна ролей, ключів, налаштувань) */
+    public const CONFIRM_SECONDS = 1800;
 
     /**
      * Закрити сесію, якщо її строк вийшов.
@@ -87,8 +92,13 @@ class Auth
         // просто починаємо рахувати їх від цієї миті
         if ($started === 0) { $_SESSION['auth_started'] = $now; $_SESSION['auth_seen'] = $now; return; }
 
-        $idle = $seen > 0 && ($now - $seen) > self::IDLE_SECONDS;
-        $old  = ($now - $started) > self::ABSOLUTE_SECONDS;
+        // Персонал отримує коротші строки. Ролі беремо з бази: вимкнений чи знижений акаунт одразу перестає бути «персоналом»
+        $staff = false;
+        try { $staff = self::staffRoles((int)$_SESSION['user_id']) !== []; } catch (\Throwable $e) {}
+        $idleMax = $staff ? self::STAFF_IDLE_SECONDS : self::IDLE_SECONDS;
+        $absMax = $staff ? self::STAFF_ABSOLUTE_SECONDS : self::ABSOLUTE_SECONDS;
+        $idle = $seen > 0 && ($now - $seen) > $idleMax;
+        $old  = ($now - $started) > $absMax;
         if ($idle || $old) {
             $uid = (int)$_SESSION['user_id'];
             self::logout();
@@ -325,6 +335,36 @@ class Auth
          * де точно відомо і хто людина, і що вона вже за собою забрала.
          */
         Courses::claimAfterLogin($userId);
+    }
+
+    /**
+     * Чи недавно людина доводила, що це вона: від входу або від останнього підтвердження кодом.
+     * Небезпечні дії (ролі, налаштування, ключі) вимагають цього, навіть якщо сесія жива:
+     * забута вкладка чи вкрадена кука не мають змінювати права й ключі без другої перевірки.
+     */
+    public static function confirmedRecently(int $maxSeconds = self::CONFIRM_SECONDS): bool
+    {
+        $t = (int)($_SESSION['auth_confirmed'] ?? $_SESSION['auth_started'] ?? 0);
+        return $t > 0 && (time() - $t) <= $maxSeconds;
+    }
+
+    public static function markConfirmed(): void { $_SESSION['auth_confirmed'] = time(); }
+
+    /**
+     * Гейт для небезпечних сторінок і дій. Якщо підтвердження застаріло, веде на /admin/confirm, звідки
+     * після коду з пошти людину повертає назад. Без пошти в акаунті підтвердити нічим, тоді пропускаємо
+     * (інакше акаунт, що входить лише через Google чи Telegram, лишився б без доступу до налаштувань).
+     */
+    public static function requireRecent(): void
+    {
+        if (self::confirmedRecently()) return;
+        $u = self::user();
+        if (!$u || Newsletter::normEmail((string)($u['email'] ?? '')) === null) return;
+        $back = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET'
+            ? request_path() : (string)(parse_url((string)($_SERVER['HTTP_REFERER'] ?? ''), PHP_URL_PATH) ?: '/admin');
+        $_SESSION['confirm_back'] = $back;
+        flash('error', 'Для цієї дії потрібне повторне підтвердження: ми надішлемо код на вашу пошту.');
+        redirect('/admin/confirm');
     }
 
     public static function logout(): void
