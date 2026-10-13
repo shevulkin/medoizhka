@@ -35,6 +35,31 @@ class Scheduler
 
     private static function stateFile(): string { return BOFU_ROOT . '/storage/cache/scheduler.json'; }
 
+    /** Скільки секунд після останнього запуску з cron псевдо-cron мовчить (cron живий) */
+    private const CRON_GRACE = 900;
+
+    /** Для cron: виконує завдання, яким настав час; пише відмітку, що cron живий. Повертає назви виконаних. */
+    public static function runFromCron(): array
+    {
+        $file = self::stateFile();
+        $dir = dirname($file);
+        if (!is_dir($dir)) @mkdir($dir, 0775, true);
+        $fh = @fopen($file, 'c+');
+        if (!$fh) return [];
+        if (!flock($fh, LOCK_EX)) { fclose($fh); return []; }
+        $state = json_decode((string)stream_get_contents($fh), true);
+        if (!is_array($state)) $state = [];
+        $now = time();
+        $state['_cron'] = $now;
+        $due = [];
+        foreach (self::TASKS as $name => $every) if ($now - (int)($state[$name] ?? 0) >= $every) $due[] = $name;
+        foreach ($due as $n) $state[$n] = $now;
+        self::save($fh, $state);
+        self::runList($due);
+        flock($fh, LOCK_UN); fclose($fh);
+        return $due;
+    }
+
     /** Реєструє запуск після відповіді. Кличеться на початку запиту. */
     public static function register(): void
     {
@@ -61,6 +86,8 @@ class Scheduler
             if (!is_array($state)) $state = [];
             $now = time();
             if ($now - (int)($state['_checked'] ?? 0) < self::CHECK_EVERY) return;
+            // Справжній cron працює (запускався недавно) — сайт сам нічого не запускає
+            if ($now - (int)($state['_cron'] ?? 0) < self::CRON_GRACE) return;
             $state['_checked'] = $now;
 
             $due = [];
