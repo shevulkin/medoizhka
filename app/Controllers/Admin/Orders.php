@@ -1509,6 +1509,11 @@ class Orders
                 . ($prev && (int)$target['assigned_user_id'] !== (int)Auth::id() ? ' (раніше — ' . $prev . ')' : '')
             : $target['number'] . ': знято з роботи' . ($prev ? ' (' . $prev . ')' : '');
         OrderFlow::log((int)$target['parent_id'], (int)$target['id'], 'assign', $msg, Auth::id());
+        // Взяти в роботу = почати обробку: нове замовлення стає «Обробляється» (покупцю окремого листа не шлемо:
+        // він отримає звичайне сповіщення, коли статус дійде до «В дорозі»). Знімання з роботи статус не повертає.
+        if ($claim && ($target['status'] ?? '') === 'new') {
+            OrderFlow::setStatus((int)$target['id'], 'processing', Auth::id(), false);
+        }
         flash('success', $claim ? 'Взято в роботу.' : 'Знято з роботи.');
     }
 }
