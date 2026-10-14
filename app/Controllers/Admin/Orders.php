@@ -1400,6 +1400,20 @@ class Orders
 
         if ($action === 'ship_refresh') {
             RateLimit::guard('np_track', 120, 3600);
+            // Спершу з'ясовуємо, чи НП взагалі дала статус і чому ні: телефон отримувача в замовленні
+            // має збігатися з телефоном отримувача чи відправника в накладній, інакше НП відповідає «не знайдено»
+            $probe = NovaPoshta::trackOne((string)$shipment['number'], (string)($parent['phone'] ?? ''));
+            if (!$probe['ok']) {
+                flash('error', 'Нова Пошта не дала статус: ' . $probe['error'] . '. Перевірте ключ API в Налаштуваннях → Інтеграції.');
+                redirect($back);
+            }
+            $prow = $probe['row'];
+            if ($prow === null || (int)($prow['StatusCode'] ?? 0) === 0 || (int)($prow['StatusCode'] ?? 0) === 3) {
+                $why = trim((string)($prow['Status'] ?? '')) ?: 'Нова Пошта не знайшла цю накладну';
+                flash('error', 'Нова Пошта: «' . $why . '». Перевірте номер (14 цифр) і те, що телефон отримувача в замовленні (' .
+                    ($parent['phone'] ?? '—') . ') збігається з телефоном отримувача або відправника в накладній.');
+                redirect($back);
+            }
             $changed = Shipments::refresh([$shipment], Auth::id());
             $fresh = Shipments::forOrder((int)$child['id']);
             flash('success', $changed

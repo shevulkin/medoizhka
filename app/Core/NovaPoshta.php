@@ -392,6 +392,21 @@ class NovaPoshta
     // ─────────────────────────────────────────────────────────────── дрібниці
 
     /**
+     * Одна накладна: статус АБО зрозуміла причина, чому його немає. Для кнопки «Статус» у замовленні:
+     * без цього мовчазне «Статус уточнюється» не відрізняє «НП недоступна» від «НП не знає такого номера з цим телефоном».
+     *
+     * @return array{ok:bool,error:string,row:?array}
+     */
+    public static function trackOne(string $number, string $phone): array
+    {
+        $r = self::call('TrackingDocument', 'getStatusByPhone',
+            ['Documents' => [['DocumentNumber' => trim($number), 'Phone' => self::phone($phone)]]]);
+        if (!$r['ok']) return ['ok' => false, 'error' => (string)($r['error'] ?? 'Нова Пошта не відповіла'), 'row' => null];
+        $row = $r['data'][0] ?? null;
+        return ['ok' => true, 'error' => '', 'row' => is_array($row) ? $row : null];
+    }
+
+    /**
      * Телефон у форматі, який приймає НП: 10 цифр без плюса. Наш нормалізатор
      * тримає номери як +380XXXXXXXXX, тож відрізаємо код країни.
      */
