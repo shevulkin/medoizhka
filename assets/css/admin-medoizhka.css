@@ -199,3 +199,11 @@ body.is-admin.help-on [data-help]:hover{background:rgba(233,140,0,.05);border-ra
 .set-tabs button{border:1px solid var(--line2,#e3dac9);background:#fff;border-radius:999px;padding:9px 16px;font:600 14px var(--display,inherit);color:var(--text,#1c1917);cursor:pointer}
 .set-tabs button:hover{border-color:var(--orange,#e98c00);color:var(--orange-d,#c47400)}
 .set-tabs button.on{background:var(--orange,#e98c00);border-color:var(--orange,#e98c00);color:#fff}
+
+/* Двоколонкові сторінки адмінки (напр. замовлення): на телефоні одна колонка, без горизонтального зсуву */
+@media (max-width:900px){
+  .admin-main [data-rg]{grid-template-columns:minmax(0,1fr)!important}
+  .admin-main{min-width:0;overflow-x:hidden}
+}
+
+.is-admin details>summary.btn::-webkit-details-marker{display:none}

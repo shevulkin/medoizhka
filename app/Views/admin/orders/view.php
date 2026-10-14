@@ -248,6 +248,11 @@
 
             <?php elseif ($mine && $can_ship): $gaps = $ship_gaps[$cid] ?? []; $f = $ship_form[$cid] ?? null; ?>
               <?php if ($gaps): ?>
+                <?php /* Ручне вписування — одразу й помітною кнопкою: на телефоні довге пояснення про відправника нижче відсувало б його за межі екрана */ ?>
+                <details style="margin:0 0 12px">
+                  <summary class="btn btn-gold btn-sm" style="display:inline-flex;cursor:pointer;list-style:none">＋ Вписати номер накладної (ТТН)</summary>
+                  <?php include __DIR__ . '/_ship_attach.php'; ?>
+                </details>
                 <div class="dim" style="font-size:13px">
                   <b>Накладну поки не створити.</b> Бракує: <?= e(implode('; ', $gaps)) ?>.
                 </div>
@@ -282,10 +287,6 @@
                     <?php endif; ?>
                   </p>
                 <?php endif; ?>
-                <details style="margin-top:10px">
-                  <summary class="dim" style="cursor:pointer;font-size:13px">Вписати номер накладної вручну</summary>
-                  <?php include __DIR__ . '/_ship_attach.php'; ?>
-                </details>
               <?php else: ?>
                 <form method="post" action="<?= e(url('/admin/orders/' . $order['id'])) ?>">
                   <?= Csrf::field() ?>
