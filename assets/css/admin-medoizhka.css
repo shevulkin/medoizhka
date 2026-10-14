@@ -207,3 +207,13 @@ body.is-admin.help-on [data-help]:hover{background:rgba(233,140,0,.05);border-ra
 }
 
 .is-admin details>summary.btn::-webkit-details-marker{display:none}
+
+/* Замовлення: фільтри однією карткою, у кожного ряду підпис, активний — залитий */
+.flt{background:#fff;border:1px solid var(--line2);border-radius:16px;margin:0 0 18px;overflow:hidden}
+.flt .cat-chips[data-fl]{display:flex;align-items:center;gap:6px;margin:0;padding:10px 14px;border-top:1px solid var(--line2);flex-wrap:wrap}
+.flt .cat-chips[data-fl]:first-child{border-top:0}
+.flt .cat-chips[data-fl]::before{content:attr(data-fl);flex:0 0 108px;font:600 12px var(--display,inherit);letter-spacing:.04em;text-transform:uppercase;color:var(--muted,#8a8170)}
+.flt .chip{text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:600;padding:6px 13px;background:#faf6ee;border:1px solid transparent}
+.flt .chip:hover{background:#fff;border-color:var(--gold)}
+.flt .chip.active{background:var(--gold);border-color:var(--gold);color:#fff}
+@media (max-width:700px){.flt .cat-chips[data-fl]::before{flex-basis:100%}}
