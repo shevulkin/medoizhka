@@ -77,7 +77,7 @@
               <div class="dim" style="font-size:13px"><?= e($c['store_name'] ?: 'Магазин') ?></div>
             <?php endif; ?>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:3px">
-              <b style="font-family:var(--serif);font-size:18px;letter-spacing:.5px"><?= e($sh['number']) ?></b>
+              <b style="font-family:var(--serif);font-size:18px;letter-spacing:.5px"><?= e(Shipments::pretty($sh['number'])) ?></b>
               <a class="btn btn-line btn-xs" target="_blank" rel="noopener"
                  href="<?= e(Shipments::trackUrl($sh['number'])) ?>">Відстежити →</a>
             </div>

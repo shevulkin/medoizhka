@@ -60,6 +60,13 @@ class Shipments
         return DB::row('SELECT * FROM shipments WHERE number = ?', [trim($number)]);
     }
 
+    /** Номер для показу: 59 0017 8153 0616 (у базі й для НП лишається без пробілів) */
+    public static function pretty(string $number): string
+    {
+        $d = preg_replace('~\D~', '', $number);
+        return strlen($d) === 14 ? substr($d, 0, 2) . ' ' . substr($d, 2, 4) . ' ' . substr($d, 6, 4) . ' ' . substr($d, 10, 4) : $number;
+    }
+
     public static function trackUrl(string $number): string
     {
         return NovaPoshta::TRACK_URL . rawurlencode(trim($number));
@@ -530,7 +537,7 @@ class Shipments
 
         return [
             'number' => (string)$parent['number'],
-            'ttn' => (string)$shipment['number'],
+            'ttn' => self::pretty((string)$shipment['number']),
             'status' => $status,
             // Коротка форма того самого — для теми листа, де довге речення
             // обрізається на півслові

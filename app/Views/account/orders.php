@@ -67,7 +67,7 @@
                     <div style="margin-top:12px;padding:12px 14px;border:1px solid var(--bg3);border-radius:8px">
                       <div class="dim" style="font-size:12.5px">Нова Пошта</div>
                       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:3px">
-                        <b style="font-family:var(--serif);font-size:18px;letter-spacing:.5px" data-ttn><?= e($sh['number']) ?></b>
+                        <b style="font-family:var(--serif);font-size:18px;letter-spacing:.5px" data-ttn><?= e(Shipments::pretty($sh['number'])) ?></b>
                         <button type="button" class="btn btn-line btn-xs" data-copy-ttn="<?= e($sh['number']) ?>">Копіювати</button>
                         <a class="btn btn-line btn-xs" target="_blank" rel="noopener"
                            href="<?= e(Shipments::trackUrl($sh['number'])) ?>">Відстежити →</a>

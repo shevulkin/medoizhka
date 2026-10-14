@@ -207,7 +207,7 @@
         <?php foreach ($rowShipments as $sh): $phase = (string)$sh['phase']; ?>
           <div style="margin-top:5px;white-space:nowrap">
             <a class="dim" style="font-size:12px" target="_blank" rel="noopener"
-               href="<?= e(Shipments::trackUrl($sh['number'])) ?>"><?= e($sh['number']) ?></a>
+               href="<?= e(Shipments::trackUrl($sh['number'])) ?>"><?= e(Shipments::pretty($sh['number'])) ?></a>
             <div class="dim" style="font-size:11.5px<?= $phase === 'arrived' ? ';color:var(--gold)' : '' ?>">
               <?= e(Shipments::statusLabel($sh)) ?></div>
           </div>

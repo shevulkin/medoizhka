@@ -187,7 +187,7 @@
                 <div>
                   <div class="dim" style="font-size:12.5px">Накладна Нової Пошти</div>
                   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px">
-                    <b style="font-family:var(--serif);font-size:18px;letter-spacing:.5px"><?= e($sh['number']) ?></b>
+                    <b style="font-family:var(--serif);font-size:18px;letter-spacing:.5px"><?= e(Shipments::pretty($sh['number'])) ?></b>
                     <a class="dim" style="font-size:12.5px" target="_blank" rel="noopener"
                        href="<?= e(Shipments::trackUrl($sh['number'])) ?>">відстежити →</a>
                     <?php if ($sh['source'] === 'manual'): ?>
