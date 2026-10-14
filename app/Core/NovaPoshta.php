@@ -378,7 +378,7 @@ class NovaPoshta
         }
         if (!$documents) return [];
 
-        $r = self::call('TrackingDocument', 'getStatusByPhone', ['Documents' => $documents]);
+        $r = self::call('TrackingDocument', 'getStatusDocuments', ['Documents' => $documents]);
         if (!$r['ok']) return [];
         $out = [];
         foreach ($r['data'] as $row) {
@@ -399,7 +399,7 @@ class NovaPoshta
      */
     public static function trackOne(string $number, string $phone): array
     {
-        $r = self::call('TrackingDocument', 'getStatusByPhone',
+        $r = self::call('TrackingDocument', 'getStatusDocuments',
             ['Documents' => [['DocumentNumber' => trim($number), 'Phone' => self::phone($phone)]]]);
         if (!$r['ok']) return ['ok' => false, 'error' => (string)($r['error'] ?? 'Нова Пошта не відповіла'), 'row' => null];
         $row = $r['data'][0] ?? null;
