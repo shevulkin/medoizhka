@@ -121,7 +121,9 @@ $roots = array_values(array_filter($cats, fn($c) => !($c['depth'] ?? 0)));
       <tr data-cat-id="<?= (int)$c['id'] ?>" data-cat-parent="<?= (int)($c['parent_id'] ?? 0) ?>">
         <td><?php if ($sub): ?><span class="muted" style="margin-right:6px">└</span><?php endif; ?>
           <input type="text" name="cat[<?= (int)$c['id'] ?>][name]" value="<?= e($c['name']) ?>"
-                 style="<?= $sub ? 'width:calc(100% - 20px)' : '' ?>"></td>
+                 style="<?= $sub ? 'width:calc(100% - 20px)' : '' ?>">
+          <a class="dim" style="font-size:12.5px" href="<?= e(url('/admin/categories?edit=' . (int)$c['id'])) ?>">
+            <?= !empty($c['image']) ? '🖼' : '＋ фото' ?> · адреса, опис, SEO →</a></td>
         <td>
           <?php if ($kids): ?>
             <span class="muted" title="У цьому розділі <?= $kids ?> підрозділ(и) — вкласти його в інший не можна">— верхній рівень</span>

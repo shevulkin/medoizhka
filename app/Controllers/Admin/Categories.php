@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Controllers\Admin;
 
-use DB, View, Auth;
+use DB, View, Auth, Images, Redirects;
 
 /**
  * Розділи каталогу.
@@ -21,6 +21,8 @@ class Categories
         Auth::requireCap('catalog.manage');
         if (is_post()) {
             $action = $_POST['_action'] ?? '';
+            if ($action === 'edit_save') { self::saveOne((int)($_POST['id'] ?? 0)); }
+            if ($action === 'image_remove') { self::removeImage((int)($_POST['id'] ?? 0)); }
             if ($action === 'add' && trim($_POST['name'] ?? '') !== '') {
                 $name = trim($_POST['name']);
                 $slug = slugify($name);
@@ -100,6 +102,11 @@ class Categories
             }
             redirect('/admin/categories');
         }
+        $editId = (int)($_GET['edit'] ?? 0);
+        if ($editId && ($one = DB::row('SELECT * FROM categories WHERE id = ?', [$editId]))) {
+            View::show('admin/category_edit', ['c' => $one, 'page_title' => 'Категорія «' . $one['name'] . '» — Адмінпанель'], 'layouts/admin');
+            exit;
+        }
         $cats = DB::all('SELECT c.*, (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id) AS cnt
                          FROM categories c ORDER BY c.sort, c.id');
         /*
@@ -120,6 +127,64 @@ class Categories
             'cats' => self::treeOrder($cats),
             'page_title' => 'Категорії — Адмінпанель',
         ], 'layouts/admin');
+    }
+
+    /** Одна категорія: адреса, опис, SEO, фото */
+    private static function saveOne(int $id): never
+    {
+        $old = DB::row('SELECT * FROM categories WHERE id = ?', [$id]);
+        if (!$old) redirect('/admin/categories');
+        $back = '/admin/categories?edit=' . $id;
+        $name = trim((string)($_POST['name'] ?? ''));
+        if ($name === '') { flash('error', 'Назва не може бути порожньою'); redirect($back); }
+        // Адреса вже могла потрапити в пошук, тож при збереженні її не перераховуємо з назви.
+        // Змінюється лише коли її явно вписали; тоді стара адреса отримує 301 на нову.
+        $slug = (string)$old['slug'];
+        $want = trim((string)($_POST['slug'] ?? ''));
+        if ($want !== '' && $want !== $slug) {
+            $new = slugify($want);   // кирилицю й пробіли перетворює на латиницю з дефісами
+            $base = $new; $i = 1;
+            while (DB::row('SELECT 1 FROM categories WHERE slug = ? AND id <> ?', [$new, $id])) $new = $base . '-' . (++$i);
+            if ($new !== $slug) {
+                Redirects::add('/product-category/' . $slug, '/product-category/' . slug_enc($new) . '/');
+                $slug = $new;
+            }
+        }
+        $data = [
+            'name' => $name, 'slug' => $slug,
+            'description' => trim((string)($_POST['description'] ?? '')) ?: null,
+            'seo_title' => trim((string)($_POST['seo_title'] ?? '')) ?: null,
+            'seo_desc' => trim((string)($_POST['seo_desc'] ?? '')) ?: null,
+        ];
+        $note = '';
+        if (($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $res = Images::saveUpload($_FILES['image'], 'cat');
+            if ($res) { self::dropImageFile($id, $res[0]); $data['image'] = $res[0]; }
+            else $note = ' Фото не завантажилось: потрібен JPEG, PNG, GIF або WebP до 15 МБ.';
+        }
+        DB::update('categories', $data, 'id = ?', [$id]);
+        flash($note ? 'error' : 'success', 'Збережено.' . $note);
+        redirect($back);
+    }
+
+    private static function removeImage(int $id): never
+    {
+        if ($id) {
+            self::dropImageFile($id, null);
+            DB::update('categories', ['image' => null], 'id = ?', [$id]);
+            flash('success', 'Фото прибрано');
+        }
+        redirect('/admin/categories?edit=' . $id);
+    }
+
+    /** Старий файл видаляємо лише якщо його більше ніде не використано */
+    private static function dropImageFile(int $id, ?string $keep): void
+    {
+        $old = (string)(DB::val('SELECT image FROM categories WHERE id = ?', [$id]) ?? '');
+        if ($old === '' || $old === $keep) return;
+        DB::update('categories', ['image' => null], 'id = ?', [$id]);
+        Media::resetUsage();
+        if (!Media::usage($old)) Images::delete($old);
     }
 
     /**
