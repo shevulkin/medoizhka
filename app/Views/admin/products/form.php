@@ -207,6 +207,14 @@ $roEdit = $canEdit ? '' : 'disabled';
 Технічні дані (вага, обʼєм, регіон) краще виносити в Характеристики нижче: за ними працюють фільтри в каталозі, а за текстом опису — ні.">
       <label>Повний опис</label><textarea name="description" rows="5" data-rich data-assets="<?= e(base_url('assets/')) ?>"
         placeholder="Розкажіть про товар: походження, смак, як зберігати, чим корисний…" <?= $roEdit ?>><?= e($p['description'] ?? '') ?></textarea></div>
+    <details class="field" <?= (!empty($p['seo_title']) || !empty($p['seo_desc'])) ? 'open' : '' ?>>
+      <summary style="cursor:pointer;font-weight:600">Для Google (SEO): заголовок і опис у видачі</summary>
+      <div class="field" style="margin-top:10px"><label>SEO-заголовок</label>
+        <input type="text" name="seo_title" maxlength="70" value="<?= e($p['seo_title'] ?? '') ?>" placeholder="Порожньо: «Назва - Медоїжка»" <?= $roEdit ?>></div>
+      <div class="field"><label>SEO-опис</label>
+        <textarea name="seo_desc" rows="3" maxlength="170" placeholder="До 160 символів: що це, для кого, чим цікаве" <?= $roEdit ?>><?= e($p['seo_desc'] ?? '') ?></textarea>
+        <p class="dim" style="margin:6px 0 0;font-size:13px">Це текст під назвою сторінки в результатах Google. Порожнє поле: сайт візьме короткий опис товару.</p></div>
+    </details>
     <div style="display:flex;gap:26px;flex-wrap:wrap">
       <label class="checkbox" data-help-title="Активний"
              data-help="Чи показувати товар на сайті просто зараз.
